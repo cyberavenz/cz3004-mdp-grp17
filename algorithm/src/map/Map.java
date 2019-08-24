@@ -3,13 +3,15 @@ package map;
 import map.Cell;
 
 public class Map {
-	public static final int maxX = 15;
-	public static final int maxY = 20;
+	public final int maxX = 15;
+	public final int maxY = 20;
+
+	private Cell cells[][];
 
 	/* Constructor */
 	public Map() {
 		/* Initialise total cells */
-		Cell cells[][] = new Cell[maxX][maxY];
+		cells = new Cell[maxX][maxY];
 
 		/* Initialise each cell */
 		for (int x = 0; x < maxX; x++) {
@@ -17,5 +19,22 @@ public class Map {
 				cells[x][y] = new Cell(x, y);
 			}
 		}
+	}
+
+	/* Load map from file */
+	public void loadMap() {
+		// TODO Loading of map from txt file
+	}
+
+	/* Get Entry Cell Location */
+	public Cell getEntry() {
+
+		return cells[0][0];
+	}
+
+	/* Get Goal Cell */
+	public Cell getGoal() {
+
+		return cells[0][0];
 	}
 }
