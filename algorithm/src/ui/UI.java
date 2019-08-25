@@ -2,9 +2,6 @@ package ui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-
 import map.Cell;
 import map.Map;
 
@@ -40,13 +37,7 @@ public class UI {
 			for (int x = 0; x < Map.maxX; x++) {
 				cellsUI[y][x] = new JButton();
 
-				// String filePath = new File("").getAbsolutePath();
-				// BufferedImage image = new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
-				// ImageIcon icon = new ImageIcon(image);
-				 cellsUI[y][x].setPreferredSize(new Dimension(40, 40));
-
-				// cellsUI[y][x].setIcon(icon);
-
+				cellsUI[y][x].setPreferredSize(new Dimension(40, 40));
 				cellsUI[y][x].setEnabled(false);
 				cellsUI[y][x].setBackground(cellColour(map.getCell(y, x)));
 
