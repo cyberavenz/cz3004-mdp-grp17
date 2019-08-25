@@ -52,14 +52,12 @@ public class Map {
 
 	/* Get Entry Cell Location */
 	public Cell getStartCell() {
-
-		return cells[0][0];
+		return cells[0][0];		// Bottom Left
 	}
 
 	/* Get Goal Cell */
 	public Cell getGoalCell() {
-
-		return cells[0][0];
+		return cells[19][14];	// Top Right
 	}
 
 	public Cell getCell(int y, int x) {

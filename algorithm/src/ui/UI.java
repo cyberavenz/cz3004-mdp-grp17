@@ -1,7 +1,9 @@
-package main;
+package ui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 
 import map.Cell;
 import map.Map;
@@ -14,13 +16,13 @@ public class UI {
 	public static void main(String[] args) {
 
 		Map map = new Map();
-		 map.importMap("unknown.txt");
+		map.importMap("empty.txt");
 		showUI(map);
 	}
 
 	/* Generate Main UI */
 	private static void showUI(Map map) {
-		JFrame mainUI = new JFrame();		// Creating main UI (JFrame)
+		JFrame mainUI = new JFrame("MDP Group 17 - Algorithm");	// Creating main UI (JFrame)
 		JPanel container = new JPanel();	// Creating container for panels
 		JPanel mapPanel = new JPanel(); 	// Creating map panel
 		JPanel ctrlPanel = new JPanel();	// Creating control panel
@@ -28,16 +30,24 @@ public class UI {
 		// Panel Options
 		container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));
 		mapPanel.setLayout(new GridLayout(Map.maxY, Map.maxX));
-		mapPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));	// Top, Left, Bottom, Right
-		ctrlPanel.setLayout(new GridLayout(10, 1));
+		mapPanel.setMaximumSize(new Dimension(600, 800));
+		mapPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Top, Left, Bottom, Right
+		ctrlPanel.setLayout(new GridLayout(10, 1, 0, 10));
 		ctrlPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 10));
 
 		// Populate Map Panel
 		for (int y = Map.maxY - 1; y >= 0; y--) {
 			for (int x = 0; x < Map.maxX; x++) {
 				cellsUI[y][x] = new JButton();
+
+				// String filePath = new File("").getAbsolutePath();
+				// BufferedImage image = new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
+				// ImageIcon icon = new ImageIcon(image);
+				 cellsUI[y][x].setPreferredSize(new Dimension(40, 40));
+
+				// cellsUI[y][x].setIcon(icon);
+
 				cellsUI[y][x].setEnabled(false);
-				cellsUI[y][x].setPreferredSize(new Dimension(10,10));
 				cellsUI[y][x].setBackground(cellColour(map.getCell(y, x)));
 
 				mapPanel.add(cellsUI[y][x]);
@@ -53,14 +63,22 @@ public class UI {
 		// Main UI Options
 		container.add(mapPanel);
 		container.add(ctrlPanel);
-		mainUI.setSize(1000, 700);	// Width, Height
+		mainUI.setSize(900, 800); // Width, Height
 		mainUI.add(container);
 		mainUI.setVisible(true);	// Making the mainUI visible
-		mainUI.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // Exit MainUI on close
+		mainUI.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // Exit mainUI on close
 
-		// Centre jFrame in the middle of the screen
+		// Centre mainUI in the middle of the screen
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		mainUI.setLocation(dim.width / 2 - mainUI.getSize().width / 2, dim.height / 2 - mainUI.getSize().height / 2);
+	}
+
+	public static void updateMap(Map map) {
+		for (int y = Map.maxY - 1; y >= 0; y--) {
+			for (int x = 0; x < Map.maxX; x++) {
+				cellsUI[y][x].setBackground(cellColour(map.getCell(y, x)));
+			}
+		}
 	}
 
 	private static Color cellColour(Cell cell) {
