@@ -1,9 +1,11 @@
 package ui;
 
 import javax.swing.*;
+
+import entities.Cell;
+import entities.Map;
+
 import java.awt.*;
-import map.Cell;
-import map.Map;
 
 public class UI {
 
@@ -19,14 +21,14 @@ public class UI {
 
 	/* Generate Main UI */
 	private static void showUI(Map map) {
-		JFrame mainUI = new JFrame("MDP Group 17 - Algorithm");	// Creating main UI (JFrame)
-		JPanel container = new JPanel();	// Creating container for panels
-		JPanel mapPanel = new JPanel(); 	// Creating map panel
-		JPanel ctrlPanel = new JPanel();	// Creating control panel
+		JFrame mainUI = new JFrame("MDP Group 17 - Algorithm"); // Creating main UI (JFrame)
+		JPanel container = new JPanel(); // Creating container for panels
+		JPanel mapPanel = new JPanel(); // Creating map panel
+		JPanel ctrlPanel = new JPanel(); // Creating control panel
 
 		// Panel Options
 		container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));
-		mapPanel.setLayout(new GridLayout(Map.maxY, Map.maxX));
+		mapPanel.setLayout(new GridLayout(Map.maxY, Map.maxX, 0, 0));
 		mapPanel.setMaximumSize(new Dimension(600, 800));
 		mapPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Top, Left, Bottom, Right
 		ctrlPanel.setLayout(new GridLayout(10, 1, 0, 10));
@@ -56,10 +58,10 @@ public class UI {
 		container.add(ctrlPanel);
 		mainUI.setSize(900, 800); // Width, Height
 		mainUI.add(container);
-		mainUI.setVisible(true);	// Making the mainUI visible
+		mainUI.setVisible(true); // Making the mainUI visible
 		mainUI.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // Exit mainUI on close
 
-		// Centre mainUI in the middle of the screen
+		// Center mainUI in the middle of the screen
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		mainUI.setLocation(dim.width / 2 - mainUI.getSize().width / 2, dim.height / 2 - mainUI.getSize().height / 2);
 	}
