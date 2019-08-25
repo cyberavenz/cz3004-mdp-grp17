@@ -1,19 +1,21 @@
 package map;
 
 public class Cell {
-	private final int x, y;		// Position
-	private int cellType;		// 0: Empty | 1: Wall | 2: Start | 3: Goal | 4: Part of correct Path!
-	private int imageId;		// Image ID 0: NIL | 1: Up Arrow ... 15: Alphabet E
+	public static final char UNKNOWN = 'A', WALL = 'B', START = 'C', GOAL = 'D', PATH = 'E', FINAL_PATH = 'F';
+	public static final char UP_ARROW = 1, DOWN_ARROW = 2, RIGHT_ARROW = 3, LEFT_ARROW = 4, STOP = 5, ONE = 6, TWO = 7, THREE = 8, FOUR = 9,
+			FIVE = 10, ALPHABET_A = 11, ALPHABET_B = 12, ALPHABET_C = 13, ALPHABET_D = 14, ALPHABET_E = 15;
+
+	private final int y, x;		// Cell position
+	private char cellType;		// Cell type listed above
 
 	/* Constructor */
-	public Cell(int x, int y) {
-		this.x = x;
+	public Cell(int y, int x) {
 		this.y = y;
+		this.x = x;
 
-		this.cellType = 0;		// Default
-		this.imageId = 0;		// Default
+		this.cellType = UNKNOWN;	// Default to UNKNOWN
 	}
-	
+
 	public int getX() {
 		return x;
 	}
@@ -22,20 +24,12 @@ public class Cell {
 		return y;
 	}
 
-	public int getCellType() {
+	public char getCellType() {
 		return cellType;
 	}
 
-	public void setCellType(int cellType) {
+	public void setCellType(char cellType) {
 		this.cellType = cellType;
-	}
-
-	public int getImageId() {
-		return imageId;
-	}
-
-	public void setImageId(int imageId) {
-		this.imageId = imageId;
 	}
 
 }
