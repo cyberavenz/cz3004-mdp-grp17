@@ -1,63 +1,77 @@
 package ui;
 
 import javax.swing.*;
-
 import entities.Cell;
 import entities.Map;
-
 import java.awt.*;
 
 public class UI {
 
-	private static JButton[][] cellsUI = new JButton[Map.maxY][Map.maxX];
+	private static JLabel[][] cellsUI = new JLabel[Map.maxY][Map.maxX];
 
 	/* TEMP: Just display UI */
 	public static void main(String[] args) {
 
 		Map map = new Map();
 		map.importMap("empty.txt");
-		showUI(map);
+		initUI(map);
 	}
 
 	/* Generate Main UI */
-	private static void showUI(Map map) {
-		JFrame mainUI = new JFrame("MDP Group 17 - Algorithm"); // Creating main UI (JFrame)
-		JPanel container = new JPanel(); // Creating container for panels
-		JPanel mapPanel = new JPanel(); // Creating map panel
-		JPanel ctrlPanel = new JPanel(); // Creating control panel
+	private static void initUI(Map map) {
+		JFrame mainUI = new JFrame("MDP Group 17 - Algorithm");	// Creating main UI (JFrame)
+		JPanel container = new JPanel();	// Creating container for panels
+		JPanel mapPanel = new JPanel();		// Creating map panel
+		JPanel ctrlPanel = new JPanel();	// Creating control panel
 
 		// Panel Options
 		container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));
-		mapPanel.setLayout(new GridLayout(Map.maxY, Map.maxX, 0, 0));
+		mapPanel.setLayout(new GridLayout(Map.maxY + 1, Map.maxX + 1, 2, 2));	// Additional row & col for axis label
 		mapPanel.setMaximumSize(new Dimension(600, 800));
-		mapPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Top, Left, Bottom, Right
+		mapPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));	// Top, Left, Bottom, Right
 		ctrlPanel.setLayout(new GridLayout(10, 1, 0, 10));
 		ctrlPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 10));
 
 		// Populate Map Panel
-		for (int y = Map.maxY - 1; y >= 0; y--) {
-			for (int x = 0; x < Map.maxX; x++) {
-				cellsUI[y][x] = new JButton();
+		for (int y = Map.maxY; y >= 0; y--) {		// Additional loop for axis label
+			for (int x = 0; x <= Map.maxX; x++) {
+				int actualY = y - 1;
+				int actualX = x - 1;
 
-				cellsUI[y][x].setPreferredSize(new Dimension(40, 40));
-				cellsUI[y][x].setEnabled(false);
-				cellsUI[y][x].setBackground(cellColour(map.getCell(y, x)));
+				// Add axis label
+				if (x == 0 && y == 0)
+					mapPanel.add(new JLabel());
+				else if (x == 0)
+					mapPanel.add(new JLabel("    " + actualY));
+				else if (y == 0)
+					mapPanel.add(new JLabel("    " + actualX));
 
-				mapPanel.add(cellsUI[y][x]);
+				// Actual Map Population
+				else {
+					JLabel newCell = new JLabel();
+
+					newCell.setOpaque(true);
+					newCell.setPreferredSize(new Dimension(40, 40));
+					newCell.setBackground(cellColour(map.getCell(y - 1, x - 1)));
+
+					cellsUI[actualY][actualX] = newCell;
+
+					mapPanel.add(cellsUI[actualY][actualX]);
+				}
 			}
 		}
 
 		// Populate Control Panel
 		JButton btnImportMap = new JButton("Import Map");
 		ctrlPanel.add(btnImportMap);
-		JButton btnExportMap = new JButton("Export Map");
+		JButton btnExportMap = new JButton("Button B");
 		ctrlPanel.add(btnExportMap);
 
 		// Main UI Options
 		container.add(mapPanel);
 		container.add(ctrlPanel);
-		mainUI.setSize(900, 800); // Width, Height
 		mainUI.add(container);
+		mainUI.setSize(900, 800); // Width, Height
 		mainUI.setVisible(true); // Making the mainUI visible
 		mainUI.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // Exit mainUI on close
 
@@ -66,6 +80,7 @@ public class UI {
 		mainUI.setLocation(dim.width / 2 - mainUI.getSize().width / 2, dim.height / 2 - mainUI.getSize().height / 2);
 	}
 
+	/* Update Cells in Map */
 	public static void updateMap(Map map) {
 		for (int y = Map.maxY - 1; y >= 0; y--) {
 			for (int x = 0; x < Map.maxX; x++) {
@@ -74,6 +89,12 @@ public class UI {
 		}
 	}
 
+	/* Update Robot Location */
+	public static void updateRobot(Robot robot) {
+		// TODO Show robot on map
+	}
+
+	/* Cell Colour Rule */
 	private static Color cellColour(Cell cell) {
 		switch (cell.getCellType()) {
 		case Cell.UNKNOWN:
