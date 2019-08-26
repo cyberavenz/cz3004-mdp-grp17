@@ -3,13 +3,15 @@ package entities;
 public class Robot {
 
 	public static final int NORTH = 0, SOUTH = 1, EAST = 2, WEST = 3;
+	public static final int FRONT_LEFT = 0, FRONT_RIGHT = 1, BACK_LEFT = 2, BACK_RIGHT = 3;
 
-	private Coordinate currPos;
-	private int currDir;
+	private Coordinate currPos; // Bottom left position of Robot
+	private int currDir;		// North, South, East, West
 
 	public Robot() {
-		/* Initialise Robot at Start Position facing right */
-		currPos = new Coordinate(0, 0); 	// Bottom left of robot (Remember: Robot occupies 2 x 2 cells)
+		/* Initialise Robot at Start Position facing EAST */
+		// Robot occupies 3 x 3 cells
+		currPos = new Coordinate(1, 1);
 		currDir = EAST;
 	}
 
@@ -29,10 +31,6 @@ public class Robot {
 			break;
 		default: // Do nothing
 		}
-	}
-
-	public int getCurrDir() {
-		return currDir;
 	}
 
 }
