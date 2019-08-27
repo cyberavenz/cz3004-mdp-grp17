@@ -8,22 +8,44 @@ public class Robot {
 	private Coordinate currPos;	// Bottom left position of Robot
 	private int currDir;		// North, South, East, West
 
+	/**
+	 * Robot Constructor (Each robot occupies 2 x 2 cells)
+	 * 
+	 * Default Position: y=1 | x=0, Default Direction: EAST.
+	 */
 	public Robot() {
-		/* Initialise Robot at Start Position facing EAST */
-		// Robot occupies 2 x 2 cells
 		currPos = new Coordinate(1, 0);
 		currDir = EAST;
 	}
-	
+
+	/**
+	 * Robot Constructor with starting position and direction.
+	 * 
+	 * @param coordinate
+	 * @param direction
+	 */
 	public Robot(Coordinate coordinate, int direction) {
 		currPos = coordinate;
 		currDir = direction;
 	}
 
+	/**
+	 * @return Current position of robot.
+	 */
 	public Coordinate getCurrPos() {
 		return currPos;
 	}
 
+	/**
+	 * @return Current direction of robot.
+	 */
+	public int getCurrDir() {
+		return currDir;
+	}
+
+	/**
+	 * @return All cells that are occupied by the position of robot.
+	 */
 	public Coordinate[] getCurrPosAll() {
 		Coordinate[] currPosAll = new Coordinate[4];
 		currPosAll[BACK_LEFT] = currPos;
@@ -52,10 +74,6 @@ public class Robot {
 		default:
 			return null;
 		}
-	}
-
-	public int getCurrDir() {
-		return currDir;
 	}
 
 	// TODO Re-do

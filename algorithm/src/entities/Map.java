@@ -9,12 +9,16 @@ import java.util.Scanner;
 import entities.Cell;
 
 public class Map {
-	public static final int maxX = 15;
 	public static final int maxY = 20;
+	public static final int maxX = 15;
 
 	private Cell cells[][];
 
-	/* Constructor */
+	/**
+	 * Map Constructor.
+	 * 
+	 * Default Grid: y=20 by x=15.
+	 */
 	public Map() {
 		// Initialise cells
 		cells = new Cell[maxY][maxX];
@@ -27,7 +31,11 @@ public class Map {
 		}
 	}
 
-	/* Import map from file */
+	/**
+	 * Import Map from txt file.
+	 * 
+	 * @param fileName (E.g. "empty.txt")
+	 */
 	public void importMap(String fileName) {
 		try {
 
@@ -49,22 +57,22 @@ public class Map {
 		}
 	}
 
-	/* Export map to file */
+	/**
+	 * Export Map to txt file from a Map object.
+	 * 
+	 * @param map
+	 */
 	public void exportMap(Map map) {
 		// TODO Export map to txt file
 	}
 
-	/* Get Entry Cell Location */
-	public Cell getStartCell() {
-		return cells[0][0]; // Bottom Left
-	}
-
-	/* Get Goal Cell */
-	public Cell getGoalCell() {
-		return cells[19][14]; // Top Right
-	}
-
-	/* Get Specific Cell */
+	/**
+	 * Get specific cell from Map.
+	 * 
+	 * @param y
+	 * @param x
+	 * @return
+	 */
 	public Cell getCell(int y, int x) {
 		return cells[y][x];
 	}

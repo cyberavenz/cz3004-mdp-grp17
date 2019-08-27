@@ -7,6 +7,10 @@ import entities.Map;
 import entities.Robot;
 import java.awt.*;
 
+/**
+ * @author junyu
+ *
+ */
 public class UI {
 
 	private static JLabel[][] cellsUI = new JLabel[Map.maxY][Map.maxX];
@@ -20,7 +24,12 @@ public class UI {
 		initUI(map, robot);
 	}
 
-	/* Generate Main UI */
+	/**
+	 * Initialise Main UI with Map and Robot.
+	 * 
+	 * @param map
+	 * @param robot
+	 */
 	private static void initUI(Map map, Robot robot) {
 		JFrame mainUI = new JFrame("MDP Group 17 - Algorithm");	// Creating main UI (JFrame)
 		JPanel container = new JPanel();	// Creating container for panels
@@ -86,7 +95,11 @@ public class UI {
 		mainUI.setLocation(dim.width / 2 - mainUI.getSize().width / 2, dim.height / 2 - mainUI.getSize().height / 2);
 	}
 
-	/* Update Cells in Map */
+	/**
+	 * UI: Update cells according to map.
+	 * 
+	 * @param map
+	 */
 	public static void updateMap(Map map) {
 		for (int y = Map.maxY - 1; y >= 0; y--) {
 			for (int x = 0; x < Map.maxX; x++) {
@@ -95,7 +108,11 @@ public class UI {
 		}
 	}
 
-	/* Update Robot Location */
+	/**
+	 * UI: Update position according to robot.
+	 * 
+	 * @param robot
+	 */
 	public static void updateRobot(Robot robot) {
 		Coordinate[] currPosAll = robot.getCurrPosAll();
 //		int currDir = robot.getCurrDir();
@@ -114,7 +131,12 @@ public class UI {
 		cellsUI[currPosAll[Robot.BACK_RIGHT].getY()][currPosAll[Robot.BACK_RIGHT].getX()].setText("      -");
 	}
 
-	/* Cell Colour Rule */
+	/**
+	 * UI: Cell colour rule based on cell type.
+	 * 
+	 * @param cell
+	 * @return
+	 */
 	private static Color cellColour(Cell cell) {
 		switch (cell.getCellType()) {
 		case Cell.UNKNOWN:
