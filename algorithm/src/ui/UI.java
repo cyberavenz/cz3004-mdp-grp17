@@ -2,7 +2,9 @@ package ui;
 
 import javax.swing.*;
 import entities.Cell;
+import entities.Coordinate;
 import entities.Map;
+import entities.Robot;
 import java.awt.*;
 
 public class UI {
@@ -13,12 +15,13 @@ public class UI {
 	public static void main(String[] args) {
 
 		Map map = new Map();
+		Robot robot = new Robot();
 		map.importMap("empty.txt");
-		initUI(map);
+		initUI(map, robot);
 	}
 
 	/* Generate Main UI */
-	private static void initUI(Map map) {
+	private static void initUI(Map map, Robot robot) {
 		JFrame mainUI = new JFrame("MDP Group 17 - Algorithm");	// Creating main UI (JFrame)
 		JPanel container = new JPanel();	// Creating container for panels
 		JPanel mapPanel = new JPanel();		// Creating map panel
@@ -40,7 +43,7 @@ public class UI {
 
 				// Add axis label
 				if (x == 0 && y == 0)
-					mapPanel.add(new JLabel());
+					mapPanel.add(new JLabel("   y/x"));
 				else if (x == 0)
 					mapPanel.add(new JLabel("    " + actualY));
 				else if (y == 0)
@@ -60,6 +63,9 @@ public class UI {
 				}
 			}
 		}
+
+		// Display Robot
+		updateRobot(robot);
 
 		// Populate Control Panel
 		JButton btnImportMap = new JButton("Import Map");
@@ -91,7 +97,21 @@ public class UI {
 
 	/* Update Robot Location */
 	public static void updateRobot(Robot robot) {
-		// TODO Show robot on map
+		Coordinate[] currPosAll = robot.getCurrPosAll();
+//		int currDir = robot.getCurrDir();
+
+		// Clear all existing cells
+		for (int y = Map.maxX; y > 0; y--) {
+			for (int x = 1; x < Map.maxX; x++) {
+				cellsUI[y][x].setText("");
+			}
+		}
+
+		// Display robot location
+		cellsUI[currPosAll[Robot.FRONT_LEFT].getY()][currPosAll[Robot.FRONT_LEFT].getX()].setText("      •");
+		cellsUI[currPosAll[Robot.FRONT_RIGHT].getY()][currPosAll[Robot.FRONT_RIGHT].getX()].setText("      •");
+		cellsUI[currPosAll[Robot.BACK_LEFT].getY()][currPosAll[Robot.BACK_LEFT].getX()].setText("      -");
+		cellsUI[currPosAll[Robot.BACK_RIGHT].getY()][currPosAll[Robot.BACK_RIGHT].getX()].setText("      -");
 	}
 
 	/* Cell Colour Rule */
