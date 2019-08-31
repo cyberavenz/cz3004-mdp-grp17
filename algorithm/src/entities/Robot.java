@@ -2,7 +2,7 @@ package entities;
 
 public class Robot {
 
-	public static final int NORTH = 0, SOUTH = 1, EAST = 2, WEST = 3;
+	public static final int NORTH = 0, EAST = 1, SOUTH = 2, WEST = 3;
 
 	//	@formatter:off
 	public static final int
@@ -10,6 +10,10 @@ public class Robot {
 		MIDDLE_LEFT = 3, MIDDLE_CENTER = 4, MIDDLE_RIGHT = 5,
 		BACK_LEFT = 6, BACK_CENTER = 7, BACK_RIGHT = 8;
 	//	@formatter:on
+
+	public enum Rotate {
+		RIGHT, LEFT
+	}
 
 	private Coordinate currPos;	// MIDDLE_CENTER of Robot
 	private int currDir;		// North, South, East, West
@@ -117,7 +121,7 @@ public class Robot {
 	 */
 	public void moveForward(int steps) {
 		int newPos;
-		String warning = "WARNING: moveRobot() is called out of map boundary!";
+		String warning = "WARNING: moveRobot() is going out of map boundary!";
 
 		switch (currDir) {
 		case NORTH:
@@ -155,6 +159,27 @@ public class Robot {
 			break;
 		default: // Do nothing
 		}
+	}
+
+	public void rotate(Rotate toRotate) {
+
+		switch (toRotate) {
+		case RIGHT:
+			if (currDir == 3)
+				currDir = 0;
+			else
+				currDir++;
+			break;
+		case LEFT:
+			if (currDir == 0)
+				currDir = 3;
+			else
+				currDir--;
+			break;
+		default: // Do nothing
+		}
+
+		System.out.println("Rotate: " + toRotate);
 	}
 
 }
