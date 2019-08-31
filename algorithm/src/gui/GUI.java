@@ -69,7 +69,8 @@ public class GUI extends JFrame {
 
 		// Center mainUI in the middle of the screen
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-		this.setLocation(dim.width / 2 - getSize().width / 2, dim.height / 2 - getSize().height / 2);
+		this.setLocation(dim.width / 2 - getSize().width / 2,
+				dim.height / 2 - getSize().height / 2);
 	}
 
 	/**
@@ -137,6 +138,7 @@ public class GUI extends JFrame {
 		ctrlPanel.add(new JButton("Exploration"));
 		ctrlPanel.add(new JButton("Fastest-path"));
 		ctrlPanel.add(new JButton("Test Communications"));
+
 		JButton moveForward = new JButton("Move Forward");
 		moveForward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -144,7 +146,23 @@ public class GUI extends JFrame {
 				mapPanel.repaint();
 			}
 		});
+		JButton rotateRight = new JButton("Rotate Right");
+		rotateRight.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				_robot.rotate(Robot.Rotate.RIGHT);
+				mapPanel.repaint();
+			}
+		});
+		JButton rotateLeft = new JButton("Rotate Left");
+		rotateLeft.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				_robot.rotate(Robot.Rotate.LEFT);
+				mapPanel.repaint();
+			}
+		});
 		ctrlPanel.add(moveForward);
+		ctrlPanel.add(rotateRight);
+		ctrlPanel.add(rotateLeft);
 	}
 
 	/**
@@ -158,7 +176,8 @@ public class GUI extends JFrame {
 		private static final long serialVersionUID = 3896801036058623157L;
 
 		public MapPanel() {
-			super(new GridLayout(Map.maxY + 1, Map.maxX + 1, 2, 2)); // Additional +1 row & +1 col for axis labelling
+			super(new GridLayout(Map.maxY + 1, Map.maxX + 1, 2, 2)); // Additional +1 row & +1 col
+																	 // for axis labelling
 		}
 
 		/**
@@ -216,9 +235,19 @@ public class GUI extends JFrame {
 		}
 	}
 
+	/**
+	 * Paint <tt>Robot</tt> onto <tt>Graphics g</tt> if <tt>actualY</tt> and
+	 * <tt>actualX</tt> matches <tt>robotFootprint</tt>.
+	 * 
+	 * @param actualY
+	 * @param actualX
+	 * @param robotFootprint
+	 * @param g
+	 */
 	private void paintRobot(int actualY, int actualX, Coordinate[] robotFootprint, Graphics g) {
 		// Paint FRONT_LEFT of Robot
-		if (actualY == robotFootprint[Robot.FRONT_LEFT].getY() && actualX == robotFootprint[Robot.FRONT_LEFT].getX()) {
+		if (actualY == robotFootprint[Robot.FRONT_LEFT].getY()
+				&& actualX == robotFootprint[Robot.FRONT_LEFT].getX()) {
 			g.setColor(new Color(127, 204, 196));
 			g.fillOval(12, 12, 10, 10);
 			g.drawOval(9, 9, 16, 16);
@@ -263,7 +292,8 @@ public class GUI extends JFrame {
 		}
 
 		// Paint BACK_LEFT of Robot
-		if (actualY == robotFootprint[Robot.BACK_LEFT].getY() && actualX == robotFootprint[Robot.BACK_LEFT].getX()) {
+		if (actualY == robotFootprint[Robot.BACK_LEFT].getY()
+				&& actualX == robotFootprint[Robot.BACK_LEFT].getX()) {
 			g.setColor(new Color(127, 204, 196));
 			g.fillOval(12, 12, 10, 10);
 		}
@@ -276,7 +306,8 @@ public class GUI extends JFrame {
 		}
 
 		// Paint BACK_RIGHT of Robot
-		if (actualY == robotFootprint[Robot.BACK_RIGHT].getY() && actualX == robotFootprint[Robot.BACK_RIGHT].getX()) {
+		if (actualY == robotFootprint[Robot.BACK_RIGHT].getY()
+				&& actualX == robotFootprint[Robot.BACK_RIGHT].getX()) {
 			g.setColor(new Color(127, 204, 196));
 			g.fillOval(12, 12, 10, 10);
 		}
