@@ -3,23 +3,29 @@ package entities;
 public class Robot {
 
 	public static final int NORTH = 0, SOUTH = 1, EAST = 2, WEST = 3;
-	public static final int FRONT_LEFT = 0, FRONT_RIGHT = 1, BACK_LEFT = 2, BACK_RIGHT = 3;
 
-	private Coordinate currPos;	// Center-center position of Robot
+	//	@formatter:off
+	public static final int
+		FRONT_LEFT = 0, FRONT_CENTER = 1, FRONT_RIGHT = 2,
+		MIDDLE_LEFT = 3, MIDDLE_CENTER = 4, MIDDLE_RIGHT = 5,
+		BACK_LEFT = 6, BACK_CENTER = 7, BACK_RIGHT = 8;
+	//	@formatter:on
+
+	private Coordinate currPos;	// MIDDLE_CENTER of Robot
 	private int currDir;		// North, South, East, West
 
 	/**
-	 * Robot Constructor (Each robot occupies 3 x 3 cells)
+	 * <tt>Robot</tt> Constructor (Each <tt>Robot</tt> occupies 3 x 3 cells)
 	 * 
 	 * Default Position: y=1 | x=1, Default Direction: EAST.
 	 */
 	public Robot() {
-		currPos = new Coordinate(10, 10);
+		currPos = new Coordinate(1, 1);
 		currDir = EAST;
 	}
 
 	/**
-	 * Robot Constructor with starting position and direction.
+	 * <tt>Robot</tt> Constructor with starting position and direction.
 	 * 
 	 * @param coordinate
 	 * @param direction
@@ -30,66 +36,122 @@ public class Robot {
 	}
 
 	/**
-	 * @return Current position of robot.
+	 * @return Current position of <tt>Robot</tt>.
 	 */
 	public Coordinate getCurrPos() {
 		return currPos;
 	}
 
 	/**
-	 * @return Current direction of robot.
+	 * @return Current direction of <tt>Robot</tt>.
 	 */
 	public int getCurrDir() {
 		return currDir;
 	}
 
 	/**
-	 * @return All cells that are occupied by the position of robot.
+	 * @return <tt>Coordinate[]</tt>: All cells that are occupied by the position of
+	 *         <tt>Robot</tt>.
 	 */
-	public Coordinate[] getCurrPosAll() {
-		Coordinate[] currPosAll = new Coordinate[4];
-		currPosAll[BACK_LEFT] = currPos;
+	public Coordinate[] getFootprint() {
+		Coordinate[] robotFootprint = new Coordinate[9];
+		robotFootprint[MIDDLE_CENTER] = currPos;
 
 		switch (currDir) {
 		case NORTH:
-			currPosAll[FRONT_LEFT] = new Coordinate(currPos.getY() + 1, currPos.getX());
-			currPosAll[FRONT_RIGHT] = new Coordinate(currPos.getY() + 1, currPos.getX() + 1);
-			currPosAll[BACK_RIGHT] = new Coordinate(currPos.getY(), currPos.getX() + 1);
-			return currPosAll;
+			robotFootprint[FRONT_LEFT] = new Coordinate(currPos.getY() + 1, currPos.getX() - 1);
+			robotFootprint[FRONT_CENTER] = new Coordinate(currPos.getY() + 1, currPos.getX());
+			robotFootprint[FRONT_RIGHT] = new Coordinate(currPos.getY() + 1, currPos.getX() + 1);
+
+			robotFootprint[MIDDLE_LEFT] = new Coordinate(currPos.getY(), currPos.getX() - 1);
+			robotFootprint[MIDDLE_RIGHT] = new Coordinate(currPos.getY(), currPos.getX() + 1);
+
+			robotFootprint[BACK_LEFT] = new Coordinate(currPos.getY() - 1, currPos.getX() - 1);
+			robotFootprint[BACK_CENTER] = new Coordinate(currPos.getY() - 1, currPos.getX());
+			robotFootprint[BACK_RIGHT] = new Coordinate(currPos.getY() - 1, currPos.getX() + 1);
+			return robotFootprint;
 		case SOUTH:
-			currPosAll[FRONT_LEFT] = new Coordinate(currPos.getY() - 1, currPos.getX());
-			currPosAll[FRONT_RIGHT] = new Coordinate(currPos.getY() - 1, currPos.getX() - 1);
-			currPosAll[BACK_RIGHT] = new Coordinate(currPos.getY(), currPos.getX() - 1);
-			return currPosAll;
+			robotFootprint[FRONT_LEFT] = new Coordinate(currPos.getY() - 1, currPos.getX() - 1);
+			robotFootprint[FRONT_CENTER] = new Coordinate(currPos.getY() - 1, currPos.getX());
+			robotFootprint[FRONT_RIGHT] = new Coordinate(currPos.getY() - 1, currPos.getX() + 1);
+
+			robotFootprint[MIDDLE_LEFT] = new Coordinate(currPos.getY(), currPos.getX() + 1);
+			robotFootprint[MIDDLE_RIGHT] = new Coordinate(currPos.getY(), currPos.getX() - 1);
+
+			robotFootprint[BACK_LEFT] = new Coordinate(currPos.getY() + 1, currPos.getX() + 1);
+			robotFootprint[BACK_CENTER] = new Coordinate(currPos.getY() + 1, currPos.getX());
+			robotFootprint[BACK_RIGHT] = new Coordinate(currPos.getY() + 1, currPos.getX() - 1);
+			return robotFootprint;
 		case EAST:
-			currPosAll[FRONT_LEFT] = new Coordinate(currPos.getY(), currPos.getX() + 1);
-			currPosAll[FRONT_RIGHT] = new Coordinate(currPos.getY() - 1, currPos.getX() + 1);
-			currPosAll[BACK_RIGHT] = new Coordinate(currPos.getY() - 1, currPos.getX());
-			return currPosAll;
+			robotFootprint[FRONT_LEFT] = new Coordinate(currPos.getY() + 1, currPos.getX() + 1);
+			robotFootprint[FRONT_CENTER] = new Coordinate(currPos.getY(), currPos.getX() + 1);
+			robotFootprint[FRONT_RIGHT] = new Coordinate(currPos.getY() - 1, currPos.getX() + 1);
+
+			robotFootprint[MIDDLE_LEFT] = new Coordinate(currPos.getY() + 1, currPos.getX());
+			robotFootprint[MIDDLE_RIGHT] = new Coordinate(currPos.getY() - 1, currPos.getX());
+
+			robotFootprint[BACK_LEFT] = new Coordinate(currPos.getY() + 1, currPos.getX() - 1);
+			robotFootprint[BACK_CENTER] = new Coordinate(currPos.getY(), currPos.getX() - 1);
+			robotFootprint[BACK_RIGHT] = new Coordinate(currPos.getY() - 1, currPos.getX() - 1);
+			return robotFootprint;
 		case WEST:
-			currPosAll[FRONT_LEFT] = new Coordinate(currPos.getY(), currPos.getX() - 1);
-			currPosAll[FRONT_RIGHT] = new Coordinate(currPos.getY() + 1, currPos.getX() - 1);
-			currPosAll[BACK_RIGHT] = new Coordinate(currPos.getY() + 1, currPos.getX());
-			return currPosAll;
+			robotFootprint[FRONT_LEFT] = new Coordinate(currPos.getY() - 1, currPos.getX() - 1);
+			robotFootprint[FRONT_CENTER] = new Coordinate(currPos.getY(), currPos.getX() - 1);
+			robotFootprint[FRONT_RIGHT] = new Coordinate(currPos.getY() + 1, currPos.getX() - 1);
+
+			robotFootprint[MIDDLE_LEFT] = new Coordinate(currPos.getY() - 1, currPos.getX());
+			robotFootprint[MIDDLE_RIGHT] = new Coordinate(currPos.getY() + 1, currPos.getX());
+
+			robotFootprint[BACK_LEFT] = new Coordinate(currPos.getY() + 1, currPos.getX() + 1);
+			robotFootprint[BACK_CENTER] = new Coordinate(currPos.getY(), currPos.getX() + 1);
+			robotFootprint[BACK_RIGHT] = new Coordinate(currPos.getY() - 1, currPos.getX() + 1);
+			return robotFootprint;
 		default:
 			return null;
 		}
 	}
 
-	// TODO Re-do
-	public void moveForward() {
+	/**
+	 * Move <tt>Robot</tt> forward in direction of <tt>currDir</tt>.
+	 * 
+	 */
+	public void moveForward(int steps) {
+		int newPos;
+		String warning = "WARNING: moveRobot() is called out of map boundary!";
+
 		switch (currDir) {
 		case NORTH:
-			currPos.setY(currPos.getY() + 1);
+			newPos = currPos.getY() + steps;
+
+			// Prevents Robot from going out of map boundary
+			if (newPos < Map.maxY - 1)
+				currPos.setY(newPos);
+			else
+				System.out.println(warning);
 			break;
 		case SOUTH:
-			currPos.setY(currPos.getY() - 1);
+			newPos = currPos.getY() - steps;
+
+			if (newPos > 0)
+				currPos.setY(newPos);
+			else
+				System.out.println(warning);
 			break;
 		case EAST:
-			currPos.setX(currPos.getX() + 1);
+			newPos = currPos.getX() + steps;
+
+			if (newPos < Map.maxX - 1)
+				currPos.setX(newPos);
+			else
+				System.out.println(warning);
 			break;
 		case WEST:
-			currPos.setX(currPos.getX() - 1);
+			newPos = currPos.getX() - steps;
+
+			if (newPos > 0)
+				currPos.setX(newPos);
+			else
+				System.out.println(warning);
 			break;
 		default: // Do nothing
 		}
