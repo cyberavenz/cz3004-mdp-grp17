@@ -6,6 +6,8 @@ import entities.Coordinate;
 import entities.Map;
 import entities.Robot;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class GUI extends JFrame {
 
@@ -20,7 +22,6 @@ public class GUI extends JFrame {
 
 	/* TEMP: Just display UI */
 	public static void main(String[] args) {
-
 		Map map = new Map();
 		Robot robot = new Robot();
 		map.importMap("empty.txt");
@@ -30,7 +31,7 @@ public class GUI extends JFrame {
 	}
 
 	/**
-	 * Constructor for GUI as a JFrame.
+	 * Constructor for <tt>GUI</tt> as a JFrame.
 	 * 
 	 * @param robot
 	 * @param map
@@ -50,7 +51,7 @@ public class GUI extends JFrame {
 	 * Initialise the Container, JPanels and cellsUI.
 	 */
 	private void initLayout() {
-		mapPanel = new MapAndRobotJPanel();
+		mapPanel = new MapPanel();
 		mapPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		populateMapPanel();		// Populate Map Panel with cells from _map
 
@@ -60,10 +61,10 @@ public class GUI extends JFrame {
 		populateCtrlPanel();	// Populate Control Panel with buttons
 
 		mainContainer = this.getContentPane();
-		mainContainer.setLayout(new BorderLayout(5, 5));
+		mainContainer.setLayout(new BorderLayout(0, 0));
 		mainContainer.add(mapPanel, BorderLayout.WEST);
 		mainContainer.add(ctrlPanel);
-		this.setSize(1000, 840); // Width, Height
+		this.setSize(1000, 800); // Width, Height
 		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // Exit mainUI on close
 
 		// Center mainUI in the middle of the screen
@@ -72,7 +73,10 @@ public class GUI extends JFrame {
 	}
 
 	/**
-	 * Populate Cells in the Map Panel.
+	 * Populate cells and robot location in the <tt>mapPanel</tt>.
+	 * 
+	 * Responsible for colouring cells by <tt>cellType</tt> and painting of cells
+	 * occupied by robot.
 	 */
 	private void populateMapPanel() {
 		cellsUI = new JLabel[Map.maxY][Map.maxX];
@@ -83,7 +87,18 @@ public class GUI extends JFrame {
 				int actualY = y - 1;
 				int actualX = x - 1;
 
-				JLabel newCell = new JLabel("", JLabel.CENTER);
+				JLabel newCell = new JLabel("", JLabel.CENTER) {
+					private static final long serialVersionUID = -4788108468649278480L;
+
+					/**
+					 * Paint cell if robot is occupying it.
+					 */
+					@Override
+					public void paintComponent(Graphics g) {
+						super.paintComponent(g);
+						paintRobot(actualY, actualX, _robot.getFootprint(), g);
+					}
+				};
 				newCell.setPreferredSize(new Dimension(40, 40)); // Ensure cell is a square
 				newCell.setOpaque(true);
 
@@ -110,10 +125,11 @@ public class GUI extends JFrame {
 
 			}
 		}
+
 	}
 
 	/**
-	 * Populate Labels and Buttons in the Control Panel.
+	 * Populate Labels and Buttons in the <tt>ctrlPanel</tt>.
 	 */
 	private void populateCtrlPanel() {
 		ctrlPanel.add(new JLabel("MODE: Simulation", JLabel.CENTER));
@@ -121,19 +137,27 @@ public class GUI extends JFrame {
 		ctrlPanel.add(new JButton("Exploration"));
 		ctrlPanel.add(new JButton("Fastest-path"));
 		ctrlPanel.add(new JButton("Test Communications"));
+		JButton moveForward = new JButton("Move Forward");
+		moveForward.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				_robot.moveForward(1);
+				mapPanel.repaint();
+			}
+		});
+		ctrlPanel.add(moveForward);
 	}
 
 	/**
-	 * Custom class for MapAndRobotJPanel as a JPanel.
+	 * Custom class for <tt>MapPanel</tt> as a JPanel.
 	 * 
 	 * Responsible for producing a responsive grid map.
 	 *
 	 */
-	private class MapAndRobotJPanel extends JPanel {
+	private class MapPanel extends JPanel {
 
 		private static final long serialVersionUID = 3896801036058623157L;
 
-		public MapAndRobotJPanel() {
+		public MapPanel() {
 			super(new GridLayout(Map.maxY + 1, Map.maxX + 1, 2, 2)); // Additional +1 row & +1 col for axis labelling
 		}
 
@@ -155,45 +179,27 @@ public class GUI extends JFrame {
 				return d;
 
 			else {
-				System.out.println("c: " + c.getWidth() + " by " + c.getHeight());
-
 				// Final Dimension should be 16:21 (W:H) aspect ratio for 16 cells by 21 cells
 				// (including axis labelling)
-				int numOfCellsWidth = Map.maxX + 1;		// 16 = 15 + 1
-				int numOfCellsHeight = Map.maxY + 1;	// 21 = 20 + 1
+				// Use of double for more accuracy -> then round to nearest integer
+				double numOfCellsWidth = Map.maxX + 1;	// 16 = 15 + 1
+				double numOfCellsHeight = Map.maxY + 1;	// 21 = 20 + 1
 
 				int prefHeight = (int) c.getHeight();
-				int prefWidth = (prefHeight / 21) * 16;
-
-				System.out.println("Width: " + prefWidth + " Height: " + prefHeight);
+				int prefWidth = (int) Math.round(prefHeight / numOfCellsHeight * numOfCellsWidth);
 
 				return (new Dimension(prefWidth, prefHeight));
 			}
-
-//			if (c == null) {
-//				prefSize = new Dimension((int) d.getWidth(), (int) d.getHeight());
-//			} else if (c != null && c.getWidth() > d.getWidth() && c.getHeight() > d.getHeight()) {
-//				prefSize = c.getSize();
-//			} else {
-//				prefSize = d;
-//			}
-//			int w = (int) prefSize.getWidth();
-//			int h = (int) prefSize.getHeight();
-//
-//			// Get the smaller of the two sizes
-//			int s = (w > h ? h : w);
-//
-//			return new Dimension(s, (int) (s * 1.33));	// Final Dimension should be 3:4.
 		}
 	}
 
 	/**
-	 * UI: Cell colour rule based on cell type.
+	 * Cell colour rule based on <tt>cellType</tt>.
 	 * 
 	 * @param cell
 	 * @return
 	 */
-	private static Color cellColour(Cell cell) {
+	private Color cellColour(Cell cell) {
 		switch (cell.getCellType()) {
 		case Cell.UNKNOWN:
 			return Color.GRAY;
@@ -207,6 +213,72 @@ public class GUI extends JFrame {
 			return Color.BLUE;
 		default:
 			return Color.BLACK;
+		}
+	}
+
+	private void paintRobot(int actualY, int actualX, Coordinate[] robotFootprint, Graphics g) {
+		// Paint FRONT_LEFT of Robot
+		if (actualY == robotFootprint[Robot.FRONT_LEFT].getY() && actualX == robotFootprint[Robot.FRONT_LEFT].getX()) {
+			g.setColor(new Color(127, 204, 196));
+			g.fillOval(12, 12, 10, 10);
+			g.drawOval(9, 9, 16, 16);
+		}
+
+		// Paint FRONT_CENTER of Robot
+		if (actualY == robotFootprint[Robot.FRONT_CENTER].getY()
+				&& actualX == robotFootprint[Robot.FRONT_CENTER].getX()) {
+			g.setColor(Color.DARK_GRAY);
+			g.fillOval(12, 12, 10, 10);
+		}
+
+		// Paint FRONT_RIGHT of Robot
+		if (actualY == robotFootprint[Robot.FRONT_RIGHT].getY()
+				&& actualX == robotFootprint[Robot.FRONT_RIGHT].getX()) {
+			g.setColor(new Color(127, 204, 196));
+			g.fillOval(12, 12, 10, 10);
+			g.drawOval(9, 9, 16, 16);
+		}
+
+		// Paint MIDDLE_LEFT of Robot
+		if (actualY == robotFootprint[Robot.MIDDLE_LEFT].getY()
+				&& actualX == robotFootprint[Robot.MIDDLE_LEFT].getX()) {
+			g.setColor(new Color(127, 204, 196));
+			g.fillOval(12, 12, 10, 10);
+			g.drawOval(9, 9, 16, 16);
+		}
+
+		// Paint MIDDLE_CENTER of Robot
+		if (actualY == robotFootprint[Robot.MIDDLE_CENTER].getY()
+				&& actualX == robotFootprint[Robot.MIDDLE_CENTER].getX()) {
+			g.setColor(new Color(127, 204, 196));
+			g.fillOval(12, 12, 10, 10);
+		}
+
+		// Paint MIDDLE_RIGHT of Robot
+		if (actualY == robotFootprint[Robot.MIDDLE_RIGHT].getY()
+				&& actualX == robotFootprint[Robot.MIDDLE_RIGHT].getX()) {
+			g.setColor(new Color(127, 204, 196));
+			g.fillOval(12, 12, 10, 10);
+			g.drawOval(9, 9, 16, 16);
+		}
+
+		// Paint BACK_LEFT of Robot
+		if (actualY == robotFootprint[Robot.BACK_LEFT].getY() && actualX == robotFootprint[Robot.BACK_LEFT].getX()) {
+			g.setColor(new Color(127, 204, 196));
+			g.fillOval(12, 12, 10, 10);
+		}
+
+		// Paint BACK_CENTER of Robot
+		if (actualY == robotFootprint[Robot.BACK_CENTER].getY()
+				&& actualX == robotFootprint[Robot.BACK_CENTER].getX()) {
+			g.setColor(new Color(127, 204, 196));
+			g.fillOval(12, 12, 10, 10);
+		}
+
+		// Paint BACK_RIGHT of Robot
+		if (actualY == robotFootprint[Robot.BACK_RIGHT].getY() && actualX == robotFootprint[Robot.BACK_RIGHT].getX()) {
+			g.setColor(new Color(127, 204, 196));
+			g.fillOval(12, 12, 10, 10);
 		}
 	}
 }
