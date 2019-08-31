@@ -5,16 +5,16 @@ public class Robot {
 	public static final int NORTH = 0, SOUTH = 1, EAST = 2, WEST = 3;
 	public static final int FRONT_LEFT = 0, FRONT_RIGHT = 1, BACK_LEFT = 2, BACK_RIGHT = 3;
 
-	private Coordinate currPos;	// Bottom left position of Robot
+	private Coordinate currPos;	// Center-center position of Robot
 	private int currDir;		// North, South, East, West
 
 	/**
-	 * Robot Constructor (Each robot occupies 2 x 2 cells)
+	 * Robot Constructor (Each robot occupies 3 x 3 cells)
 	 * 
-	 * Default Position: y=1 | x=0, Default Direction: EAST.
+	 * Default Position: y=1 | x=1, Default Direction: EAST.
 	 */
 	public Robot() {
-		currPos = new Coordinate(1, 0);
+		currPos = new Coordinate(10, 10);
 		currDir = EAST;
 	}
 

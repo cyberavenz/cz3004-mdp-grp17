@@ -1,4 +1,4 @@
-package ui;
+package gui;
 
 import javax.swing.*;
 import entities.Cell;
@@ -7,10 +7,6 @@ import entities.Map;
 import entities.Robot;
 import java.awt.*;
 
-/**
- * @author junyu
- *
- */
 public class UI {
 
 	private static JLabel[][] cellsUI = new JLabel[Map.maxY][Map.maxX];
