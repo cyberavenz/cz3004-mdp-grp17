@@ -110,7 +110,7 @@ public class UI {
 	 * @param robot
 	 */
 	public static void updateRobot(Robot robot) {
-		Coordinate[] currPosAll = robot.getCurrPosAll();
+		Coordinate[] currPosAll = robot.getFootprint();
 //		int currDir = robot.getCurrDir();
 
 		// Clear all existing cells
