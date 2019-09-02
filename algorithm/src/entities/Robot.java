@@ -161,8 +161,12 @@ public class Robot {
 		}
 	}
 
+	/**
+	 * Rotate <tt>Robot</tt>
+	 * 
+	 * @param toRotate
+	 */
 	public void rotate(Rotate toRotate) {
-
 		switch (toRotate) {
 		case RIGHT:
 			if (currDir == 3)
@@ -178,8 +182,6 @@ public class Robot {
 			break;
 		default: // Do nothing
 		}
-
-		System.out.println("Rotate: " + toRotate);
 	}
 
 }

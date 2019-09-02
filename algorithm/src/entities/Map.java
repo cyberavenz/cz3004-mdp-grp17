@@ -40,7 +40,7 @@ public class Map {
 		try {
 
 			String filePath = new File("").getAbsolutePath();
-			Scanner s = new Scanner(new BufferedReader(new FileReader(filePath.concat("/src/presets/" + fileName))));
+			Scanner s = new Scanner(new BufferedReader(new FileReader(filePath.concat("/presets/" + fileName))));
 
 			while (s.hasNext()) {
 				for (int y = maxY - 1; y >= 0; y--) {
