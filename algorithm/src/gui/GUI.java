@@ -273,7 +273,6 @@ public class GUI extends JFrame {
 				&& actualX == robotFootprint[Robot.MIDDLE_LEFT].getX()) {
 			g.setColor(new Color(127, 204, 196));
 			g.fillOval(12, 12, 10, 10);
-			g.drawOval(9, 9, 16, 16);
 		}
 
 		// Paint MIDDLE_CENTER of Robot
@@ -288,7 +287,6 @@ public class GUI extends JFrame {
 				&& actualX == robotFootprint[Robot.MIDDLE_RIGHT].getX()) {
 			g.setColor(new Color(127, 204, 196));
 			g.fillOval(12, 12, 10, 10);
-			g.drawOval(9, 9, 16, 16);
 		}
 
 		// Paint BACK_LEFT of Robot
@@ -296,6 +294,7 @@ public class GUI extends JFrame {
 				&& actualX == robotFootprint[Robot.BACK_LEFT].getX()) {
 			g.setColor(new Color(127, 204, 196));
 			g.fillOval(12, 12, 10, 10);
+			g.drawOval(9, 9, 16, 16);
 		}
 
 		// Paint BACK_CENTER of Robot
