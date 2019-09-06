@@ -35,8 +35,19 @@ public class Robot {
 	 * @param direction
 	 */
 	public Robot(Coordinate coordinate, int direction) {
-		currPos = coordinate;
-		currDir = direction;
+		// Check for invalid coordinates
+		if (coordinate.getY() == Map.maxY - 1 || coordinate.getY() == 0 || coordinate.getX() == 0
+				|| coordinate.getY() == Map.maxX - 1) {
+			System.out.println(
+					"ERROR: Robot() cannot be initialised at the edge of map as robot footprint is 3 x 3 cells.");
+			return;
+		} else if (coordinate.getY() > Map.maxY - 1 || coordinate.getX() > Map.maxX - 1) {
+			System.out.println("ERROR: Robot() cannot be initialised outside of map.");
+			return;
+		} else {
+			currPos = coordinate;
+			currDir = direction;
+		}
 	}
 
 	/**
@@ -121,7 +132,7 @@ public class Robot {
 	 */
 	public void moveForward(int steps) {
 		int newPos;
-		String warning = "WARNING: moveRobot() is going out of map boundary!";
+		String warning = "WARNING: moveRobot() is going out of map boundary.";
 
 		switch (currDir) {
 		case NORTH:
@@ -168,17 +179,17 @@ public class Robot {
 	 */
 	public void rotate(Rotate toRotate) {
 		switch (toRotate) {
-		case RIGHT:
-			if (currDir == 3)
-				currDir = 0;
-			else
-				currDir++;
+		case RIGHT:	// Rotate clockwise
+			currDir = (currDir + 1) % 4;
 			break;
-		case LEFT:
-			if (currDir == 0)
-				currDir = 3;
-			else
-				currDir--;
+		case LEFT:	// Rotate counter-clockwise
+			float newDir = (currDir - 1) % 4;
+
+			// Make it positive as Java will return negative modulus
+			if (newDir < 0)
+				newDir += 4;
+
+			currDir = (int) newDir;
 			break;
 		default: // Do nothing
 		}
