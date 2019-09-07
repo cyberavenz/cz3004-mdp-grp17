@@ -2,8 +2,11 @@ package entities;
 
 public class Robot {
 
-	public static final int NORTH = 0, EAST = 1, SOUTH = 2, WEST = 3;
+	public enum Rotate {
+		RIGHT, LEFT
+	}
 
+	public static final int NORTH = 0, EAST = 1, SOUTH = 2, WEST = 3;
 	//	@formatter:off
 	public static final int
 		FRONT_LEFT = 0, FRONT_CENTER = 1, FRONT_RIGHT = 2,
@@ -11,12 +14,10 @@ public class Robot {
 		BACK_LEFT = 6, BACK_CENTER = 7, BACK_RIGHT = 8;
 	//	@formatter:on
 
-	public enum Rotate {
-		RIGHT, LEFT
-	}
-
 	private Coordinate currPos;	// MIDDLE_CENTER of Robot
 	private int currDir;		// North, South, East, West
+
+	private Sensor[] sensors;
 
 	/**
 	 * <tt>Robot</tt> Constructor (Each <tt>Robot</tt> occupies 3 x 3 cells)
@@ -26,6 +27,7 @@ public class Robot {
 	public Robot() {
 		currPos = new Coordinate(1, 1);
 		currDir = EAST;
+		initSensors();
 	}
 
 	/**
@@ -35,16 +37,23 @@ public class Robot {
 	 * @param direction
 	 */
 	public Robot(Coordinate coordinate, int direction) {
-		// Check for invalid coordinates
+		// Default starting position
+		currPos = new Coordinate(1, 1);
+		currDir = EAST;
+		initSensors();
+
+		// Check for any invalid coordinates first
 		if (coordinate.getY() == Map.maxY - 1 || coordinate.getY() == 0 || coordinate.getX() == 0
 				|| coordinate.getY() == Map.maxX - 1) {
 			System.out.println(
 					"ERROR: Robot() cannot be initialised at the edge of map as robot footprint is 3 x 3 cells.");
-			return;
-		} else if (coordinate.getY() > Map.maxY - 1 || coordinate.getX() > Map.maxX - 1) {
+		} else if (coordinate.getY() > Map.maxY - 1 || coordinate.getY() < 0
+				|| coordinate.getX() > Map.maxX - 1 || coordinate.getX() < 0) {
 			System.out.println("ERROR: Robot() cannot be initialised outside of map.");
-			return;
-		} else {
+		}
+
+		// Valid condition, overwrite default starting position
+		else {
 			currPos = coordinate;
 			currDir = direction;
 		}
@@ -65,8 +74,7 @@ public class Robot {
 	}
 
 	/**
-	 * @return <tt>Coordinate[]</tt>: All cells that are occupied by the position of
-	 *         <tt>Robot</tt>.
+	 * @return <tt>Coordinate[]</tt>: All cells that are occupied by the position of <tt>Robot</tt>.
 	 */
 	public Coordinate[] getFootprint() {
 		Coordinate[] robotFootprint = new Coordinate[9];
@@ -193,6 +201,20 @@ public class Robot {
 			break;
 		default: // Do nothing
 		}
+	}
+
+	/**
+	 * Initialise all sensors that will be mounted on <tt>Robot</tt>.
+	 */
+	private void initSensors() {
+		sensors = new Sensor[6];	// 6 sensors in total
+
+		sensors[0] = new Sensor(Sensor.Type.SHORT_RANGE, NORTH, 1, 3);	// Front left, facing NORTH
+		sensors[1] = new Sensor(Sensor.Type.SHORT_RANGE, NORTH, 1, 3);	// Front center,facing NORTH
+		sensors[2] = new Sensor(Sensor.Type.SHORT_RANGE, NORTH, 1, 3);	// Front right, facing NORTH
+		sensors[3] = new Sensor(Sensor.Type.SHORT_RANGE, EAST, 1, 3);	// Front right, facing EAST
+		sensors[4] = new Sensor(Sensor.Type.SHORT_RANGE, WEST, 1, 3);	// Back left, facing WEST
+		sensors[5] = new Sensor(Sensor.Type.LONG_RANGE, WEST, 1, 5);	// Back left, facing WEST
 	}
 
 }
