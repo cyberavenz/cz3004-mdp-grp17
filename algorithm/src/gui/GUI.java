@@ -17,8 +17,8 @@ public class GUI extends JFrame {
 	private JPanel mapPanel, ctrlPanel;
 
 	private JLabel[][] cellsUI;
-	private Robot _robot;
-	private Map _map;
+	private Robot robot;
+	private Map map;
 
 	/* TEMP: Just display UI */
 	public static void main(String[] args) {
@@ -40,8 +40,8 @@ public class GUI extends JFrame {
 		super("MDP Group 17 (AY19/20 Sem 1) - Algorithm");
 
 		// Initialise class variables
-		_robot = robot;
-		_map = map;
+		this.robot = robot;
+		this.map = map;
 
 		// Initialise overall layout
 		initLayout();
@@ -97,7 +97,7 @@ public class GUI extends JFrame {
 					@Override
 					public void paintComponent(Graphics g) {
 						super.paintComponent(g);
-						paintRobot(actualY, actualX, _robot.getFootprint(), g);
+						paintRobot(actualY, actualX, robot.getFootprint(), g);
 					}
 				};
 				newCell.setPreferredSize(new Dimension(40, 40)); // Ensure cell is a square
@@ -118,7 +118,7 @@ public class GUI extends JFrame {
 				// Actual Map Population
 				else {
 					newCell.setOpaque(true);
-					newCell.setBackground(cellColour(_map.getCell(y - 1, x - 1)));
+					newCell.setBackground(cellColour(map.getCell(y - 1, x - 1)));
 
 					cellsUI[actualY][actualX] = newCell;
 					mapPanel.add(cellsUI[actualY][actualX]);
@@ -142,21 +142,21 @@ public class GUI extends JFrame {
 		JButton moveForward = new JButton("Move Forward");
 		moveForward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				_robot.moveForward(1);
+				robot.moveForward(1);
 				mapPanel.repaint();
 			}
 		});
 		JButton rotateRight = new JButton("Rotate Right");
 		rotateRight.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				_robot.rotate(Robot.Rotate.RIGHT);
+				robot.rotate(Robot.Rotate.RIGHT);
 				mapPanel.repaint();
 			}
 		});
 		JButton rotateLeft = new JButton("Rotate Left");
 		rotateLeft.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				_robot.rotate(Robot.Rotate.LEFT);
+				robot.rotate(Robot.Rotate.LEFT);
 				mapPanel.repaint();
 			}
 		});
