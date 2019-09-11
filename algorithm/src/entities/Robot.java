@@ -209,12 +209,22 @@ public class Robot {
 	private void initSensors() {
 		sensors = new Sensor[6];	// 6 sensors in total
 
-		sensors[0] = new Sensor(Sensor.Type.SHORT_RANGE, NORTH, 1, 3);	// Front left, facing NORTH
-		sensors[1] = new Sensor(Sensor.Type.SHORT_RANGE, NORTH, 1, 3);	// Front center,facing NORTH
-		sensors[2] = new Sensor(Sensor.Type.SHORT_RANGE, NORTH, 1, 3);	// Front right, facing NORTH
-		sensors[3] = new Sensor(Sensor.Type.SHORT_RANGE, EAST, 1, 3);	// Front right, facing EAST
-		sensors[4] = new Sensor(Sensor.Type.SHORT_RANGE, WEST, 1, 3);	// Back left, facing WEST
-		sensors[5] = new Sensor(Sensor.Type.LONG_RANGE, WEST, 1, 5);	// Back left, facing WEST
+		// Front left, facing NORTH
+		sensors[0] = new Sensor(Sensor.Type.SHORT_RANGE, FRONT_LEFT, NORTH, 3);
+		// Front center, facing NORTH
+		sensors[1] = new Sensor(Sensor.Type.SHORT_RANGE, FRONT_CENTER, NORTH, 3);
+		// Front right, facing NORTH
+		sensors[2] = new Sensor(Sensor.Type.SHORT_RANGE, FRONT_RIGHT, NORTH, 3);
+		// Front right, facing EAST
+		sensors[3] = new Sensor(Sensor.Type.SHORT_RANGE, FRONT_RIGHT, EAST, 3);
+		// Back left, facing WEST
+		sensors[4] = new Sensor(Sensor.Type.SHORT_RANGE, BACK_LEFT, WEST, 3);
+		// Back left, facing WEST
+		sensors[5] = new Sensor(Sensor.Type.LONG_RANGE, BACK_LEFT, WEST, 5);
+	}
+
+	public Sensor getSensor(int number) {
+		return sensors[number];
 	}
 
 }
