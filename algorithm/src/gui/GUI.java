@@ -5,6 +5,8 @@ import entities.Cell;
 import entities.Coordinate;
 import entities.Map;
 import entities.Robot;
+import entities.Sensor;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -76,8 +78,7 @@ public class GUI extends JFrame {
 	/**
 	 * Populate cells and robot location in the <tt>mapPanel</tt>.
 	 * 
-	 * Responsible for colouring cells by <tt>cellType</tt> and painting of cells
-	 * occupied by robot.
+	 * Responsible for colouring cells by <tt>cellType</tt> and painting of cells occupied by robot.
 	 */
 	private void populateMapPanel() {
 		cellsUI = new JLabel[Map.maxY][Map.maxX];
@@ -144,6 +145,16 @@ public class GUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				robot.moveForward(1);
 				mapPanel.repaint();
+
+				/* Temporary */
+				System.out.println("FRONT_CENTER sensor is seeing: ");
+				Sensor frontCenterSensor = robot.getSensor(1);
+				Coordinate[] facingCoords = frontCenterSensor.getFacingCoordinates(robot);
+				if (facingCoords != null)
+					for (int i = 0; i < facingCoords.length; i++) {
+						System.out.println(
+								"Y: " + facingCoords[i].getY() + " X: " + facingCoords[i].getX());
+					}
 			}
 		});
 		JButton rotateRight = new JButton("Rotate Right");
@@ -181,10 +192,10 @@ public class GUI extends JFrame {
 		}
 
 		/**
-		 * Override the getPreferredSize() of JPanel to always ensure that
-		 * MapAndRobotJPanel has a dynamic preferred size so that it maintains the
-		 * original aspect ratio. In this case, it will return a JPanel that is always
-		 * sized with an aspect ratio of 3:4 (15 columns by 20 rows).
+		 * Override the getPreferredSize() of JPanel to always ensure that MapAndRobotJPanel has a
+		 * dynamic preferred size so that it maintains the original aspect ratio. In this case, it
+		 * will return a JPanel that is always sized with an aspect ratio of 3:4 (15 columns by 20
+		 * rows).
 		 * 
 		 * Referenced from:
 		 * https://stackoverflow.com/questions/21142686/making-a-robust-resizable-swing-chess-gui
@@ -236,8 +247,8 @@ public class GUI extends JFrame {
 	}
 
 	/**
-	 * Paint <tt>Robot</tt> onto <tt>Graphics g</tt> if <tt>actualY</tt> and
-	 * <tt>actualX</tt> matches <tt>robotFootprint</tt>.
+	 * Paint <tt>Robot</tt> onto <tt>Graphics g</tt> if <tt>actualY</tt> and <tt>actualX</tt>
+	 * matches <tt>robotFootprint</tt>.
 	 * 
 	 * @param actualY
 	 * @param actualX
