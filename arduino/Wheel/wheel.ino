@@ -50,6 +50,10 @@ int pidControlForward(int left_encoder_val, int right_encoder_val){
   
 }
 
+// Distance - input "1" for 10 cm
+// Left_Speed - 222
+// Right_Speed - 200
+
 void moveForward(int distance,int left_speed,int right_speed){
       int output;
       float actual_distance = (distance*323) - (20*distance); //323 is the tick required to move 10 cm
@@ -69,7 +73,7 @@ void moveForward(int distance,int left_speed,int right_speed){
     }
 }
 
-// Rotate Right 405 -  90*
+// Degree - Number of Degree u want to rotate/ It will rotate right
 void rotate(int degree){
       int output;
       int dis = degree / 90;
