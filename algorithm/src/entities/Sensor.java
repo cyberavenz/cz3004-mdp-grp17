@@ -6,11 +6,6 @@ public class Sensor {
 
 	public static final int NORTH = 0, EAST = 1, SOUTH = 2, WEST = 3;
 
-	public enum Type {
-		SHORT_RANGE, LONG_RANGE
-	}
-
-	private Type type;			// Type of sensor (E.g. Short or long range)
 	private int relativePos;	// The relative position of the sensor on the robot
 	private int relativeDir;	// The relative direction of the sensor from robot's perspective
 	private int depth;			// The maximum number of cells that the sensor can see ahead
@@ -18,27 +13,20 @@ public class Sensor {
 	/**
 	 * * Constructor for <tt>Sensor</tt>.
 	 * 
-	 * @param type        Type of sensor (E.g. <tt>SHORT_RANGE</tt> or <tt>LONG_RANGE</tt>).
+	 * @param depth       The maximum number of cells that the <tt>Sensor</tt> can see ahead.
 	 * @param relativePos The relative position of the sensor on the <tt>Robot</tt>.
 	 * @param relativeDir The relative direction of the sensor with reference from <tt>Robot</tt>.
-	 * @param depth       The maximum number of cells that the <tt>Sensor</tt> can see ahead.
 	 */
-	public Sensor(Type type, int relativePos, int relativeDir, int depth) {
+	public Sensor(int depth, int relativePos, int relativeDir) {
 		if (relativeDir <= NORTH && relativeDir >= WEST) {
 			// Invalid relativeDir, default to NORTH
-			System.out
-					.println("ERROR: Sensor() initialised with an invalid relativeDir parameter.");
+			System.out.println("ERROR: Sensor() initialised with an invalid relativeDir parameter.");
 			relativeDir = NORTH;
 		}
 
-		this.type = type;
-		this.relativeDir = relativeDir;
-		this.relativePos = relativePos;
 		this.depth = depth;
-	}
-
-	public Type getType() {
-		return type;
+		this.relativePos = relativePos;
+		this.relativeDir = relativeDir;
 	}
 
 	/**
@@ -54,19 +42,19 @@ public class Sensor {
 	}
 
 	/**
-	 * Get an array of <tt>Coordinates</tt> that the sensor can currently see. This function will
-	 * only return valid <tt>Coordinates</tt> within the map boundary.
+	 * Get an array of <tt>Coordinates</tt> that the sensor can currently see. This function will only
+	 * return valid <tt>Coordinates</tt> within the map boundary.
 	 * 
 	 * @param robot Requires <tt>Robot</tt> to obtain actual direction of the <tt>Sensor</tt>.
-	 * @return An array of <tt>Coordinates</tt> based on the depth of <tt>Sensor</tt>. A
-	 *         <tt>null</tt> return means sensor is facing the boundary of the map.
+	 * @return An array of <tt>Coordinates</tt> based on the depth of <tt>Sensor</tt>. A <tt>null</tt>
+	 *         return means sensor is facing the boundary of the map.
 	 */
 	public Coordinate[] getFacingCoordinates(Robot robot) {
 		// Sensor depth may be outside map boundary - Use ArrayList to dynamically add Coordinates.
 		ArrayList<Coordinate> facingCoords = new ArrayList<Coordinate>();
 		Coordinate[] robotFootprint = robot.getFootprint();
 
-		int actualSensorDir = getActualDir(robot);
+		int actualSensorDir = this.getActualDir(robot);
 		int actualSensorPosY = robotFootprint[this.relativePos].getY();
 		int actualSensorPosX = robotFootprint[this.relativePos].getX();
 
@@ -127,8 +115,49 @@ public class Sensor {
 		}
 	}
 
+	/**
+	 * Get the maximum number of cells that the sensor can see ahead.
+	 * 
+	 * @return
+	 */
 	public int getDepth() {
 		return this.depth;
 	}
 
+	/**
+	 * Get simulated value of robot with reference to an actual <tt>Map</tt>.
+	 * 
+	 * @param robot     <tt>Robot</tt> for reference.
+	 * @param actualMap An actual <tt>Map</tt> to know what values to simulate. Do not parse in
+	 *                  <i>unknown.txt</i> map!
+	 * @return 0: Wall in front | 1: Wall 1 cell away | 2: Wall 2 cells away | ... | 99: No wall detected
+	 */
+	public int simulatedLook(Robot robot, Map actualMap) {
+		Coordinate[] facingCoords = this.getFacingCoordinates(robot);
+
+		// Boundary of map
+		if (facingCoords == null)
+			return 0;
+
+		// Valid map coordinates, check against actualMap for simulated value
+		else {
+			int i = 0;
+			boolean wallDetected = false;
+
+			for (i = 0; i < facingCoords.length; i++) {
+				if (actualMap.getCell(facingCoords[i]).getCellType() == Cell.WALL) {
+					wallDetected = true;
+					break;
+				}
+			}
+			if (wallDetected)
+				return i;
+			else
+				return 99;	// Sensor sees no wall at all
+		}
+	}
+	
+	public int getRelativePos() {
+		return this.relativePos;
+	}
 }
