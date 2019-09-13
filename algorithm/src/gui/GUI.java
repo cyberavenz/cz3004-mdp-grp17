@@ -28,8 +28,8 @@ public class GUI extends JFrame {
 		Robot robot = new Robot();
 		map.importMap("empty.txt");
 
-		GUI mainGUI = new GUI(robot, map);
-		mainGUI.setVisible(true);
+		// Show GUI
+		new GUI(robot, map);
 	}
 
 	/**
@@ -47,6 +47,9 @@ public class GUI extends JFrame {
 
 		// Initialise overall layout
 		initLayout();
+
+		// Set it to visible
+		this.setVisible(true);
 	}
 
 	/**
