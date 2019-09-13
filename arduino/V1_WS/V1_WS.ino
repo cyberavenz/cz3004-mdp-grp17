@@ -1,5 +1,29 @@
 #include "DualVNH5019MotorShield.h"
 #include "PinChangeInt.h"
+#include "SharpIR.h"
+
+//////////////////////////////////
+// Sensors
+
+#define SRmodel 1080
+#define LRmodel 20150
+
+#define s1 A0 // 
+#define s2 A1 //
+#define s3 A2 //
+#define s4 A3 //
+#define s5 A4 //
+#define s6 A5 // Long
+
+
+SharpIR FL =  SharpIR(s1, SRmodel);
+SharpIR FC =  SharpIR(s2, SRmodel);
+SharpIR FR =  SharpIR(s3, SRmodel);
+SharpIR R  =  SharpIR(s4, SRmodel);
+SharpIR BS =  SharpIR(s5, SRmodel);
+SharpIR BL =  SharpIR(s6, LRmodel);
+
+//////////////////////////////////////
 
 DualVNH5019MotorShield md;
 
@@ -18,17 +42,24 @@ void moveForward(int distance,int left_speed,int right_speed);
 void rotate(int degree);
 
 void setup() {
+  // put your setup code here, to run once:
   Serial.begin(115200);
   md.init();
   PCintPort::attachInterrupt(motor_R_encoder, RightEncoderInc, FALLING);
   PCintPort::attachInterrupt(motor_L_encoder, LeftEncoderInc, FALLING);
 }
 
-// 200 for right is 222 for left
 void loop() {
-  rotate(720);
-  //moveForward(5,222,200);
+  int fl = FL.distance();
+  int fc = FC.distance();
+  int fr = FR.distance();
+  
+//  int r  = R.distance();
+//  int bs = BS.distance();
+//  int bl = BL.distance();
+
 }
+
 
 int pidControlForward(int left_encoder_val, int right_encoder_val){
   
@@ -72,6 +103,11 @@ void moveForward(int distance,int left_speed,int right_speed){
 //        right_encoder_val = 0; 
 //        left_encoder_val = 0;
     }
+}
+
+void move(int left_speed, int right_speed){
+      int output = pidControlForward(left_encoder_val, right_encoder_val);
+      md.setSpeeds(left_speed+output,right_speed-output);
 }
 
 // Degree - Number of Degree u want to rotate/ It will rotate right
