@@ -26,7 +26,8 @@ void setup() {
 
 // 200 for right is 222 for left
 void loop() {
-  rotate(850);
+    rotate(720);
+  //moveForward(12,222,200);
 }
 
 int pidControlForward(int left_encoder_val, int right_encoder_val){
@@ -68,15 +69,15 @@ void moveForward(int distance,int left_speed,int right_speed){
         Serial.println("right_encoder_val = ");
         Serial.println(right_encoder_val);
         
-        right_encoder_val = 0; 
-        left_encoder_val = 0;
+//        right_encoder_val = 0; 
+//        left_encoder_val = 0;
     }
 }
 
 // Degree - Number of Degree u want to rotate/ It will rotate right
 void rotate(int degree){
       int output;
-      int dis = degree / 90;
+      float dis = degree / 90.0;
       int left_speed = 222;
       int right_speed = 200;
       float actual_distance = (dis*405) - (5*dis);
@@ -91,7 +92,5 @@ void rotate(int degree){
         Serial.println("right_encoder_val = ");
         Serial.println(right_encoder_val);
         
-        right_encoder_val = 0; 
-        left_encoder_val = 0;
       }
 }
