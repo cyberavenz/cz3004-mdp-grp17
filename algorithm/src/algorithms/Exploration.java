@@ -10,7 +10,7 @@ import main.Main;
 
 public class Exploration {
 
-	private static char state = '1';	// Keep track of state with a static variable
+	private static char state = '2';	// No need start from state 1 when exploration first starts
 
 	/**
 	 * State machine for exploration algorithm.
@@ -22,11 +22,8 @@ public class Exploration {
 	 */
 	public static void execute(Robot robot, Map map) {
 
-		System.out.println("State: " + state);
-
-		/* Set as Visited */
-		map.getCell(robot.getCurrPos()).setCellType(Cell.PATH);
-		System.out.println("setCellType on: " + map.getCell(robot.getCurrPos()).getCellType());
+		/* Set currPos as visited */
+		map.getCell(robot.getCurrPos()).setVisited();
 
 		/*
 		 * State Machine
@@ -35,96 +32,97 @@ public class Exploration {
 		 */
 		switch (state) {
 
-		// Back to start position?
-		case '1':
-			if (robot.getCurrPos() == map.getStartCoord())
+		case '1':	// Back to start position?
+			System.out.print(Character.toString(state) + ' ');
+			if (Coordinate.isEqual(robot.getCurrPos(), map.getStartCoord()))
 				state = 'A';
 			else
 				state = '2';
-			break;
 
-		// Is there a wall on the right?
-		case '2':
+			break;
+		case '2':	// Is there a wall on the right?
+			System.out.print(Character.toString(state) + ' ');
 			Coordinate[] rightCoordinates = genRightCoordinates(robot);
 
-			/* Default State */
-			state = '4';	// No
+			// Assume default state
+			state = '4';		// No
 
-			/* Overwrite State */
 			// null coordinates means robot is at map boundary
-			if (rightCoordinates == null) {
-				state = '3';		// Yes
-				break;
-			}
+			if (rightCoordinates == null)
+				state = '3';	// Yes
 
-			for (int i = 0; i < rightCoordinates.length; i++) {
-				if (Main.simulatedMap.getCell(rightCoordinates[i]).getCellType() == Cell.WALL) {
-					state = '3';	// Yes
+			// Check all coordinates if there is a wall
+			else {
+				for (int i = 0; i < rightCoordinates.length; i++) {
+					if (Main.simulatedMap.getCell(rightCoordinates[i]).getCellType() == Cell.WALL) {
+						state = '3';	// Yes
+					}
+				}
+			}
+			break;
+		case '3':	// Is there a wall in the front?
+			System.out.print(Character.toString(state) + ' ');
+			Coordinate[] frontCoordinates = genFrontCoordinates(robot);
+
+			// Assume default state
+			state = 'C';	// No
+
+			// null coordinates means robot is at map boundary
+			if (frontCoordinates == null)
+				state = 'B';		// Yes
+
+			// Check all coordinates if there is a wall
+			else {
+				for (int i = 0; i < frontCoordinates.length; i++) {
+					if (Main.simulatedMap.getCell(frontCoordinates[i]).getCellType() == Cell.WALL)
+						state = 'B';	// Yes
 				}
 			}
 			break;
 
-		// Is there a wall in the front?
-		case '3':
-			Coordinate[] frontCoordinates = genFrontCoordinates(robot);
+		case '4':	// Has the cell on the right been visited?
+			System.out.print(Character.toString(state) + ' ');
+			Coordinate[] robotFootprint = robot.getFootprint();
 
-			/* Default State */
-			state = 'C';	// No
-
-			/* Overwrite State */
-			// null coordinates means robot is at map boundary
-			if (frontCoordinates == null) {
-				state = 'B';		// Yes
-				break;
-			}
-
-			for (int i = 0; i < frontCoordinates.length; i++) {
-				if (Main.simulatedMap.getCell(frontCoordinates[i]).getCellType() == Cell.WALL)
-					state = 'B';	// Yes
-			}
-			break;
-
-		// Has the cell on the right been visited?
-		case '4':
-			Coordinate[] pastRightCoordinates = genRightCoordinates(robot);
-
-			// Index 1 is middle cell
-			if (map.getCell(pastRightCoordinates[1]).getCellType() == Cell.PATH)
+			// Check if MIDDLE_RIGHT cell of Robot has been visited before
+			if (map.getCell(robotFootprint[Robot.MIDDLE_RIGHT]).isVisited())
 				state = 'C';	// Yes
 
 			else
-				state = 'D';
-
+				state = 'D';	// No
 			break;
 
-		// End of exploration!
-		case 'A':
-			System.out.println("End of Exploration");
+		case 'A':	// End of exploration!
+			System.out.println("\nEnd of Exploration.");
 			// TODO Print results
+			// TODO Reset all visited flags?
 			break;
 
-		// Rotate left
-		case 'B':
+		case 'B':	// Rotate left
+			System.out.println("\nRotate left.");
 			robot.rotate(Rotate.LEFT);
 			state = '1';
 			break;
 
-		// Move forward
-		case 'C':
+		case 'C':	// Move forward
+			System.out.println("\nMove forward.");
 			robot.moveForward(1);
 			state = '1';
 			break;
 
-		// Rotate right
-		case 'D':
+		case 'D':	// Rotate right
+			System.out.println("\nRotate right.");
 			robot.rotate(Rotate.RIGHT);
 			state = '1';
 			break;
 
-		// Do nothing
-		default:
+		default:	// Do nothing
 		}
 
+		// Loop again until movement command
+		if (state < 'A' || state > 'D') {
+			execute(robot, map);
+		}
 	}
 
 	/**
