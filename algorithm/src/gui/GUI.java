@@ -2,11 +2,11 @@ package gui;
 
 import javax.swing.*;
 
-import algorithms.Exploration;
 import entities.Cell;
 import entities.Coordinate;
 import entities.Map;
 import entities.Robot;
+import main.Main;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -43,6 +43,16 @@ public class GUI extends JFrame {
 		this.setVisible(true);
 	}
 
+	public void refreshGUI() {
+		for (int y = Map.maxY - 1; y >= 0; y--) {
+			for (int x = 0; x < Map.maxX; x++) {
+				// Note: cellsUI[][] uses actualY and actualX and does not include axis labelling
+				cellsUI[y][x].setBackground(cellColour(map.getCell(new Coordinate(y, x))));
+			}
+		}
+		mapPanel.repaint();	// Repaint mapPanel to show updated Robot position
+	}
+
 	/**
 	 * Initialise the Container, JPanels and cellsUI.
 	 */
@@ -66,6 +76,52 @@ public class GUI extends JFrame {
 		// Center mainUI in the middle of the screen
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		this.setLocation(dim.width / 2 - getSize().width / 2, dim.height / 2 - getSize().height / 2);
+	}
+
+	/**
+	 * Custom class for <tt>MapPanel</tt> as a JPanel.
+	 * 
+	 * Responsible for producing a responsive grid map.
+	 *
+	 */
+	private class MapPanel extends JPanel {
+
+		private static final long serialVersionUID = 3896801036058623157L;
+
+		public MapPanel() {
+			// Additional +1 row & +1 col for axis labelling
+			super(new GridLayout(Map.maxY + 1, Map.maxX + 1, 2, 2));
+		}
+
+		/**
+		 * Override the getPreferredSize() of JPanel to always ensure that MapAndRobotJPanel has a dynamic
+		 * preferred size so that it maintains the original aspect ratio. In this case, it will return a
+		 * JPanel that is always sized with an aspect ratio of 3:4 (15 columns by 20 rows).
+		 * 
+		 * Referenced from:
+		 * https://stackoverflow.com/questions/21142686/making-a-robust-resizable-swing-chess-gui
+		 */
+		@Override
+		public final Dimension getPreferredSize() {
+			Dimension d = super.getPreferredSize();
+			Component c = getParent();
+
+			if (c == null)
+				return d;
+
+			else {
+				// Final Dimension should be 16:21 (W:H) aspect ratio for 16 cells by 21 cells
+				// (including axis labelling)
+				// Use of double for more accuracy -> then round to nearest integer
+				double numOfCellsWidth = Map.maxX + 1;	// 16 = 15 + 1
+				double numOfCellsHeight = Map.maxY + 1;	// 21 = 20 + 1
+
+				int prefHeight = (int) c.getHeight();
+				int prefWidth = (int) Math.round(prefHeight / numOfCellsHeight * numOfCellsWidth);
+
+				return (new Dimension(prefWidth, prefHeight));
+			}
+		}
 	}
 
 	/**
@@ -127,105 +183,21 @@ public class GUI extends JFrame {
 	 * Populate Labels and Buttons in the <tt>ctrlPanel</tt>.
 	 */
 	private void populateCtrlPanel() {
-		ctrlPanel.add(new JLabel("MODE: Simulation", JLabel.CENTER));
 
-		JButton explore = new JButton("Explore 1 Step");
-		explore.addActionListener(new ActionListener() {
+		/* Display Mode */
+		String mode = Main.isRealRun ? "Real Run" : "Simulation";
+		ctrlPanel.add(new JLabel("MODE: " + mode, JLabel.CENTER));
+
+		/* Exploration Button */
+		JButton explorePerStep = new JButton("Exploration (per step)");
+		explorePerStep.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Exploration.execute(robot, map);
-//				map.importMap("test1.txt");
-				mapPanel.repaint();
-//				cellsUI[10][10].setBackground(Color.BLUE);
+				Main.explorePerStep();
+				refreshGUI();
 			}
 		});
 
-		JButton moveForward = new JButton("Move Forward");
-		moveForward.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				robot.moveForward(1);
-				mapPanel.repaint();
-
-//				/* Temporary */
-//				Sensor blSensor = robot.getSensor(Robot.S_FR_E);
-//				Coordinate[] robotFootprint = robot.getFootprint();
-//				System.out.println("Location is Y: " + robotFootprint[blSensor.getRelativePos()].getY() + " X: "
-//						+ robotFootprint[blSensor.getRelativePos()].getX());
-//				Coordinate[] seeingCoords = blSensor.getFacingCoordinates(robot);
-//				if (seeingCoords != null)
-//					for (int i = 0; i < seeingCoords.length; i++) {
-//						System.out
-//								.println("Looking at Y: " + seeingCoords[i].getY() + " X : " + seeingCoords[i].getX());
-//					}
-//
-//				int i = blSensor.simulatedLook(robot, Main.simulatedMap);
-//				System.out.println("Front Right East Value: " + i);
-			}
-		});
-		JButton rotateRight = new JButton("Rotate Right");
-		rotateRight.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				robot.rotate(Robot.Rotate.RIGHT);
-				mapPanel.repaint();
-			}
-		});
-		JButton rotateLeft = new JButton("Rotate Left");
-		rotateLeft.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				robot.rotate(Robot.Rotate.LEFT);
-				mapPanel.repaint();
-			}
-		});
-
-		ctrlPanel.add(explore);
-//		ctrlPanel.add(moveForward);
-//		ctrlPanel.add(rotateRight);
-//		ctrlPanel.add(rotateLeft);
-	}
-
-	/**
-	 * Custom class for <tt>MapPanel</tt> as a JPanel.
-	 * 
-	 * Responsible for producing a responsive grid map.
-	 *
-	 */
-	private class MapPanel extends JPanel {
-
-		private static final long serialVersionUID = 3896801036058623157L;
-
-		public MapPanel() {
-			super(new GridLayout(Map.maxY + 1, Map.maxX + 1, 2, 2)); // Additional +1 row & +1 col
-																	 // for axis labelling
-		}
-
-		/**
-		 * Override the getPreferredSize() of JPanel to always ensure that MapAndRobotJPanel has a dynamic
-		 * preferred size so that it maintains the original aspect ratio. In this case, it will return a
-		 * JPanel that is always sized with an aspect ratio of 3:4 (15 columns by 20 rows).
-		 * 
-		 * Referenced from:
-		 * https://stackoverflow.com/questions/21142686/making-a-robust-resizable-swing-chess-gui
-		 */
-		@Override
-		public final Dimension getPreferredSize() {
-			Dimension d = super.getPreferredSize();
-			Component c = getParent();
-
-			if (c == null)
-				return d;
-
-			else {
-				// Final Dimension should be 16:21 (W:H) aspect ratio for 16 cells by 21 cells
-				// (including axis labelling)
-				// Use of double for more accuracy -> then round to nearest integer
-				double numOfCellsWidth = Map.maxX + 1;	// 16 = 15 + 1
-				double numOfCellsHeight = Map.maxY + 1;	// 21 = 20 + 1
-
-				int prefHeight = (int) c.getHeight();
-				int prefWidth = (int) Math.round(prefHeight / numOfCellsHeight * numOfCellsWidth);
-
-				return (new Dimension(prefWidth, prefHeight));
-			}
-		}
+		ctrlPanel.add(explorePerStep);
 	}
 
 	/**
@@ -235,6 +207,9 @@ public class GUI extends JFrame {
 	 * @return
 	 */
 	private Color cellColour(Cell cell) {
+		if (cell.isVisited())
+			return Color.LIGHT_GRAY;
+
 		switch (cell.getCellType()) {
 		case Cell.UNKNOWN:
 			return Color.GRAY;

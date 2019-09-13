@@ -1,12 +1,16 @@
 package main;
 
+import algorithms.Exploration;
 import entities.Map;
 import entities.Robot;
 import gui.GUI;
 
 public class Main {
 
-	public static Map simulatedMap = new Map("test1.txt");	// Set actual map for simulation
+	public static boolean isRealRun = false;				// RealRun or Simulation mode?
+	public static Map simulatedMap = new Map("test1.txt");	// Set simulatedMap for use (if simulation)
+	public static Map unknownMap = new Map("unknown.txt");	// Default unknown state
+	public static Robot robot = new Robot();				// Default start position
 
 	/**
 	 * Main program
@@ -14,23 +18,16 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-
-		Map unknownMap = new Map("unknown.txt");
-
-		Robot robot = new Robot();
-
-		/* Temporary */
-//		System.out.println("FRONT_CENTER sensor is seeing: ");
-//		Sensor frontCenterSensor = robot.getSensor(Robot.S_FC_N);
-//		Coordinate[] facingCoords = frontCenterSensor.getFacingCoordinates(robot);
-//		if (facingCoords != null)
-//			for (int i = 0; i < facingCoords.length; i++) {
-//				System.out.println("Y: " + facingCoords[i].getY() + " X: " + facingCoords[i].getX());
-//			}
-
 		// Show GUI
-		new GUI(robot, unknownMap);
+		GUI main = new GUI(robot, unknownMap);
+	}
 
+	/**
+	 * Static function called by <tt>GUI</tt> when "Exploration (per step)" button is pressed.
+	 * 
+	 */
+	public static void explorePerStep() {
+		Exploration.execute(robot, unknownMap);
 	}
 
 }
