@@ -48,8 +48,8 @@ public class Robot {
 				|| startPos.getY() == Map.maxX - 1) {
 			System.out.println(
 					"ERROR: Robot() cannot be initialised at the edge of map as robot footprint is 3 x 3 cells.");
-		} else if (startPos.getY() > Map.maxY - 1 || startPos.getY() < 0
-				|| startPos.getX() > Map.maxX - 1 || startPos.getX() < 0) {
+		} else if (startPos.getY() > Map.maxY - 1 || startPos.getY() < 0 || startPos.getX() > Map.maxX - 1
+				|| startPos.getX() < 0) {
 			System.out.println("ERROR: Robot() cannot be initialised outside of map.");
 		}
 
@@ -95,9 +95,9 @@ public class Robot {
 			robotFootprint[BACK_RIGHT] = new Coordinate(currPos.getY() - 1, currPos.getX() + 1);
 			return robotFootprint;
 		case SOUTH:
-			robotFootprint[FRONT_LEFT] = new Coordinate(currPos.getY() - 1, currPos.getX() - 1);
+			robotFootprint[FRONT_LEFT] = new Coordinate(currPos.getY() - 1, currPos.getX() + 1);
 			robotFootprint[FRONT_CENTER] = new Coordinate(currPos.getY() - 1, currPos.getX());
-			robotFootprint[FRONT_RIGHT] = new Coordinate(currPos.getY() - 1, currPos.getX() + 1);
+			robotFootprint[FRONT_RIGHT] = new Coordinate(currPos.getY() - 1, currPos.getX() - 1);
 
 			robotFootprint[MIDDLE_LEFT] = new Coordinate(currPos.getY(), currPos.getX() + 1);
 			robotFootprint[MIDDLE_RIGHT] = new Coordinate(currPos.getY(), currPos.getX() - 1);
@@ -126,9 +126,9 @@ public class Robot {
 			robotFootprint[MIDDLE_LEFT] = new Coordinate(currPos.getY() - 1, currPos.getX());
 			robotFootprint[MIDDLE_RIGHT] = new Coordinate(currPos.getY() + 1, currPos.getX());
 
-			robotFootprint[BACK_LEFT] = new Coordinate(currPos.getY() + 1, currPos.getX() + 1);
+			robotFootprint[BACK_LEFT] = new Coordinate(currPos.getY() - 1, currPos.getX() + 1);
 			robotFootprint[BACK_CENTER] = new Coordinate(currPos.getY(), currPos.getX() + 1);
-			robotFootprint[BACK_RIGHT] = new Coordinate(currPos.getY() - 1, currPos.getX() + 1);
+			robotFootprint[BACK_RIGHT] = new Coordinate(currPos.getY() + 1, currPos.getX() + 1);
 			return robotFootprint;
 		default:
 			return null;
@@ -211,17 +211,17 @@ public class Robot {
 		sensors = new Sensor[6];	// 6 sensors in total
 
 		// Short_FrontLeft_NORTH : 0
-		sensors[S_FL_N] = new Sensor(Sensor.Type.SHORT_RANGE, FRONT_LEFT, NORTH, 3);
+		sensors[S_FL_N] = new Sensor(3, FRONT_LEFT, NORTH);
 		// Short_FrontCenter_NORTH : 1
-		sensors[S_FC_N] = new Sensor(Sensor.Type.SHORT_RANGE, FRONT_CENTER, NORTH, 3);
+		sensors[S_FC_N] = new Sensor(3, FRONT_CENTER, NORTH);
 		// Short_FrontRight_NORTH : 2
-		sensors[S_FR_N] = new Sensor(Sensor.Type.SHORT_RANGE, FRONT_RIGHT, NORTH, 3);
+		sensors[S_FR_N] = new Sensor(3, FRONT_RIGHT, NORTH);
 		// Short_FrontRight_EAST : 3
-		sensors[S_FR_E] = new Sensor(Sensor.Type.SHORT_RANGE, FRONT_RIGHT, EAST, 3);
+		sensors[S_FR_E] = new Sensor(3, FRONT_RIGHT, EAST);
 		// Short_Back_Left_WEST : 4
-		sensors[S_BL_W] = new Sensor(Sensor.Type.SHORT_RANGE, BACK_LEFT, WEST, 3);
+		sensors[S_BL_W] = new Sensor(3, BACK_LEFT, WEST);
 		// Long_BackLeft_WEST : 5
-		sensors[L_BL_W] = new Sensor(Sensor.Type.LONG_RANGE, BACK_LEFT, WEST, 5);
+		sensors[L_BL_W] = new Sensor(5, BACK_LEFT, WEST);
 	}
 
 	public Sensor getSensor(int number) {
