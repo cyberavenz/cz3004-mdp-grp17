@@ -58,12 +58,12 @@ public class Map {
 	}
 
 	/**
-	 * Export Map to txt file from a Map object.
+	 * Export P1 and P2 to txt file from a Map object.
 	 * 
 	 * @param map
 	 */
 	public void exportMap(Map map) {
-		// TODO Export map to txt file
+		// TODO Export P1 and P2 to txt file
 	}
 
 	/**
@@ -71,9 +71,18 @@ public class Map {
 	 * 
 	 * @param y
 	 * @param x
-	 * @return
+	 * @return Requested <tt>Cell</tt>.
 	 */
 	public Cell getCell(int y, int x) {
 		return cells[y][x];
+	}
+
+	/**
+	 * Start coordinate is always set to (1, 1).
+	 * 
+	 * @return <tt>Coordinate</tt> of the start point.
+	 */
+	public Coordinate getStartCoord() {
+		return new Coordinate(1, 1);
 	}
 }

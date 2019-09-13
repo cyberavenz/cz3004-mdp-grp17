@@ -2,22 +2,23 @@ package entities;
 
 public class Robot {
 
-	public enum Rotate {
-		RIGHT, LEFT
-	}
-
-	public static final int NORTH = 0, EAST = 1, SOUTH = 2, WEST = 3;
 	//	@formatter:off
+	public static final int NORTH = 0, EAST = 1, SOUTH = 2, WEST = 3;
 	public static final int
 		FRONT_LEFT = 0, FRONT_CENTER = 1, FRONT_RIGHT = 2,
 		MIDDLE_LEFT = 3, MIDDLE_CENTER = 4, MIDDLE_RIGHT = 5,
 		BACK_LEFT = 6, BACK_CENTER = 7, BACK_RIGHT = 8;
+	public enum Rotate { RIGHT, LEFT };
+	/* 6 sensors in total
+	 * TYPE_PLACEMENT_DIRECTION */
+	public static final int
+		S_FL_N = 0, S_FC_N = 1, S_FR_N = 2, S_FR_E = 3,
+		S_BL_W = 4, L_BL_W = 5;
 	//	@formatter:on
 
 	private Coordinate currPos;	// MIDDLE_CENTER of Robot
 	private int currDir;		// North, South, East, West
-
-	private Sensor[] sensors;
+	private Sensor[] sensors;	// Initialised by initSensors()
 
 	/**
 	 * <tt>Robot</tt> Constructor (Each <tt>Robot</tt> occupies 3 x 3 cells)
@@ -209,18 +210,18 @@ public class Robot {
 	private void initSensors() {
 		sensors = new Sensor[6];	// 6 sensors in total
 
-		// Front left, facing NORTH
-		sensors[0] = new Sensor(Sensor.Type.SHORT_RANGE, FRONT_LEFT, NORTH, 3);
-		// Front center, facing NORTH
-		sensors[1] = new Sensor(Sensor.Type.SHORT_RANGE, FRONT_CENTER, NORTH, 3);
-		// Front right, facing NORTH
-		sensors[2] = new Sensor(Sensor.Type.SHORT_RANGE, FRONT_RIGHT, NORTH, 3);
-		// Front right, facing EAST
-		sensors[3] = new Sensor(Sensor.Type.SHORT_RANGE, FRONT_RIGHT, EAST, 3);
-		// Back left, facing WEST
-		sensors[4] = new Sensor(Sensor.Type.SHORT_RANGE, BACK_LEFT, WEST, 3);
-		// Back left, facing WEST
-		sensors[5] = new Sensor(Sensor.Type.LONG_RANGE, BACK_LEFT, WEST, 5);
+		// Short_FrontLeft_NORTH : 0
+		sensors[S_FL_N] = new Sensor(Sensor.Type.SHORT_RANGE, FRONT_LEFT, NORTH, 3);
+		// Short_FrontCenter_NORTH : 1
+		sensors[S_FC_N] = new Sensor(Sensor.Type.SHORT_RANGE, FRONT_CENTER, NORTH, 3);
+		// Short_FrontRight_NORTH : 2
+		sensors[S_FR_N] = new Sensor(Sensor.Type.SHORT_RANGE, FRONT_RIGHT, NORTH, 3);
+		// Short_FrontRight_EAST : 3
+		sensors[S_FR_E] = new Sensor(Sensor.Type.SHORT_RANGE, FRONT_RIGHT, EAST, 3);
+		// Short_Back_Left_WEST : 4
+		sensors[S_BL_W] = new Sensor(Sensor.Type.SHORT_RANGE, BACK_LEFT, WEST, 3);
+		// Long_BackLeft_WEST : 5
+		sensors[L_BL_W] = new Sensor(Sensor.Type.LONG_RANGE, BACK_LEFT, WEST, 5);
 	}
 
 	public Sensor getSensor(int number) {
