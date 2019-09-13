@@ -127,7 +127,7 @@ public class Sensor {
 		}
 	}
 
-	public float getDepth() {
+	public int getDepth() {
 		return this.depth;
 	}
 

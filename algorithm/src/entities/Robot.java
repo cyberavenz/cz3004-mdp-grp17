@@ -33,29 +33,29 @@ public class Robot {
 	/**
 	 * <tt>Robot</tt> Constructor with starting position and direction.
 	 * 
-	 * @param coordinate
-	 * @param direction
+	 * @param startPos
+	 * @param startDir
 	 */
-	public Robot(Coordinate coordinate, int direction) {
+	public Robot(Coordinate startPos, int startDir) {
 		// Default starting position
 		currPos = new Coordinate(1, 1);
 		currDir = EAST;
 		initSensors();
 
 		// Check for any invalid coordinates first
-		if (coordinate.getY() == Map.maxY - 1 || coordinate.getY() == 0 || coordinate.getX() == 0
-				|| coordinate.getY() == Map.maxX - 1) {
+		if (startPos.getY() == Map.maxY - 1 || startPos.getY() == 0 || startPos.getX() == 0
+				|| startPos.getY() == Map.maxX - 1) {
 			System.out.println(
 					"ERROR: Robot() cannot be initialised at the edge of map as robot footprint is 3 x 3 cells.");
-		} else if (coordinate.getY() > Map.maxY - 1 || coordinate.getY() < 0
-				|| coordinate.getX() > Map.maxX - 1 || coordinate.getX() < 0) {
+		} else if (startPos.getY() > Map.maxY - 1 || startPos.getY() < 0
+				|| startPos.getX() > Map.maxX - 1 || startPos.getX() < 0) {
 			System.out.println("ERROR: Robot() cannot be initialised outside of map.");
 		}
 
 		// Valid condition, overwrite default starting position
 		else {
-			currPos = coordinate;
-			currDir = direction;
+			currPos = startPos;
+			currDir = startDir;
 		}
 	}
 
@@ -183,10 +183,10 @@ public class Robot {
 	/**
 	 * Rotate <tt>Robot</tt>
 	 * 
-	 * @param toRotate
+	 * @param direction
 	 */
-	public void rotate(Rotate toRotate) {
-		switch (toRotate) {
+	public void rotate(Rotate direction) {
+		switch (direction) {
 		case RIGHT:	// Rotate clockwise
 			currDir = (currDir + 1) % 4;
 			break;
