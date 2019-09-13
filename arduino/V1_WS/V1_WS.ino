@@ -35,11 +35,19 @@ DualVNH5019MotorShield md;
 
 //For counting Encoder using interrupt
 int right_encoder_val = 0, left_encoder_val = 0;
+int fl = FL.distance();
 void RightEncoderInc(){right_encoder_val++;}
 void LeftEncoderInc(){left_encoder_val++;}
 float piControlForward(float left, float right);
 void moveForward(int distance,int left_speed,int right_speed);
 void rotate(int degree);
+void move_F(int left_speed, int right_speed);
+
+bool s = true;
+bool wall = false;
+
+bool r = false;
+bool g = true;
 
 void setup() {
   // put your setup code here, to run once:
@@ -50,13 +58,39 @@ void setup() {
 }
 
 void loop() {
-  int fl = FL.distance();
-  int fc = FC.distance();
-  int fr = FR.distance();
-  
-//  int r  = R.distance();
-//  int bs = BS.distance();
-//  int bl = BL.distance();
+
+fl = FL.distance();
+
+if(s == true){
+  move_F(222,200);
+}
+
+if (fl < 10){
+  md.setSpeeds(0,0);
+  s = false;
+  wall = true;
+}
+
+if(wall == true){
+  if(g == true){
+      right_encoder_val = 0; 
+      left_encoder_val = 0;
+      g = false;
+  }
+  rotate(90);
+  if(r == true){
+    moveForward(3,222,200);
+  }
+}
+
+
+//  rotate(270);
+//  moveForward(3,222,200);
+//  rotate(270);
+//  moveForward(4,222,200);
+//  rotate(90);
+
+
 
 }
 
@@ -100,12 +134,16 @@ void moveForward(int distance,int left_speed,int right_speed){
         Serial.println("right_encoder_val = ");
         Serial.println(right_encoder_val);
         
-//        right_encoder_val = 0; 
-//        left_encoder_val = 0;
+        right_encoder_val = 0; 
+        left_encoder_val = 0;
+        r = false;
+        wall = false;
+        md.setSpeeds(0,0);
     }
+
 }
 
-void move(int left_speed, int right_speed){
+void move_F(int left_speed, int right_speed){
       int output = pidControlForward(left_encoder_val, right_encoder_val);
       md.setSpeeds(left_speed+output,right_speed-output);
 }
@@ -121,12 +159,9 @@ void rotate(int degree){
       md.setSpeeds(left_speed+output,-right_speed+output);
       if(right_encoder_val >= actual_distance){
         md.setBrakes(375, 400);
-        delay(2000);
-        Serial.println("left_encoder_val = ");
-        Serial.println(left_encoder_val);
-      
-        Serial.println("right_encoder_val = ");
-        Serial.println(right_encoder_val);
-        
+        right_encoder_val = 0; 
+        left_encoder_val = 0;
+        r = true;
       }
+      
 }
