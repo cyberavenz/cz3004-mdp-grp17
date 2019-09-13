@@ -24,4 +24,13 @@ public class Coordinate {
 		this.x = x;
 	}
 
+	public static boolean isEqual(Coordinate c1, Coordinate c2) {
+		if (c1.y == c2.y) {
+			if (c1.x == c2.x) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }
