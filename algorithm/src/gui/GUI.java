@@ -1,11 +1,12 @@
 package gui;
 
 import javax.swing.*;
+
+import algorithms.Exploration;
 import entities.Cell;
 import entities.Coordinate;
 import entities.Map;
 import entities.Robot;
-import entities.Sensor;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -21,16 +22,6 @@ public class GUI extends JFrame {
 	private JLabel[][] cellsUI;
 	private Robot robot;
 	private Map map;
-
-	/* TEMP: Just display UI */
-	public static void main(String[] args) {
-		Map map = new Map();
-		Robot robot = new Robot();
-		map.importMap("empty.txt");
-
-		// Show GUI
-		new GUI(robot, map);
-	}
 
 	/**
 	 * Constructor for <tt>GUI</tt> as a JFrame.
@@ -74,8 +65,7 @@ public class GUI extends JFrame {
 
 		// Center mainUI in the middle of the screen
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-		this.setLocation(dim.width / 2 - getSize().width / 2,
-				dim.height / 2 - getSize().height / 2);
+		this.setLocation(dim.width / 2 - getSize().width / 2, dim.height / 2 - getSize().height / 2);
 	}
 
 	/**
@@ -122,7 +112,7 @@ public class GUI extends JFrame {
 				// Actual Map Population
 				else {
 					newCell.setOpaque(true);
-					newCell.setBackground(cellColour(map.getCell(y - 1, x - 1)));
+					newCell.setBackground(cellColour(map.getCell(new Coordinate(y - 1, x - 1))));
 
 					cellsUI[actualY][actualX] = newCell;
 					mapPanel.add(cellsUI[actualY][actualX]);
@@ -138,10 +128,16 @@ public class GUI extends JFrame {
 	 */
 	private void populateCtrlPanel() {
 		ctrlPanel.add(new JLabel("MODE: Simulation", JLabel.CENTER));
-		ctrlPanel.add(new JButton("Import Map"));
-		ctrlPanel.add(new JButton("Exploration"));
-		ctrlPanel.add(new JButton("Fastest-path"));
-		ctrlPanel.add(new JButton("Test Communications"));
+
+		JButton explore = new JButton("Explore 1 Step");
+		explore.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Exploration.execute(robot, map);
+//				map.importMap("test1.txt");
+				mapPanel.repaint();
+//				cellsUI[10][10].setBackground(Color.BLUE);
+			}
+		});
 
 		JButton moveForward = new JButton("Move Forward");
 		moveForward.addActionListener(new ActionListener() {
@@ -149,15 +145,20 @@ public class GUI extends JFrame {
 				robot.moveForward(1);
 				mapPanel.repaint();
 
-				/* Temporary */
-				System.out.println("FRONT_CENTER sensor is seeing: ");
-				Sensor frontCenterSensor = robot.getSensor(1);
-				Coordinate[] facingCoords = frontCenterSensor.getFacingCoordinates(robot);
-				if (facingCoords != null)
-					for (int i = 0; i < facingCoords.length; i++) {
-						System.out.println(
-								"Y: " + facingCoords[i].getY() + " X: " + facingCoords[i].getX());
-					}
+//				/* Temporary */
+//				Sensor blSensor = robot.getSensor(Robot.S_FR_E);
+//				Coordinate[] robotFootprint = robot.getFootprint();
+//				System.out.println("Location is Y: " + robotFootprint[blSensor.getRelativePos()].getY() + " X: "
+//						+ robotFootprint[blSensor.getRelativePos()].getX());
+//				Coordinate[] seeingCoords = blSensor.getFacingCoordinates(robot);
+//				if (seeingCoords != null)
+//					for (int i = 0; i < seeingCoords.length; i++) {
+//						System.out
+//								.println("Looking at Y: " + seeingCoords[i].getY() + " X : " + seeingCoords[i].getX());
+//					}
+//
+//				int i = blSensor.simulatedLook(robot, Main.simulatedMap);
+//				System.out.println("Front Right East Value: " + i);
 			}
 		});
 		JButton rotateRight = new JButton("Rotate Right");
@@ -174,9 +175,11 @@ public class GUI extends JFrame {
 				mapPanel.repaint();
 			}
 		});
-		ctrlPanel.add(moveForward);
-		ctrlPanel.add(rotateRight);
-		ctrlPanel.add(rotateLeft);
+
+		ctrlPanel.add(explore);
+//		ctrlPanel.add(moveForward);
+//		ctrlPanel.add(rotateRight);
+//		ctrlPanel.add(rotateLeft);
 	}
 
 	/**
@@ -195,10 +198,9 @@ public class GUI extends JFrame {
 		}
 
 		/**
-		 * Override the getPreferredSize() of JPanel to always ensure that MapAndRobotJPanel has a
-		 * dynamic preferred size so that it maintains the original aspect ratio. In this case, it
-		 * will return a JPanel that is always sized with an aspect ratio of 3:4 (15 columns by 20
-		 * rows).
+		 * Override the getPreferredSize() of JPanel to always ensure that MapAndRobotJPanel has a dynamic
+		 * preferred size so that it maintains the original aspect ratio. In this case, it will return a
+		 * JPanel that is always sized with an aspect ratio of 3:4 (15 columns by 20 rows).
 		 * 
 		 * Referenced from:
 		 * https://stackoverflow.com/questions/21142686/making-a-robust-resizable-swing-chess-gui
@@ -250,8 +252,8 @@ public class GUI extends JFrame {
 	}
 
 	/**
-	 * Paint <tt>Robot</tt> onto <tt>Graphics g</tt> if <tt>actualY</tt> and <tt>actualX</tt>
-	 * matches <tt>robotFootprint</tt>.
+	 * Paint <tt>Robot</tt> onto <tt>Graphics g</tt> if <tt>actualY</tt> and <tt>actualX</tt> matches
+	 * <tt>robotFootprint</tt>.
 	 * 
 	 * @param actualY
 	 * @param actualX
@@ -260,8 +262,7 @@ public class GUI extends JFrame {
 	 */
 	private void paintRobot(int actualY, int actualX, Coordinate[] robotFootprint, Graphics g) {
 		// Paint FRONT_LEFT of Robot
-		if (actualY == robotFootprint[Robot.FRONT_LEFT].getY()
-				&& actualX == robotFootprint[Robot.FRONT_LEFT].getX()) {
+		if (actualY == robotFootprint[Robot.FRONT_LEFT].getY() && actualX == robotFootprint[Robot.FRONT_LEFT].getX()) {
 			g.setColor(new Color(127, 204, 196));
 			g.fillOval(12, 12, 10, 10);
 			g.drawOval(9, 9, 16, 16);
@@ -304,8 +305,7 @@ public class GUI extends JFrame {
 		}
 
 		// Paint BACK_LEFT of Robot
-		if (actualY == robotFootprint[Robot.BACK_LEFT].getY()
-				&& actualX == robotFootprint[Robot.BACK_LEFT].getX()) {
+		if (actualY == robotFootprint[Robot.BACK_LEFT].getY() && actualX == robotFootprint[Robot.BACK_LEFT].getX()) {
 			g.setColor(new Color(127, 204, 196));
 			g.fillOval(12, 12, 10, 10);
 			g.drawOval(9, 9, 16, 16);
@@ -319,8 +319,7 @@ public class GUI extends JFrame {
 		}
 
 		// Paint BACK_RIGHT of Robot
-		if (actualY == robotFootprint[Robot.BACK_RIGHT].getY()
-				&& actualX == robotFootprint[Robot.BACK_RIGHT].getX()) {
+		if (actualY == robotFootprint[Robot.BACK_RIGHT].getY() && actualX == robotFootprint[Robot.BACK_RIGHT].getX()) {
 			g.setColor(new Color(127, 204, 196));
 			g.fillOval(12, 12, 10, 10);
 		}
