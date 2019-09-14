@@ -10,18 +10,31 @@ import main.Main;
 
 public class Exploration {
 
-	private static char state = '2';	// No need start from state 1 when exploration first starts
+	private char state;	// No need start from state 1 when exploration first starts
 
 	/**
-	 * State machine for exploration algorithm.
+	 * Constructor for exploration. Prepares <tt>Map</tt> for a new exploration by restarting state
+	 * machine and resetting all <tt>isVisited</tt> flags.
 	 * 
-	 * Each call executes a command to the robot.
-	 * 
-	 * @param robot
-	 * @param map
+	 * @param map To reset all <tt>isVisited</tt> flags.
 	 */
-	public static void execute(Robot robot, Map map) {
+	public Exploration(Map map) {
+		// Reset isVisited for all cells
+		// TODO
 
+		// Start from state 2 as exploration begins at start position
+		state = '2';
+	}
+
+	/**
+	 * State machine for exploration algorithm. Each call provides and execution command to the provided
+	 * <tt>Robot</tt> with reference to the <tt>Map</tt>.
+	 * 
+	 * @param robot With reference to the given <tt>Robot</tt>.
+	 * @param map   With reference to the given <tt>Map</tt>.
+	 * @return <i>true</i> when exploration has ended.
+	 */
+	public boolean execute(Robot robot, Map map) {
 		/* Set currPos as visited */
 		map.getCell(robot.getCurrPos()).setVisited();
 
@@ -39,6 +52,7 @@ public class Exploration {
 			else
 				state = '2';
 
+			execute(robot, map);	// Repeat until movement command
 			break;
 		case '2':	// Is there a wall on the right?
 			System.out.print(Character.toString(state) + ' ');
@@ -59,6 +73,8 @@ public class Exploration {
 					}
 				}
 			}
+
+			execute(robot, map);	// Repeat until movement command
 			break;
 		case '3':	// Is there a wall in the front?
 			System.out.print(Character.toString(state) + ' ');
@@ -78,6 +94,8 @@ public class Exploration {
 						state = 'B';	// Yes
 				}
 			}
+
+			execute(robot, map);	// Repeat until movement command
 			break;
 
 		case '4':	// Has the cell on the right been visited?
@@ -90,13 +108,15 @@ public class Exploration {
 
 			else
 				state = 'D';	// No
+
+			execute(robot, map);	// Repeat until movement command
 			break;
 
 		case 'A':	// End of exploration!
 			System.out.println("\nEnd of Exploration.");
 			// TODO Print results
 			// TODO Reset all visited flags?
-			break;
+			return true;	// Signify end of exploration
 
 		case 'B':	// Rotate left
 			System.out.println("\nRotate left.");
@@ -119,10 +139,7 @@ public class Exploration {
 		default:	// Do nothing
 		}
 
-		// Loop again until movement command
-		if (state < 'A' || state > 'D') {
-			execute(robot, map);
-		}
+		return false;	// Not completed
 	}
 
 	/**
@@ -133,7 +150,7 @@ public class Exploration {
 	 * @param coordinates Coordinates that the sensor sees for reference.
 	 * @return
 	 */
-	private static Coordinate[] genRightCoordinates(Robot robot) {
+	private Coordinate[] genRightCoordinates(Robot robot) {
 		Coordinate[] toReturn = new Coordinate[3];	// 3 x 3 robot has 3 coordinates per side
 
 		Sensor rightSensor = robot.getSensor(Robot.S_FR_E);
@@ -180,7 +197,7 @@ public class Exploration {
 	 * @param coordinates Coordinates that the sensor sees for reference.
 	 * @return
 	 */
-	private static Coordinate[] genFrontCoordinates(Robot robot) {
+	private Coordinate[] genFrontCoordinates(Robot robot) {
 		Coordinate[] toReturn = new Coordinate[3];	// 3 x 3 robot has 3 coordinates per side
 
 		Sensor frontLeftSensor = robot.getSensor(Robot.S_FL_N);
