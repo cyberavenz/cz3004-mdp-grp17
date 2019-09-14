@@ -38,12 +38,18 @@ public class GUI extends JFrame {
 
 		// Initialise overall layout
 		initLayout();
-
-		// Set it to visible
-		this.setVisible(true);
 	}
 
-	public void refreshGUI() {
+	/**
+	 * Ensures <tt>GUI</tt> is showing the latest instance of <tt>Robot</tt> and <tt>Map</tt>.
+	 * 
+	 * @param robot
+	 * @param map
+	 */
+	public void refreshGUI(Robot robot, Map map) {
+		this.robot = robot;
+		this.map = map;
+
 		for (int y = Map.maxY - 1; y >= 0; y--) {
 			for (int x = 0; x < Map.maxX; x++) {
 				// Note: cellsUI[][] uses actualY and actualX and does not include axis labelling
@@ -188,16 +194,24 @@ public class GUI extends JFrame {
 		String mode = Main.isRealRun ? "Real Run" : "Simulation";
 		ctrlPanel.add(new JLabel("MODE: " + mode, JLabel.CENTER));
 
-		/* Exploration Button */
+		/* Exploration (per step) button */
 		JButton explorePerStep = new JButton("Exploration (per step)");
 		explorePerStep.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Main.explorePerStep();
-				refreshGUI();
+				Main.btnExplorePerStep();
+			}
+		});
+
+		/* Explore all Button */
+		JButton exploreAll = new JButton("Explore all");
+		exploreAll.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Main.btnExploreAll();
 			}
 		});
 
 		ctrlPanel.add(explorePerStep);
+		ctrlPanel.add(exploreAll);
 	}
 
 	/**
