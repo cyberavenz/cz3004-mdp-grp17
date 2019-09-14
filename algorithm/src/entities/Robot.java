@@ -224,8 +224,23 @@ public class Robot {
 		sensors[L_BL_W] = new Sensor(5, BACK_LEFT, WEST);
 	}
 
+	/**
+	 * Get a specific <tt>Sensor</tt> on <tt>Robot</tt>.
+	 * 
+	 * @param number TYPE_PLACEMENT_DIRECTION: Use static final variables.
+	 * @return
+	 */
 	public Sensor getSensor(int number) {
 		return sensors[number];
+	}
+
+	/**
+	 * Get all <tt>Sensors</tt> on <tt>Robot</tt>.
+	 * 
+	 * @return
+	 */
+	public Sensor[] getAllSensors() {
+		return this.sensors;
 	}
 
 }
