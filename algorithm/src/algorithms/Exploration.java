@@ -34,7 +34,9 @@ public class Exploration {
 	 * @param map   With reference to the given <tt>Map</tt>.
 	 * @return <i>true</i> when exploration has ended.
 	 */
-	public boolean execute(Robot robot, Map map) {
+	public boolean executeOneStep(Robot robot, Map map) {
+		boolean done = false;		
+		
 		/* Set currPos as visited */
 		map.getCell(robot.getCurrPos()).setVisited();
 
@@ -43,100 +45,99 @@ public class Exploration {
 		 * 
 		 * Refer to right-hugging flowchart under documentation folder.
 		 */
-		switch (state) {
+		while (!done) {	// Repeat until movement command
+			switch (state) {
 
-		case '1':	// Back to start position?
-			System.out.print(Character.toString(state) + ' ');
-			if (Coordinate.isEqual(robot.getCurrPos(), map.getStartCoord()))
-				state = 'A';
-			else
-				state = '2';
+			case '1':	// Back to start position?
+				System.out.print(Character.toString(state) + ' ');
+				if (Coordinate.isEqual(robot.getCurrPos(), map.getStartCoord()))
+					state = 'A';
+				else
+					state = '2';
+				break;
 
-			execute(robot, map);	// Repeat until movement command
-			break;
-		case '2':	// Is there a wall on the right?
-			System.out.print(Character.toString(state) + ' ');
-			Coordinate[] rightCoordinates = genRightCoordinates(robot);
+			case '2':	// Is there a wall on the right?
+				System.out.print(Character.toString(state) + ' ');
+				Coordinate[] rightCoordinates = genRightCoordinates(robot);
 
-			// Assume default state
-			state = '4';		// No
+				// Assume default state
+				state = '4';		// No
 
-			// null coordinates means robot is at map boundary
-			if (rightCoordinates == null)
-				state = '3';	// Yes
+				// null coordinates means robot is at map boundary
+				if (rightCoordinates == null)
+					state = '3';	// Yes
 
-			// Check all coordinates if there is a wall
-			else {
-				for (int i = 0; i < rightCoordinates.length; i++) {
-					if (Main.simulatedMap.getCell(rightCoordinates[i]).getCellType() == Cell.WALL) {
-						state = '3';	// Yes
+				// Check all coordinates if there is a wall
+				else {
+					for (int i = 0; i < rightCoordinates.length; i++) {
+						if (Main.simulatedMap.getCell(rightCoordinates[i]).getCellType() == Cell.WALL) {
+							state = '3';	// Yes
+						}
 					}
 				}
-			}
+				break;
 
-			execute(robot, map);	// Repeat until movement command
-			break;
-		case '3':	// Is there a wall in the front?
-			System.out.print(Character.toString(state) + ' ');
-			Coordinate[] frontCoordinates = genFrontCoordinates(robot);
+			case '3':	// Is there a wall in the front?
+				System.out.print(Character.toString(state) + ' ');
+				Coordinate[] frontCoordinates = genFrontCoordinates(robot);
 
-			// Assume default state
-			state = 'C';	// No
+				// Assume default state
+				state = 'C';	// No
 
-			// null coordinates means robot is at map boundary
-			if (frontCoordinates == null)
-				state = 'B';		// Yes
+				// null coordinates means robot is at map boundary
+				if (frontCoordinates == null)
+					state = 'B';		// Yes
 
-			// Check all coordinates if there is a wall
-			else {
-				for (int i = 0; i < frontCoordinates.length; i++) {
-					if (Main.simulatedMap.getCell(frontCoordinates[i]).getCellType() == Cell.WALL)
-						state = 'B';	// Yes
+				// Check all coordinates if there is a wall
+				else {
+					for (int i = 0; i < frontCoordinates.length; i++) {
+						if (Main.simulatedMap.getCell(frontCoordinates[i]).getCellType() == Cell.WALL)
+							state = 'B';	// Yes
+					}
 				}
+				break;
+
+			case '4':	// Has the cell on the right been visited?
+				System.out.print(Character.toString(state) + ' ');
+				Coordinate[] robotFootprint = robot.getFootprint();
+
+				// Check if MIDDLE_RIGHT cell of Robot has been visited before
+				if (map.getCell(robotFootprint[Robot.MIDDLE_RIGHT]).isVisited())
+					state = 'C';	// Yes
+
+				else
+					state = 'D';	// No
+				break;
+
+			case 'A':	// End of exploration!
+				System.out.println("\nEnd of Exploration.");
+				// TODO Print results
+				// TODO Reset all visited flags?
+				return true;	// Signify end of exploration
+
+			case 'B':	// Rotate left
+				System.out.println("\nRotate left.");
+				robot.rotate(Rotate.LEFT);
+				state = '1';
+				done = true;
+				break;
+
+			case 'C':	// Move forward
+				System.out.println("\nMove forward.");
+				robot.moveForward(1);
+				state = '1';
+				done = true;
+				break;
+
+			case 'D':	// Rotate right
+				System.out.println("\nRotate right.");
+				robot.rotate(Rotate.RIGHT);
+				state = '1';
+				done = true;
+				break;
+
+			default:	// Do nothing
 			}
-
-			execute(robot, map);	// Repeat until movement command
-			break;
-
-		case '4':	// Has the cell on the right been visited?
-			System.out.print(Character.toString(state) + ' ');
-			Coordinate[] robotFootprint = robot.getFootprint();
-
-			// Check if MIDDLE_RIGHT cell of Robot has been visited before
-			if (map.getCell(robotFootprint[Robot.MIDDLE_RIGHT]).isVisited())
-				state = 'C';	// Yes
-
-			else
-				state = 'D';	// No
-
-			execute(robot, map);	// Repeat until movement command
-			break;
-
-		case 'A':	// End of exploration!
-			System.out.println("\nEnd of Exploration.");
-			// TODO Print results
-			// TODO Reset all visited flags?
-			return true;	// Signify end of exploration
-
-		case 'B':	// Rotate left
-			System.out.println("\nRotate left.");
-			robot.rotate(Rotate.LEFT);
-			state = '1';
-			break;
-
-		case 'C':	// Move forward
-			System.out.println("\nMove forward.");
-			robot.moveForward(1);
-			state = '1';
-			break;
-
-		case 'D':	// Rotate right
-			System.out.println("\nRotate right.");
-			robot.rotate(Rotate.RIGHT);
-			state = '1';
-			break;
-
-		default:	// Do nothing
 		}
 
 		return false;	// Not completed
