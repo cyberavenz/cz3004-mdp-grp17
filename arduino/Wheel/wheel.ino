@@ -26,8 +26,8 @@ void setup() {
 
 // 200 for right is 222 for left
 void loop() {
-  rotate(720);
-  //moveForward(5,222,200);
+  //rotate(720);
+  moveForward(10,222,200);
 }
 
 int pidControlForward(int left_encoder_val, int right_encoder_val){
