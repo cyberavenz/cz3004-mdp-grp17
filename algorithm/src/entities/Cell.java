@@ -7,19 +7,61 @@ public class Cell extends Coordinate {
 			ALPHABET_E = 15;
 
 	private char cellType; 			// Cell type listed above
+	private boolean isVisited;		// Whether cell has been visited
 
-	/* Constructor */
+	/**
+	 * <tt>Cell</tt> constructor which extends <tt>Coordinate</tt>.
+	 * 
+	 * @param y
+	 * @param x
+	 */
 	public Cell(int y, int x) {
 		super(y, x); 				// Coordinate constructor to set Y and X
 		this.cellType = UNKNOWN;	// Default to UNKNOWN
+		this.isVisited = false;		// Default to unvisited
 	}
 
+	/**
+	 * Get the current cellType.
+	 * 
+	 * @return
+	 */
 	public char getCellType() {
 		return cellType;
 	}
 
+	/**
+	 * Set the cellType.
+	 * 
+	 * @param cellType
+	 */
 	public void setCellType(char cellType) {
 		this.cellType = cellType;
+	}
+
+	/**
+	 * Check if <tt>Cell</tt> has been visited.
+	 * 
+	 * @return <i>true</i> or <i>false</i>
+	 */
+	public boolean isVisited() {
+		return isVisited;
+	}
+
+	/**
+	 * Set <tt>Cell</tt> to visited.
+	 */
+	public void setVisited() {
+		this.isVisited = true;
+	}
+
+	/**
+	 * Set <tt>Cell</tt> isVisted to true or false.
+	 * 
+	 * @param bool
+	 */
+	public void setVisited(boolean bool) {
+		this.isVisited = bool;
 	}
 
 }

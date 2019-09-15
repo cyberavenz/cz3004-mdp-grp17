@@ -15,7 +15,7 @@ public class Map {
 	private Cell cells[][];
 
 	/**
-	 * Map Constructor.
+	 * Map constructor.
 	 * 
 	 * Default Grid: y=20 by x=15.
 	 */
@@ -29,6 +29,18 @@ public class Map {
 				cells[y][x] = new Cell(y, x);
 			}
 		}
+	}
+
+	/**
+	 * Map constructor with import.
+	 * 
+	 * Default Grid: y=20 by x=15.
+	 * 
+	 * @param fileName
+	 */
+	public Map(String fileName) {
+		this();
+		this.importMap(fileName);
 	}
 
 	/**
@@ -69,12 +81,11 @@ public class Map {
 	/**
 	 * Get specific cell from Map.
 	 * 
-	 * @param y
-	 * @param x
+	 * @param coordinate
 	 * @return Requested <tt>Cell</tt>.
 	 */
-	public Cell getCell(int y, int x) {
-		return cells[y][x];
+	public Cell getCell(Coordinate coordinate) {
+		return cells[coordinate.getY()][coordinate.getX()];
 	}
 
 	/**
