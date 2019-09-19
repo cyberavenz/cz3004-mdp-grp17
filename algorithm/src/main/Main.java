@@ -32,6 +32,9 @@ public class Main {
 	public static void main(String[] args) {
 		// Show GUI
 		gui.setVisible(true);
+		
+		System.out.println(Map.getP1Descriptors(simulatedMap));
+//		System.out.println(Map.getP2Descriptors(simulatedMap));
 	}
 
 	/**
