@@ -16,7 +16,7 @@ public class Main {
 
 	public static boolean isRealRun = false;				// RealRun or Simulation mode?
 	public static Map simulatedMap = new Map("test2.txt");	// Set simulatedMap for use (if simulation)
-	public static Map unknownMap = new Map("unknown.txt");	// Default unknown state
+	public static Map unknownMap = new Map("unknown.txt");	// Set unknownMap (to be explored)
 	public static Robot robot = new Robot();				// Default start position
 
 	public static Exploration exploration = new Exploration(unknownMap); // Exploration algorithm
@@ -30,9 +30,10 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// Show GUI
-		gui.setVisible(true);
-		gui.refreshGUI(robot, simulatedMap);
+		gui.setVisible(true);						// Show GUI
+
+		if (!isRealRun)
+			gui.refreshGUI(robot, simulatedMap);	// Display simulatedMap first if simulation mode
 	}
 
 	/**
@@ -79,7 +80,7 @@ public class Main {
 
 		explorationExecutor.scheduleAtFixedRate(explorable, 0, 100, TimeUnit.MILLISECONDS);
 	}
-	
+
 	public static void btnPrintDescriptors() {
 		System.out.println("P1: " + Map.getP1Descriptors(unknownMap));
 		System.out.println("P2: " + Map.getP2Descriptors(unknownMap));
