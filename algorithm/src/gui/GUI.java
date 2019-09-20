@@ -209,9 +209,18 @@ public class GUI extends JFrame {
 				Main.btnExploreAll();
 			}
 		});
+		
+		/* P1 and P2 Descriptors */
+		JButton printDescriptors = new JButton("Print P1 and P2");
+		printDescriptors.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Main.btnPrintDescriptors();
+			}
+		});
 
 		ctrlPanel.add(explorePerStep);
 		ctrlPanel.add(exploreAll);
+		ctrlPanel.add(printDescriptors);
 	}
 
 	/**

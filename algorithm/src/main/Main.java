@@ -15,7 +15,7 @@ import gui.GUI;
 public class Main {
 
 	public static boolean isRealRun = false;				// RealRun or Simulation mode?
-	public static Map simulatedMap = new Map("test1.txt");	// Set simulatedMap for use (if simulation)
+	public static Map simulatedMap = new Map("test2.txt");	// Set simulatedMap for use (if simulation)
 	public static Map unknownMap = new Map("unknown.txt");	// Default unknown state
 	public static Robot robot = new Robot();				// Default start position
 
@@ -32,9 +32,7 @@ public class Main {
 	public static void main(String[] args) {
 		// Show GUI
 		gui.setVisible(true);
-		
-		System.out.println(Map.getP1Descriptors(simulatedMap));
-//		System.out.println(Map.getP2Descriptors(simulatedMap));
+		gui.refreshGUI(robot, simulatedMap);
 	}
 
 	/**
@@ -80,6 +78,11 @@ public class Main {
 		};
 
 		explorationExecutor.scheduleAtFixedRate(explorable, 0, 100, TimeUnit.MILLISECONDS);
+	}
+	
+	public static void btnPrintDescriptors() {
+		System.out.println("P1: " + Map.getP1Descriptors(unknownMap));
+		System.out.println("P2: " + Map.getP2Descriptors(unknownMap));
 	}
 
 	/**
