@@ -16,9 +16,8 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   delay(3000);
-  Serial.println("@bHello!");
-//  receiver();
-//  sendData();
+  receiver();
+  sendData();
 }
 
 void receiver() {
@@ -45,8 +44,11 @@ void receiver() {
 
 void sendData() {
     if (newData == true) {
-        String rec = String(receivedChars);
-        Serial.println("@b"+rec+"!");
+        String initial = String(receivedChars[0]);
+        String second = String(char(int(receivedChars[1])+1));
+        Serial.println("@"+initial+second+"!");
         newData = false;
-    }
+    } 
+    Serial.flush();
+
 }
