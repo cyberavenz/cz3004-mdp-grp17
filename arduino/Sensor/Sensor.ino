@@ -11,6 +11,7 @@
 #define s5 A4 //
 #define s6 A5 // Long
 
+#define
 
 SharpIR FL =  SharpIR(s1, SRmodel);
 SharpIR FC =  SharpIR(s2, SRmodel);
@@ -34,19 +35,29 @@ void loop() {
   float bs = BS.distance();
   float bl = BL.distance();
 
+int sample[10];
+
+if (bl > 25) {
+  Serial.print("The object is at: (bl) ");
+  Serial.print(bl+3);
+}
+else {
+  Serial.print("The object is at: (bs) ");
+  Serial.print(bs+1);
+}
   
    
-  if(bs <= 28 && bl <= 30){
-    Serial.print("The object is at: (bs) ");
-    Serial.print(round((bs - 5)/10)*10);
-  }
-  else if (bl > 64 && bl < 79){
-    Serial.print("The object is at: (bl) 70");
-  }
-  else if (bl <= 64) {
-    Serial.print("The object is at: (bl) ");
-    Serial.print(round(bl/10)*10); 
-  }
+//  if(bs <= 28 && bl <= 30){
+//    Serial.print("The object is at: (bs) ");
+//    Serial.print(round((bs - 5)/10)*10);
+//  }
+//  else if (bl > 64 && bl < 79){
+//    Serial.print("The object is at: (bl) 70");
+//  }
+//  else if (bl <= 64) {
+//    Serial.print("The object is at: (bl) ");
+//    Serial.print(round(bl/10)*10); 
+//  }
 
   
 //  Serial.print("FL: ");  // returns it to the serial monitor
