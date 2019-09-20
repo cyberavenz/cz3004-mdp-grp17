@@ -26,8 +26,18 @@ void setup() {
 
 // 200 for right is 222 for left
 void loop() {
-  rotate(720);
-  //moveForward(5,222,200);
+  //rotate(720);
+  //moveForward(10,222,200);
+  delay(1000);
+  
+  Serial.println("left_encoder_val = ");
+  Serial.println(left_encoder_val);
+      
+  Serial.println("right_encoder_val = ");
+  Serial.println(right_encoder_val);
+
+  rotateLeft(90);
+  
 }
 
 int pidControlForward(int left_encoder_val, int right_encoder_val){
@@ -83,6 +93,31 @@ void rotate(int degree){
       float actual_distance = (dis*405) - (5*dis);
       output = pidControlForward(left_encoder_val, right_encoder_val);
       md.setSpeeds(left_speed+output,-right_speed+output);
+      if(right_encoder_val >= actual_distance){
+        md.setBrakes(375, 400);
+        delay(2000);
+        Serial.println("left_encoder_val = ");
+        Serial.println(left_encoder_val);
+      
+        Serial.println("right_encoder_val = ");
+        Serial.println(right_encoder_val);
+        
+      }
+}
+
+//
+void rotateLeft(int degree){
+      int output;
+      float dis = degree / 90.0;
+      int left_speed = 300;
+      int right_speed = 258;
+      
+      float actual_distance = (dis*300) - (30*dis);
+      
+      output = pidControlForward(left_encoder_val, right_encoder_val);
+      
+      md.setSpeeds( -(left_speed+output) , right_speed-output);
+      
       if(right_encoder_val >= actual_distance){
         md.setBrakes(375, 400);
         delay(2000);

@@ -70,15 +70,6 @@ public class Map {
 	}
 
 	/**
-	 * Export P1 and P2 to txt file from a Map object.
-	 * 
-	 * @param map
-	 */
-	public void exportMap(Map map) {
-		// TODO Export P1 and P2 to txt file
-	}
-
-	/**
 	 * Get specific cell from Map.
 	 * 
 	 * @param coordinate
@@ -95,5 +86,62 @@ public class Map {
 	 */
 	public Coordinate getStartCoord() {
 		return new Coordinate(1, 1);
+	}
+
+	/**
+	 * Get P1 descriptors from a given <tt>Map</tt> object.
+	 * 
+	 * @param map
+	 */
+	public static String getP1Descriptors(Map map) {
+		String P1 = new String();
+		
+		P1 += "11";		// Padding sequence
+		
+		for (int y = 0; y < Map.maxY; y++) {
+			for (int x = 0; x < Map.maxX; x++) {
+				int cellType = map.getCell(new Coordinate(y, x)).getCellType();
+				
+				if (cellType == Cell.UNKNOWN)
+					P1 += "0";
+				else
+					P1 += "1";
+			}
+		}
+		
+		P1 += "11";		// Padding sequence
+		
+		// Convert to Hexadecimal
+//		for (int i = 0; i < 304; i+=4) {
+//			String stringOf4Bits = P1.charAt(i) + P1.charAt(i+1) + P1.charAt(i+2) + P1.charAt(i+3);
+//			int intOf4Bits = Integer.parseInt(, 2);	// Binary String to Decimal Number
+//			String hexString = Integer.toString(intOf4Bits, 16).toUpperCase();	// Decimal Number to Hex String
+//		}
+		
+		return P1;
+	}
+	
+	/**
+	 * Get P2 descriptors from a given <tt>Map</tt> object.
+	 * 
+	 * @param map
+	 */
+	public static String getP2Descriptors(Map map) {
+		String P2 = new String();
+		
+		for (int y = 0; y < Map.maxY; y++) {
+			for (int x = 0; x < Map.maxX; x++) {
+				int cellType = map.getCell(new Coordinate(y, x)).getCellType();
+				
+				if (cellType != Cell.UNKNOWN) {
+					if (cellType == Cell.WALL)
+						P2 += "1";
+					else
+						P2 += "0";
+				}
+			}
+		}
+		
+		return P2;
 	}
 }

@@ -31,8 +31,23 @@ void loop() {
   int fc = FC.distance();
   int fr = FR.distance();
   int r  = R.distance();
-  int bs = BS.distance();
-  int bl = BL.distance();
+  float bs = BS.distance();
+  float bl = BL.distance();
+
+  
+   
+  if(bs <= 28 && bl <= 30){
+    Serial.print("The object is at: (bs) ");
+    Serial.print(round((bs - 5)/10)*10);
+  }
+  else if (bl > 64 && bl < 79){
+    Serial.print("The object is at: (bl) 70");
+  }
+  else if (bl <= 64) {
+    Serial.print("The object is at: (bl) ");
+    Serial.print(round(bl/10)*10); 
+  }
+
   
 //  Serial.print("FL: ");  // returns it to the serial monitor
 //  Serial.print(fl);
@@ -46,11 +61,11 @@ void loop() {
 //  Serial.print(" R: ");  // returns it to the serial monitor
 //  Serial.print(r);
 //    
-  Serial.print(" BS: ");  // returns it to the serial monitor
-  Serial.print(bs);
-    
-  Serial.print(" BL: ");  // returns it to the serial monitor
-  Serial.print(bl);
+//  Serial.print(" BS: ");  // returns it to the serial monitor
+//  Serial.print(bs);
+//    
+//  Serial.print(" BL: ");  // returns it to the serial monitor
+//  Serial.print(bl);
 
   Serial.println();
   
