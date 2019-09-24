@@ -15,7 +15,7 @@ import gui.GUI;
 public class Main {
 
 	public static boolean isRealRun = false;				// RealRun or Simulation mode?
-	public static Map simulatedMap = new Map("test2.txt");	// Set simulatedMap for use (if simulation)
+	public static Map simulatedMap = new Map("test4.txt");	// Set simulatedMap for use (if simulation)
 	public static Map unknownMap = new Map("unknown.txt");	// Set unknownMap (to be explored)
 	public static Robot robot = new Robot();				// Default start position
 

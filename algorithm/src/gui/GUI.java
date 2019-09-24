@@ -6,6 +6,7 @@ import entities.Cell;
 import entities.Coordinate;
 import entities.Map;
 import entities.Robot;
+import entities.Robot.Rotate;
 import main.Main;
 
 import java.awt.*;
@@ -217,10 +218,37 @@ public class GUI extends JFrame {
 				Main.btnPrintDescriptors();
 			}
 		});
+		
+		JButton moveForward = new JButton("Move Forward");
+		moveForward.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				robot.moveForward(1);
+				mapPanel.repaint();
+			}
+		});
+		
+		JButton rotateLeft = new JButton("Rotate Left");
+		rotateLeft.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				robot.rotate(Rotate.LEFT);
+				mapPanel.repaint();
+			}
+		});
+		
+		JButton rotateRight = new JButton("Rotate Right");
+		rotateRight.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				robot.rotate(Rotate.RIGHT);
+				mapPanel.repaint();
+			}
+		});
 
 		ctrlPanel.add(explorePerStep);
 		ctrlPanel.add(exploreAll);
 		ctrlPanel.add(printDescriptors);
+		ctrlPanel.add(moveForward);
+		ctrlPanel.add(rotateLeft);
+		ctrlPanel.add(rotateRight);
 	}
 
 	/**
