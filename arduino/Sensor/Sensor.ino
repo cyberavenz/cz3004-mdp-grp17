@@ -11,9 +11,6 @@
 #define s5 A4 //
 #define s6 A5 // Long
 
-//int stack[10];
-//int pointer = 0;
-int test = 1;
 char cc;
 
 SharpIR FL =  SharpIR(s1, SRmodel);
@@ -36,7 +33,32 @@ void loop() {
   }
   
   switch (cc){
-    case 'a':
+//    case 's':
+//      Serial.print("Front Left: ");
+//      Serial.println(getDistance(FL, 9));
+//      
+//      Serial.print("Front Center: ");
+//      Serial.println(getDistance(FC, 9));
+//      
+//      Serial.print("Front Right: ");
+//      Serial.println(getDistance(FR, 9));
+//
+//      Serial.print("Right: ");
+//      Serial.println(getDistance(R, 6)); 
+//      
+//      Serial.print("Rear Left Short: ");
+//      Serial.println(getDistance(BS, 9));
+      
+//      Serial.print("Rear Right Long: ");
+//      int blDistance = getDistance();
+//      Serial.println(blDistance);
+//      if (blDistance <= 5) {
+//        Serial.println("too far or too near"); // - 1
+//      }
+  
+    
+////// FOR CheckPoint
+    case 's':
       if (BL.distance() > 25) {
         Serial.print("The object is at: (bl) ");
         Serial.print(getDistance());
@@ -48,35 +70,33 @@ void loop() {
       }
       Serial.println();
       break;
+/////////////////////
   }
 
-//  // FOR PROJECT
-//  if(bs <= 28 && bl <= 30){
-//    Serial.print("The object is at: (bs) ");
-//    Serial.print(round((bs - 5)/10)*10);
-//  }
-//  else if (bl > 64 && bl < 79){
-//    Serial.print("The object is at: (bl) 70");
-//  }
-//  else if (bl <= 64) {
-//    Serial.print("The object is at: (bl) ");
-//    Serial.print(round(bl/10)*10); 
-//  }
-//  Serial.println();
-//  delay(2000);
-//  //////
-
+}
+int getDistance(SharpIR sensor, int offset) {
+  double sum = 0;
+  double average = 0; 
+  
+  for (int i = 0; i < 10; i++) {
+    sum = sum + sensor.distance() - offset;
+  }
+  average = (sum / 10);
+  
+  return round(average/10);
+//  return average;
 }
 
 double getDistance(){
   double sum = 0;
   double average = 0;
-  
   for (int i = 0; i < 10; i++) {
     sum = sum + BL.distance();
   }
-  if(average<60)
-  average = (sum / 10) + 10;
+
+  if(average<60){
+    average = (sum / 10) + 10;
+  }
   
   return average;
 }
