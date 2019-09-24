@@ -103,10 +103,22 @@ public class Exploration {
 
 				// Check if MIDDLE_RIGHT cell of Robot has been visited before
 				if (map.getCell(robotFootprint[Robot.MIDDLE_RIGHT]).isVisited())
-					state = 'C';	// Yes
+					state = '5';	// Yes
 
 				else
 					state = 'D';	// No
+				break;
+				
+			case '5':	// Has the cell in the front been visited?
+				System.out.print(Character.toString(state) + ' ');
+				robotFootprint = robot.getFootprint();
+
+				// Check if MIDDLE_RIGHT cell of Robot has been visited before
+				if (map.getCell(robotFootprint[Robot.FRONT_CENTER]).isVisited())
+					state = 'D';	// Yes
+
+				else
+					state = 'C';	// No
 				break;
 
 			case 'A':	// End of exploration!
@@ -129,9 +141,10 @@ public class Exploration {
 				done = true;
 				break;
 
-			case 'D':	// Rotate right
-				System.out.println("\nRotate right.");
+			case 'D':	// Rotate right and move forward
+				System.out.println("\nRotate right and move forward.");
 				robot.rotate(Rotate.RIGHT);
+				robot.moveForward(1);
 				state = '1';
 				done = true;
 				break;
