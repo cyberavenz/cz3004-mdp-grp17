@@ -88,7 +88,6 @@ int getDistance(SharpIR sensor, int offset) {
   average = (sum / 10);
   
   return round(average/10);
-//  return average;
 }
 
 //////// FOR CheckPoint

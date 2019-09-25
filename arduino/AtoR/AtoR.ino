@@ -9,26 +9,25 @@ void sendData();
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(115200);
+  Serial.begin(9600);
 
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  delay(3000);
-  Serial.println("@bHello!");
-//  receiver();
-//  sendData();
+//  Serial.println("@bHello!");
+  delay(100);
+  receiver();
+  delay(100);
+  sendData();
 }
 
 void receiver() {
-    static byte ndx = 0;
+    int ndx = 0;
     char endMarker = '!';
     char rc;
-
     while (Serial.available() > 0 && newData == false) {
         rc = Serial.read();
-
         if (rc != endMarker) {
             receivedChars[ndx] = rc;
             ndx++;
@@ -47,9 +46,7 @@ void sendData() {
     if (newData == true) {
         String initial = String(receivedChars[0]);
         String second = String(char(int(receivedChars[1])+1));
-        Serial.println("@"+initial+second+"!")
+        Serial.println("@"+initial+second+"!");
         newData = false;
     } 
-    Serial.flush();
-
 }

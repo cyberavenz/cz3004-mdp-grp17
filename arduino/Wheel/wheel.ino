@@ -11,6 +11,7 @@ DualVNH5019MotorShield md;
 
 //For counting Encoder using interrupt
 int right_encoder_val = 0, left_encoder_val = 0;
+int i = 0;
 void RightEncoderInc(){right_encoder_val++;}
 void LeftEncoderInc(){left_encoder_val++;}
 float piControlForward(float left, float right);
@@ -29,14 +30,20 @@ void loop() {
   //rotate(720);
   //moveForward(10,222,200);
   delay(1000);
-  
-  Serial.println("left_encoder_val = ");
-  Serial.println(left_encoder_val);
-      
-  Serial.println("right_encoder_val = ");
-  Serial.println(right_encoder_val);
-
-  rotateLeft(90);
+//  md.setSpeeds(-200,170);
+//  i++;
+//  Serial.print("i= ");
+//  Serial.println(i);
+//  if(i > 15){
+//      Serial.print("left_encoder_val = ");
+//      Serial.println(left_encoder_val);
+//      
+//      Serial.print("right_encoder_val = ");
+//      Serial.println(right_encoder_val);
+//      md.setSpeeds(0,0);
+//  }
+//rotateLeft(90);
+rotate(90);
   
 }
 
@@ -100,32 +107,28 @@ void rotate(int degree){
         Serial.println(left_encoder_val);
       
         Serial.println("right_encoder_val = ");
-        Serial.println(right_encoder_val);
+        Serial.println(right_encoder_val);        
+        left_encoder_val = 0;
+        right_encoder_val = 0;
+
+        
         
       }
 }
 
 //
-void rotateLeft(int degree){
-      int output;
-      float dis = degree / 90.0;
-      int left_speed = 300;
-      int right_speed = 258;
-      
-      float actual_distance = (dis*300) - (30*dis);
-      
-      output = pidControlForward(left_encoder_val, right_encoder_val);
-      
-      md.setSpeeds( -(left_speed+output) , right_speed-output);
-      
-      if(right_encoder_val >= actual_distance){
-        md.setBrakes(375, 400);
-        delay(2000);
-        Serial.println("left_encoder_val = ");
-        Serial.println(left_encoder_val);
-      
-        Serial.println("right_encoder_val = ");
-        Serial.println(right_encoder_val);
-        
-      }
-}
+  void rotateLeft(int degree){
+        int output;
+        float dis = degree / 90.0;
+        int left_speed = 220;
+        int right_speed = 160;
+        float actual_distance = (dis*370)-(5*dis);
+        output = pidControlForward(left_encoder_val, right_encoder_val);
+        md.setSpeeds(-left_speed,right_speed);
+        if(left_encoder_val >= actual_distance){
+          md.setSpeeds(0,0);
+          delay(2000);
+          left_encoder_val = 0;
+          right_encoder_val = 0;
+        }
+  }
