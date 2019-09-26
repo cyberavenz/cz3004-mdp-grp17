@@ -70,7 +70,7 @@ public class Exploration {
 				// Check all coordinates if there is a wall
 				else {
 					for (int i = 0; i < rightCoordinates.length; i++) {
-						if (Main.simulatedMap.getCell(rightCoordinates[i]).getCellType() == Cell.WALL) {
+						if (Main.testMap.getCell(rightCoordinates[i]).getCellType() == Cell.WALL) {
 							state = '3';	// Yes
 						}
 					}
@@ -91,7 +91,7 @@ public class Exploration {
 				// Check all coordinates if there is a wall
 				else {
 					for (int i = 0; i < frontCoordinates.length; i++) {
-						if (Main.simulatedMap.getCell(frontCoordinates[i]).getCellType() == Cell.WALL)
+						if (Main.testMap.getCell(frontCoordinates[i]).getCellType() == Cell.WALL)
 							state = 'B';	// Yes
 					}
 				}
@@ -109,7 +109,27 @@ public class Exploration {
 					state = 'D';	// No
 				break;
 				
-			case '5':	// Has the cell in the front been visited?
+			case '5':	// Is there a wall in the front?
+				System.out.print(Character.toString(state) + ' ');
+				frontCoordinates = genFrontCoordinates(robot);
+
+				// Assume default state
+				state = '6';	// No
+
+				// null coordinates means robot is at map boundary
+				if (frontCoordinates == null)
+					state = 'D';		// Yes
+
+				// Check all coordinates if there is a wall
+				else {
+					for (int i = 0; i < frontCoordinates.length; i++) {
+						if (Main.testMap.getCell(frontCoordinates[i]).getCellType() == Cell.WALL)
+							state = 'D';	// Yes
+					}
+				}
+				break;
+			
+			case '6':	// Has the cell in the front been visited?
 				System.out.print(Character.toString(state) + ' ');
 				robotFootprint = robot.getFootprint();
 
