@@ -61,14 +61,28 @@ public class GUI extends JFrame {
 	}
 
 	/**
+	 * (Optional) Set mode of GUI visually.
+	 * 
+	 * @param connected
+	 */
+	public void setModeColour(boolean connected) {
+		if (connected)
+			mainContainer.setBackground(new Color(115, 221, 141));
+		else
+			mainContainer.setBackground(new Color(198, 105, 105));
+	}
+
+	/**
 	 * Initialise the Container, JPanels and cellsUI.
 	 */
 	private void initLayout() {
 		mapPanel = new MapPanel();
+		mapPanel.setOpaque(false);
 		mapPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		populateMapPanel();		// Populate Map Panel with cells from _map
 
 		ctrlPanel = new JPanel();
+		ctrlPanel.setOpaque(false);
 		ctrlPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		ctrlPanel.setLayout(new GridLayout(10, 1, 10, 10));
 		populateCtrlPanel();	// Populate Control Panel with buttons
@@ -210,7 +224,7 @@ public class GUI extends JFrame {
 				Main.btnExploreAll();
 			}
 		});
-		
+
 		/* P1 and P2 Descriptors */
 		JButton printDescriptors = new JButton("Print P1 and P2");
 		printDescriptors.addActionListener(new ActionListener() {
@@ -218,7 +232,7 @@ public class GUI extends JFrame {
 				Main.btnPrintDescriptors();
 			}
 		});
-		
+
 		JButton moveForward = new JButton("Move Forward");
 		moveForward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -226,7 +240,7 @@ public class GUI extends JFrame {
 				mapPanel.repaint();
 			}
 		});
-		
+
 		JButton rotateLeft = new JButton("Rotate Left");
 		rotateLeft.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -234,7 +248,7 @@ public class GUI extends JFrame {
 				mapPanel.repaint();
 			}
 		});
-		
+
 		JButton rotateRight = new JButton("Rotate Right");
 		rotateRight.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

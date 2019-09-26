@@ -1,5 +1,6 @@
 package algorithms;
 
+import communications.TCPComm;
 import entities.Cell;
 import entities.Coordinate;
 import entities.Map;
@@ -143,14 +144,17 @@ public class Exploration {
 
 			case 'A':	// End of exploration!
 				System.out.println("\nEnd of Exploration.");
-				// TODO Print results
-				// TODO Reset all visited flags?
 				return true;	// Signify end of exploration
 
 			case 'B':	// Rotate left
 				System.out.println("\nRotate left.");
 				robot.rotate(Rotate.LEFT);
 				state = '1';
+				
+				// If realRun, send command to Arduino
+				if (Main.isRealRun)
+					Main.comms.send(TCPComm.ARDUINO, "L45");
+				
 				done = true;
 				break;
 
@@ -158,6 +162,11 @@ public class Exploration {
 				System.out.println("\nMove forward.");
 				robot.moveForward(1);
 				state = '1';
+				
+				// If realRun, send command to Arduino
+				if (Main.isRealRun)
+					Main.comms.send(TCPComm.ARDUINO, "F1");
+				
 				done = true;
 				break;
 
@@ -166,6 +175,11 @@ public class Exploration {
 				robot.rotate(Rotate.RIGHT);
 				robot.moveForward(1);
 				state = '1';
+				
+				// If realRun, send command to Arduino
+				if (Main.isRealRun)
+					Main.comms.send(TCPComm.ARDUINO, "R45 F1");
+				
 				done = true;
 				break;
 

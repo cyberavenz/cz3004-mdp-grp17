@@ -5,6 +5,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import algorithms.Exploration;
+import communications.TCPComm;
 import entities.Cell;
 import entities.Coordinate;
 import entities.Map;
@@ -15,12 +16,13 @@ import gui.GUI;
 public class Main {
 
 	public static boolean isRealRun = false;				// RealRun or Simulation mode?
-	public static Map simulatedMap = new Map("test4.txt");	// Set simulatedMap for use (if simulation)
-	public static Map unknownMap = new Map("unknown.txt");	// Set unknownMap (to be explored)
-	public static Robot robot = new Robot();				// Default start position
+	public static Map testMap;								// testMap (only used in simulation mode)
+	public static Map exploredMap = new Map("unknown.txt");	// Set exploredMap (starts from an unknown state)
+	public static Robot robot = new Robot();				// Default starting position of robot
 
-	public static Exploration exploration = new Exploration(unknownMap); // Exploration algorithm
-	public static GUI gui = new GUI(robot, unknownMap);		// New GUI instance
+	public static TCPComm comms;
+	public static GUI gui;
+	public static Exploration exploration;
 
 	public static ScheduledExecutorService explorationExecutor;
 
@@ -30,10 +32,28 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		gui.setVisible(true);						// Show GUI
+		/* 1. Initialise GUI */
+		gui = new GUI(robot, exploredMap);
+		gui.setVisible(true);
 
-		if (!isRealRun)
-			gui.refreshGUI(robot, simulatedMap);	// Display simulatedMap first if simulation mode
+		/* 2. Initialise algorithms */
+		exploration = new Exploration(exploredMap);		// Exploration algorithm
+
+		/* 3. Check if real run? */
+		// REAL RUN MODE
+		if (isRealRun) {
+			gui.setModeColour(false);
+			comms = new TCPComm();
+			gui.setModeColour(comms.isConnected());
+		}
+
+		// SIMULATION MODE
+		else {
+			// Load testMap
+			testMap = new Map("test3.txt");	// Set simulatedMap for use (if simulation)
+			// Display testMap first if simulation mode
+			gui.refreshGUI(robot, testMap);
+		}
 	}
 
 	/**
@@ -41,20 +61,23 @@ public class Main {
 	 * 
 	 */
 	public static void btnExplorePerStep() {
-		updateUnknownMap();
+		updateExploredMap();
 
 		/* Run exploration for one step */
-		exploration.executeOneStep(robot, unknownMap);
+		exploration.executeOneStep(robot, exploredMap);
 
-		updateUnknownMap();
-		gui.refreshGUI(robot, unknownMap);
+		updateExploredMap();
+		gui.refreshGUI(robot, exploredMap);
 	}
 
+	/**
+	 * Static function called by <tt>GUI</tt> when "Explore all" button is pressed.
+	 */
 	public static void btnExploreAll() {
 		// Reset all objects to clean state first
 		robot = new Robot();
-		unknownMap = new Map("unknown.txt");
-		exploration = new Exploration(unknownMap);
+		exploredMap = new Map("unknown.txt");
+		exploration = new Exploration(exploredMap);
 
 		// Only 1 instance should be running. Cancel previous executor if it exists.
 		if (explorationExecutor != null)
@@ -67,11 +90,11 @@ public class Main {
 		Runnable explorable = new Runnable() {
 			@Override
 			public void run() {
-				updateUnknownMap();
+				updateExploredMap();
 				// Run exploration for one step
-				boolean done = exploration.executeOneStep(robot, unknownMap);
-				updateUnknownMap();
-				gui.refreshGUI(robot, unknownMap);
+				boolean done = exploration.executeOneStep(robot, exploredMap);
+				updateExploredMap();
+				gui.refreshGUI(robot, exploredMap);
 
 				if (done)
 					explorationExecutor.shutdown();
@@ -81,15 +104,18 @@ public class Main {
 		explorationExecutor.scheduleAtFixedRate(explorable, 0, 100, TimeUnit.MILLISECONDS);
 	}
 
+	/**
+	 * Static function called by <tt>GUI</tt> when "Print P1 and P2" button is pressed.
+	 */
 	public static void btnPrintDescriptors() {
-		System.out.println("P1: " + Map.getP1Descriptors(unknownMap));
-		System.out.println("P2: " + Map.getP2Descriptors(unknownMap));
+		System.out.println("P1: " + Map.getP1Descriptors(exploredMap));
+		System.out.println("P2: " + Map.getP2Descriptors(exploredMap));
 	}
 
 	/**
 	 * Update <tt>unknownMap</tt> based on what the <tt>Sensors</tt> from <tt>Robot</tt> sees.
 	 */
-	private static void updateUnknownMap() {
+	private static void updateExploredMap() {
 		if (isRealRun) {
 			// TODO update unknownMap based on what sensor sees
 		}
@@ -105,8 +131,8 @@ public class Main {
 				// Only when sensor sees some coordinates
 				if (coordinates != null) {
 					for (int j = 0; j < coordinates.length; j++) {
-						Cell unknownCell = unknownMap.getCell(coordinates[j]);
-						Cell simulatedCell = simulatedMap.getCell(coordinates[j]);
+						Cell unknownCell = exploredMap.getCell(coordinates[j]);
+						Cell simulatedCell = testMap.getCell(coordinates[j]);
 						unknownCell.setCellType(simulatedCell.getCellType());
 
 						// Sensor should not be able to see past walls
