@@ -41,6 +41,8 @@ char command;
 boolean newData = false; 
 int error, prevError;
 float integral, derivative, output;
+String inputCommand = "";
+bool stringComplete = false;
 
 //Function Decleration
 void RightEncoderInc(){right_encoder_val++;}
@@ -56,10 +58,20 @@ void setup() {
     md.init();
     PCintPort::attachInterrupt(motor_R_encoder, RightEncoderInc, FALLING);
     PCintPort::attachInterrupt(motor_L_encoder, LeftEncoderInc, FALLING);
+    inputCommand.reserve(200);
 }
 
 void loop() {
-  //
+  if(stringComplete){
+    switch(inputCommand[0]){
+      case 'F': moveForward(1,222,200); break;
+      case 'L': rotateL(90); break;
+      case 'R': rotateR(90); break;
+      default: inputCommand = "";
+    }
+    inputCommand = "";
+    stringComplete = false;
+  }
 }
 
 int pidControlForward(int left_encoder_val, int right_encoder_val){
@@ -95,15 +107,15 @@ int pidControlTurn(int left_encoder_val, int right_encoder_val){
 void moveForward(int distance,int left_speed,int right_speed){
       int output;
       float actual_distance = (distance*323) - (30*distance); //323 is the tick required to move 10 cm
-      output = pidControlForward(left_encoder_val, right_encoder_val);
-      md.setSpeeds(left_speed+output,right_speed-output);
-      if(right_encoder_val >= actual_distance) {
-        md.setBrakes(375, 400);
-        delay(1000);
-        right_encoder_val = 0;
-        left_encoder_val = 0;
-        sendSensors();
-    }
+      while(right_encoder_val < actual_distance) {
+              output = pidControlForward(left_encoder_val, right_encoder_val);
+              md.setSpeeds(left_speed+output,right_speed-output);
+      }
+      md.setBrakes(375, 400);
+      delay(1000);
+      right_encoder_val = 0;
+      left_encoder_val = 0;
+      sendSensors();
 }
 
 void sendSensors() {
@@ -146,14 +158,15 @@ void rotateR(int degree){
       int left_speed = 222;
       int right_speed = 200;
       float actual_distance = (dis*390) - (5*dis);
-      output = pidControlForward(left_encoder_val, right_encoder_val);
-      md.setSpeeds(left_speed+output,-right_speed+output);
-      if(right_encoder_val >= actual_distance){
+      while (right_encoder_val < actual_distance){
+        output = pidControlForward(left_encoder_val, right_encoder_val);
+        md.setSpeeds(left_speed+output,-right_speed+output);
+      }
         md.setBrakes(375, 400);
-        delay(2000);    
+        delay(2000);     
         left_encoder_val = 0;
         right_encoder_val = 0;
-      }
+        sendSensors();
 }
 
 void rotateL(int degree){
@@ -162,12 +175,23 @@ void rotateL(int degree){
       int left_speed = 220;
       int right_speed = 190;
       float actual_distance = (dis*400)-(10*dis);
-      output = pidControlTurn(left_encoder_val, right_encoder_val);
-      md.setSpeeds(-(left_speed+output),right_speed-output);
-      if(left_encoder_val >= actual_distance){
-        md.setBrakes(375, 400);
-        delay(2000);
-        left_encoder_val = 0;
-        right_encoder_val = 0;
+      while(left_encoder_val < actual_distance){
+          output = pidControlTurn(left_encoder_val, right_encoder_val);
+          md.setSpeeds(-(left_speed+output),right_speed-output);
       }
+      md.setBrakes(375, 400);
+      delay(2000);
+      left_encoder_val = 0;
+      right_encoder_val = 0;
+      sendSensors();
+}
+
+void serialEvent(){
+  while(Serial.available()){
+    char inChar = (char)Serial.read();
+    inputCommand += inChar;
+    if(inChar == '\n'){
+      stringComplete = true;
+    }
+  }
 }
