@@ -52,6 +52,7 @@ int pidControlTurn(int left_encoder_val, int right_encoder_val);
 int getDistance(SharpIR sensor, int offset);
 void rotateR(int degree);
 void rotateL(int degree);
+double getDistance();
 
 void setup() {
     Serial.begin(9600);
@@ -62,8 +63,8 @@ void setup() {
 }
 
 void loop() {
-  int l = getDistance(FL, 9);
-  int c = getDistance(FC, 5);
+  int l = getDistance(FL, 10);
+  int c = getDistance(FC, 9);
   int r = getDistance(FR, 7);
   
 ///// CheckPoint A6  
@@ -101,17 +102,16 @@ Serial.println(l);
 Serial.print("R:");
 Serial.println(r);
 delay(1000);
+
 ///// CheckPoint A7
   if(l > 1 && r > 1 && c > 1){
     moveForward(1,222,200);
   }else if (l == 0){
-    rotateR(90);
-    moveForward(1,222,200);
-    rotateL(90);
+    rotateR(45);
     moveForward(4,222,200);
     rotateL(90);
-    moveForward(1,222,200);
-    rotateR(90);
+    moveForward(4,222,200);
+    rotateR(45);
   }else if( c == 1){
     rotateR(45);
     moveForward(4,222,200);
@@ -119,13 +119,11 @@ delay(1000);
     moveForward(4,222,200);
     rotateR(45);
   }else{
-    rotateL(90);
-    moveForward(1,222,200);
-    rotateR(90);
+    rotateL(45);
     moveForward(4,222,200);
     rotateR(90);
-    moveForward(1,222,200);
-    rotateL(90);
+    moveForward(4,222,200);
+    rotateR(45);
   }
 }
 
@@ -175,12 +173,12 @@ void moveForward(int distance,int left_speed,int right_speed){
 
 void sendSensors() {
   int fl,fc,fr,r,bs,bl;
-  fl = getDistance(FL, 9);
-  fc = getDistance(FC, 4);
+  fl = getDistance(FL, 10);
+  fc = getDistance(FC, 9);
   fr = getDistance(FR, 7);
    r = getDistance(R, 6);
-  bs = getDistance(BS, 9);
-  bl = getDistance(BL, 9);
+  bs = getDistance(BS, 5);
+  bl = getDistance();
   Serial.print("@a");
   Serial.print(fl);
   Serial.print("|");
@@ -204,7 +202,27 @@ int getDistance(SharpIR sensor, int offset) {
     sum = sum + sensor.distance() - offset;
   }
   average = (sum / 10);
+//  return average;
   return round(average/10);
+}
+
+////// FOR CheckPoint
+double getDistance(){
+  double sum = 0;
+  double average = 0;
+  for (int i = 0; i < 10; i++) {
+    sum = sum + BL.distance();
+  }
+  delay(200);
+  for (int i = 0; i < 10; i++) {
+    sum = sum + BL.distance();
+  }
+
+  if(average<60){
+    average = (sum / 20);
+  }
+  
+  return average + 4;
 }
 
 void rotateR(int degree){
