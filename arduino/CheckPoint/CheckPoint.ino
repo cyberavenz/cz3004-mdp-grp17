@@ -43,6 +43,7 @@ int error, prevError;
 float integral, derivative, output;
 String inputCommand = "";
 bool stringComplete = false;
+char cc;
 
 //Function Decleration
 void RightEncoderInc(){right_encoder_val++;}
@@ -52,7 +53,7 @@ int pidControlTurn(int left_encoder_val, int right_encoder_val);
 int getDistance(SharpIR sensor, int offset);
 void rotateR(int degree);
 void rotateL(int degree);
-double getDistance();
+double getDistance(SharpIR sensor);
 
 void setup() {
     Serial.begin(9600);
@@ -63,9 +64,29 @@ void setup() {
 }
 
 void loop() {
-  int l = getDistance(FL, 10);
+  int l = getDistance(FL, 11);
   int c = getDistance(FC, 9);
-  int r = getDistance(FR, 7);
+  int r = getDistance(FR, 10);
+  
+  if(l > 0 && r > 0 && c > 0){
+    moveForward(1,222,200);
+  }else if (l == 0 && r == 0 && c == 0){
+    double error = getError();
+    while (error > 0) {
+      error = getError();
+      calibrate(error);
+    }
+  }
+
+//  if (Serial.available() > 0) {
+//    cc = char(Serial.read());
+//  }
+//  
+//  switch (cc){
+//    case 'c':
+//      calibrate();
+//      break;
+//  }
   
 ///// CheckPoint A6  
 //  if(l > 0 && r > 0 && c > 0){
@@ -95,37 +116,92 @@ void loop() {
 //    moveForward(1,222,200);
 //    rotateL(90);
 //  }
-Serial.print("C:");
-Serial.println(c);
-Serial.print("L:");
-Serial.println(l);
-Serial.print("R:");
-Serial.println(r);
-delay(1000);
+//
+//Serial.print("C:");
+//Serial.println(c);
+//Serial.print("L:");
+//Serial.println(l);
+//Serial.print("R:");
+//Serial.println(r);
+//delay(1000);
+//
+/////// CheckPoint A7
+//  if(l > 1 && r > 1 && c > 1){
+//    moveForward(1,222,200);
+//  }else if (l == 0){
+//    rotateR(45);
+//    moveForward(4,222,200);
+//    rotateL(90);
+//    moveForward(4,222,200);
+//    rotateR(45);
+//  }else if( c == 1){
+//    rotateR(45);
+//    moveForward(4,222,200);
+//    rotateL(90);
+//    moveForward(4,222,200);
+//    rotateR(45);
+//  }else{
+//    rotateL(45);
+//    moveForward(4,222,200);
+//    rotateR(90);
+//    moveForward(4,222,200);
+//    rotateR(45);
+//  }
+}
 
-///// CheckPoint A7
-  if(l > 1 && r > 1 && c > 1){
-    moveForward(1,222,200);
-  }else if (l == 0){
-    rotateR(45);
-    moveForward(4,222,200);
-    rotateL(90);
-    moveForward(4,222,200);
-    rotateR(45);
-  }else if( c == 1){
-    rotateR(45);
-    moveForward(4,222,200);
-    rotateL(90);
-    moveForward(4,222,200);
-    rotateR(45);
-  }else{
-    rotateL(45);
-    moveForward(4,222,200);
-    rotateR(90);
-    moveForward(4,222,200);
-    rotateR(45);
+double getError(){
+
+  double error = 0;
+  double L = getDistance(FL);
+  double R = getDistance(FR) + 1.4;
+  error = L-R;
+  Serial.println(error);
+  return error;
+}
+
+void calibrate(double error){
+  if(error > 0) {
+    moveRight(error);
+  }
+  else if(error < 0) {
+    moveLeft(error);
+  }
+  else {
+    md.setBrakes(375, 400);
   }
 }
+
+//=======================Calibrate Right========================================
+void moveRight(double error){
+  md.setSpeeds(400,-400);
+  delay(abs(error*30));
+  md.setBrakes(375, 400);
+  delay(1000);
+}
+
+//=======================Calibrate Left=========================================
+void moveLeft(double error){
+  md.setSpeeds(-400,400);
+  delay(abs(error*30));
+  md.setBrakes(375, 400);
+  delay(1000);
+}
+
+double getDistance(SharpIR sensor){
+  double sum = 0;
+  double average = 0;
+  for (int i = 0; i < 10; i++) {
+    sum = sum + sensor.distance();
+  }
+  delay(100);
+  for (int i = 0; i < 10; i++) {
+    sum = sum + sensor.distance();
+  }
+  average = (sum / 20);
+  return average;
+//  return round(average/10);
+}
+
 
 int pidControlForward(int left_encoder_val, int right_encoder_val){
   int pwmL = testSpeed, pwmR = testSpeed;
@@ -199,9 +275,13 @@ int getDistance(SharpIR sensor, int offset) {
   double average = 0; 
   
   for (int i = 0; i < 10; i++) {
-    sum = sum + sensor.distance() - offset;
+    sum = sum + sensor.distance();
   }
-  average = (sum / 10);
+  delay(100);
+  for (int i = 0; i < 10; i++) {
+    sum = sum + sensor.distance();
+  }
+  average = (sum / 20) - offset;
 //  return average;
   return round(average/10);
 }

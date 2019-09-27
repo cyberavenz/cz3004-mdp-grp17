@@ -42,7 +42,6 @@ boolean newData = false;
 int error, prevError;
 float integral, derivative, output;
 String inputCommand = "";
-String value = "";
 bool stringComplete = false;
 
 //Function Decleration
@@ -63,18 +62,15 @@ void setup() {
 }
 
 void loop() {
-
   if(stringComplete){
     switch(inputCommand[0]){
-      case 'S': sendSensors();
-      case 'F': moveForward(value.toInt(),222,200); break;
-      case 'L': rotateL(value.toInt()); break;
-      case 'R': rotateR(value.toInt()); break;
+      case 'F': moveForward(1,222,200); break;
+      case 'L': rotateL(90); break;
+      case 'R': rotateR(90); break;
       default: inputCommand = "";
     }
     inputCommand = "";
     stringComplete = false;
-    value = "";
   }
 }
 
@@ -124,18 +120,19 @@ void moveForward(int distance,int left_speed,int right_speed){
 
 void sendSensors() {
   int fl,fc,fr,r,bs,bl;
-  fl = getDistance(FL, 9);
-  fc = getDistance(FC, 4);
-  fr = getDistance(FR, 7);
-   r = getDistance(R, 6);
-  bs = getDistance(BS, 5);
-  bl = getDistance();
+  fl = getDistance(FL, 11);
+  fc = getDistance(FC, 9);
+  fr = getDistance(FR, 10);
+   r = getDistance(R, 10);
+  bs = getDistance(BS, 8);
+  bl = getDistance(BL, 4);
   Serial.print("@a");
   Serial.print(fl);
   Serial.print("|");
   Serial.print(fc);
   Serial.print("|");
   Serial.print(fr);
+  
   Serial.print("|");
   Serial.print(r);
   Serial.print("|");
@@ -150,30 +147,14 @@ int getDistance(SharpIR sensor, int offset) {
   double average = 0; 
   
   for (int i = 0; i < 10; i++) {
-    sum = sum + sensor.distance() - offset;
+    sum = sum + sensor.distance();
   }
-  delay(200);
+  delay(100);
   for (int i = 0; i < 10; i++) {
-    sum = sum + sensor.distance() - offset;
+    sum = sum + sensor.distance();
   }
-  average = (sum / 20);
+  average = (sum / 20) - offset;
   return round(average/10);
-}
-
-double getDistance(){
-  double sum = 0;
-  double average = 0;
-  
-  for (int i = 0; i < 10; i++) {
-    sum = sum + BL.distance();
-  }
-  delay(200);
-  for (int i = 0; i < 10; i++) {
-    sum = sum + BL.distance();
-  }
-  average = (sum / 20);
-  
-  return average + 4;
 }
 
 void rotateR(int degree){
@@ -215,10 +196,6 @@ void serialEvent(){
     char inChar = (char)Serial.read();
     inputCommand += inChar;
     if(inChar == '\n'){
-      char a = inputCommand[1];
-      char b = inputCommand[2];
-      value += a;
-      value += b;
       stringComplete = true;
     }
   }
