@@ -121,11 +121,11 @@ void moveForward(int distance,int left_speed,int right_speed){
 void sendSensors() {
   int fl,fc,fr,r,bs,bl;
   fl = getDistance(FL, 9);
-  fc = getDistance(FC, 9);
-  fr = getDistance(FR, 9);
+  fc = getDistance(FC, 4);
+  fr = getDistance(FR, 7);
    r = getDistance(R, 6);
-  bs = getDistance(BS, 9);
-  bl = getDistance(BL, 9);
+  bs = getDistance(BS, 5);
+  bl = getDistance();
   Serial.print("@a");
   Serial.print(fl);
   Serial.print("|");
@@ -148,8 +148,28 @@ int getDistance(SharpIR sensor, int offset) {
   for (int i = 0; i < 10; i++) {
     sum = sum + sensor.distance() - offset;
   }
-  average = (sum / 10);
+  delay(200);
+  for (int i = 0; i < 10; i++) {
+    sum = sum + sensor.distance() - offset;
+  }
+  average = (sum / 20);
   return round(average/10);
+}
+
+double getDistance(){
+  double sum = 0;
+  double average = 0;
+  
+  for (int i = 0; i < 10; i++) {
+    sum = sum + BL.distance();
+  }
+  delay(200);
+  for (int i = 0; i < 10; i++) {
+    sum = sum + BL.distance();
+  }
+  average = (sum / 20);
+  
+  return average + 4;
 }
 
 void rotateR(int degree){

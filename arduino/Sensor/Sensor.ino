@@ -42,19 +42,19 @@ void loop() {
       Serial.println(getDistance(FL, 9));
       
       Serial.print("Front Center: ");
-      Serial.println(getDistance(FC, 9));
+      Serial.println(getDistance(FC, 4));
       
       Serial.print("Front Right: ");
-      Serial.println(getDistance(FR, 9));
+      Serial.println(getDistance(FR, 7));
 
       Serial.print("Right: ");
       Serial.println(getDistance(R, 6)); 
       
       Serial.print("Rear Left Short: ");
-      Serial.println(getDistance(BS, 9));
+      Serial.println(getDistance(BS, 5));
       
       Serial.print("Rear Right Long: ");
-      int blDistance = getDistance(BL, 9);
+      int blDistance = getDistance();
       Serial.println(blDistance); // up to 4 accurately
 //      if (blDistance <= 5) {
 //        Serial.println("too far or too near"); // - 1
@@ -82,26 +82,34 @@ int getDistance(SharpIR sensor, int offset) {
   double sum = 0;
   double average = 0; 
   
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 20; i++) {
     sum = sum + sensor.distance() - offset;
   }
-  average = (sum / 10);
-  
+  delay(200);
+  for (int i = 0; i < 20; i++) {
+    sum = sum + sensor.distance() - offset;
+  }
+  average = (sum / 40);
+//  return average;
   return round(average/10);
 }
 
-//////// FOR CheckPoint
-//double getDistance(){
-//  double sum = 0;
-//  double average = 0;
-//  for (int i = 0; i < 10; i++) {
-//    sum = sum + BL.distance();
-//  }
-//
-//  if(average<60){
-//    average = (sum / 10);
-//  }
-//  
-//  return average;
-//}
-///////////////////////
+////// FOR CheckPoint
+double getDistance(){
+  double sum = 0;
+  double average = 0;
+  for (int i = 0; i < 20; i++) {
+    sum = sum + BL.distance();
+  }
+  delay(200);
+  for (int i = 0; i < 20; i++) {
+    sum = sum + BL.distance();
+  }
+
+  if(average<60){
+    average = (sum / 40);
+  }
+  
+  return average + 4;
+}
+/////////////////////
