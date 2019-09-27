@@ -39,26 +39,22 @@ void loop() {
     
     case 's':
       Serial.print("Front Left: ");
-      Serial.println(getDistance(FL, 10));
+      Serial.println(getDistance(FL, 11));
       
       Serial.print("Front Center: ");
       Serial.println(getDistance(FC, 9));
       
       Serial.print("Front Right: ");
-      Serial.println(getDistance(FR, 7));
+      Serial.println(getDistance(FR, 10));
 
       Serial.print("Right: ");
-      Serial.println(getDistance(R, 6)); 
+      Serial.println(getDistance(R, 10)); 
       
       Serial.print("Rear Left Short: ");
-      Serial.println(getDistance(BS, 5));
+      Serial.println(getDistance(BS, 8));
       
       Serial.print("Rear Right Long: ");
-      int blDistance = getDistance();
-      Serial.println(blDistance); // up to 4 accurately
-//      if (blDistance <= 5) {
-//        Serial.println("too far or too near"); // - 1
-//      }
+      Serial.println(getDistance(BL, 4)); // up to 4 accurately
   
     
 //////// FOR CheckPoint
@@ -83,29 +79,33 @@ int getDistance(SharpIR sensor, int offset) {
   double average = 0; 
   
   for (int i = 0; i < 10; i++) {
-    sum = sum + sensor.distance() - offset;
+    sum = sum + sensor.distance();
   }
-  average = (sum / 10);
+  delay(100);
+  for (int i = 0; i < 10; i++) {
+    sum = sum + sensor.distance();
+  }
+  average = (sum / 20) - offset;
 //  return average;
   return round(average/10);
 }
 
-////// FOR CheckPoint
-double getDistance(){
-  double sum = 0;
-  double average = 0;
-  for (int i = 0; i < 10; i++) {
-    sum = sum + BL.distance();
-  }
-  delay(200);
-  for (int i = 0; i < 10; i++) {
-    sum = sum + BL.distance();
-  }
-
-  if(average<60){
-    average = (sum / 20);
-  }
-  
-  return average + 4;
-}
-/////////////////////
+//////// FOR CheckPoint
+//double getDistance(){
+//  double sum = 0;
+//  double average = 0;
+//  for (int i = 0; i < 10; i++) {
+//    sum = sum + BL.distance();
+//  }
+//  delay(200);
+//  for (int i = 0; i < 10; i++) {
+//    sum = sum + BL.distance();
+//  }
+//
+//  if(average<60){
+//    average = (sum / 20);
+//  }
+//  
+//  return average;
+//}
+///////////////////////
