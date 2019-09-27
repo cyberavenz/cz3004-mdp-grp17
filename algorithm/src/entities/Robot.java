@@ -205,26 +205,6 @@ public class Robot {
 	}
 
 	/**
-	 * Initialise all sensors that will be mounted on <tt>Robot</tt>.
-	 */
-	private void initSensors() {
-		sensors = new Sensor[6];	// 6 sensors in total
-
-		// Short_FrontLeft_NORTH : 0
-		sensors[S_FL_N] = new Sensor(3, FRONT_LEFT, NORTH);
-		// Short_FrontCenter_NORTH : 1
-		sensors[S_FC_N] = new Sensor(3, FRONT_CENTER, NORTH);
-		// Short_FrontRight_NORTH : 2
-		sensors[S_FR_N] = new Sensor(3, FRONT_RIGHT, NORTH);
-		// Short_FrontRight_EAST : 3
-		sensors[S_FR_E] = new Sensor(3, FRONT_RIGHT, EAST);
-		// Short_Back_Left_WEST : 4
-		sensors[S_BL_W] = new Sensor(3, BACK_LEFT, WEST);
-		// Long_BackLeft_WEST : 5
-		sensors[L_BL_W] = new Sensor(5, BACK_LEFT, WEST);
-	}
-
-	/**
 	 * Get a specific <tt>Sensor</tt> on <tt>Robot</tt>.
 	 * 
 	 * @param number TYPE_PLACEMENT_DIRECTION: Use static final variables.
@@ -241,6 +221,26 @@ public class Robot {
 	 */
 	public Sensor[] getAllSensors() {
 		return this.sensors;
+	}
+
+	/**
+	 * Initialise all sensors that will be mounted on <tt>Robot</tt>.
+	 */
+	private void initSensors() {
+		sensors = new Sensor[6];	// 6 sensors in total
+	
+		// Short_FrontLeft_NORTH : 0
+		sensors[S_FL_N] = new Sensor(3, FRONT_LEFT, NORTH);
+		// Short_FrontCenter_NORTH : 1
+		sensors[S_FC_N] = new Sensor(3, FRONT_CENTER, NORTH);
+		// Short_FrontRight_NORTH : 2
+		sensors[S_FR_N] = new Sensor(3, FRONT_RIGHT, NORTH);
+		// Short_FrontRight_EAST : 3
+		sensors[S_FR_E] = new Sensor(3, FRONT_RIGHT, EAST);
+		// Short_Back_Left_WEST : 4
+		sensors[S_BL_W] = new Sensor(3, BACK_LEFT, WEST);
+		// Long_BackLeft_WEST : 5
+		sensors[L_BL_W] = new Sensor(5, BACK_LEFT, WEST);
 	}
 
 }
