@@ -66,6 +66,7 @@ void loop() {
 
   if(stringComplete){
     switch(inputCommand[0]){
+      case 'S': sendSensors();
       case 'F': moveForward(value.toInt(),222,200); break;
       case 'L': rotateL(value.toInt()); break;
       case 'R': rotateR(value.toInt()); break;
