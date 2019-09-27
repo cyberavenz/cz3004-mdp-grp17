@@ -42,6 +42,7 @@ boolean newData = false;
 int error, prevError;
 float integral, derivative, output;
 String inputCommand = "";
+String value = "";
 bool stringComplete = false;
 
 //Function Decleration
@@ -62,15 +63,17 @@ void setup() {
 }
 
 void loop() {
+
   if(stringComplete){
     switch(inputCommand[0]){
-      case 'F': moveForward(1,222,200); break;
-      case 'L': rotateL(90); break;
-      case 'R': rotateR(90); break;
+      case 'F': moveForward(value.toInt(),222,200); break;
+      case 'L': rotateL(value.toInt()); break;
+      case 'R': rotateR(value.toInt()); break;
       default: inputCommand = "";
     }
     inputCommand = "";
     stringComplete = false;
+    value = "";
   }
 }
 
@@ -211,6 +214,10 @@ void serialEvent(){
     char inChar = (char)Serial.read();
     inputCommand += inChar;
     if(inChar == '\n'){
+      char a = inputCommand[1];
+      char b = inputCommand[2];
+      value += a;
+      value += b;
       stringComplete = true;
     }
   }
