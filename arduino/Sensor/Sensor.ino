@@ -39,10 +39,10 @@ void loop() {
     
     case 's':
       Serial.print("Front Left: ");
-      Serial.println(getDistance(FL, 9));
+      Serial.println(getDistance(FL, 10));
       
       Serial.print("Front Center: ");
-      Serial.println(getDistance(FC, 4));
+      Serial.println(getDistance(FC, 9));
       
       Serial.print("Front Right: ");
       Serial.println(getDistance(FR, 7));
@@ -82,14 +82,10 @@ int getDistance(SharpIR sensor, int offset) {
   double sum = 0;
   double average = 0; 
   
-  for (int i = 0; i < 20; i++) {
+  for (int i = 0; i < 10; i++) {
     sum = sum + sensor.distance() - offset;
   }
-  delay(200);
-  for (int i = 0; i < 20; i++) {
-    sum = sum + sensor.distance() - offset;
-  }
-  average = (sum / 40);
+  average = (sum / 10);
 //  return average;
   return round(average/10);
 }
@@ -98,16 +94,16 @@ int getDistance(SharpIR sensor, int offset) {
 double getDistance(){
   double sum = 0;
   double average = 0;
-  for (int i = 0; i < 20; i++) {
+  for (int i = 0; i < 10; i++) {
     sum = sum + BL.distance();
   }
   delay(200);
-  for (int i = 0; i < 20; i++) {
+  for (int i = 0; i < 10; i++) {
     sum = sum + BL.distance();
   }
 
   if(average<60){
-    average = (sum / 40);
+    average = (sum / 20);
   }
   
   return average + 4;
