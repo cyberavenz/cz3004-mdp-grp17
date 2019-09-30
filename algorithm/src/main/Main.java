@@ -6,16 +6,13 @@ import java.util.concurrent.TimeUnit;
 
 import algorithms.Exploration;
 import communications.TCPComm;
-import entities.Cell;
-import entities.Coordinate;
 import entities.Map;
 import entities.Robot;
-import entities.Sensor;
 import gui.GUI;
 
 public class Main {
 
-	public static boolean isRealRun = false;				// RealRun or Simulation mode?
+	public static boolean isRealRun = true;				// RealRun or Simulation mode?
 	public static Map testMap;								// testMap (only used in simulation mode)
 	public static Map exploredMap = new Map("unknown.txt");	// Set exploredMap (starts from an unknown state)
 	public static Robot robot = new Robot();				// Default starting position of robot
@@ -51,8 +48,7 @@ public class Main {
 		else {
 			// Load testMap
 			testMap = new Map("test3.txt");	// Set simulatedMap for use (if simulation)
-			// Display testMap first if simulation mode
-			gui.refreshGUI(robot, testMap);
+			gui.refreshGUI(robot, testMap); // Display testMap first if simulation mode
 		}
 	}
 
@@ -61,12 +57,12 @@ public class Main {
 	 * 
 	 */
 	public static void btnExplorePerStep() {
-		updateExploredMap();
+		exploredMap.reveal(robot, testMap);
 
 		/* Run exploration for one step */
 		exploration.executeOneStep(robot, exploredMap);
 
-		updateExploredMap();
+		exploredMap.reveal(robot, testMap);
 		gui.refreshGUI(robot, exploredMap);
 	}
 
@@ -90,10 +86,10 @@ public class Main {
 		Runnable explorable = new Runnable() {
 			@Override
 			public void run() {
-				updateExploredMap();
+				exploredMap.reveal(robot, testMap);
 				// Run exploration for one step
 				boolean done = exploration.executeOneStep(robot, exploredMap);
-				updateExploredMap();
+				exploredMap.reveal(robot, testMap);
 				gui.refreshGUI(robot, exploredMap);
 
 				if (done)
@@ -104,44 +100,21 @@ public class Main {
 		explorationExecutor.scheduleAtFixedRate(explorable, 0, 100, TimeUnit.MILLISECONDS);
 	}
 
-	/**
-	 * Static function called by <tt>GUI</tt> when "Print P1 and P2" button is pressed.
-	 */
-	public static void btnPrintDescriptors() {
-		System.out.println("P1: " + Map.getP1Descriptors(exploredMap));
-		System.out.println("P2: " + Map.getP2Descriptors(exploredMap));
-	}
+	public static void btnStartRealExplore() {
+		comms.send(TCPComm.ARDUINO, "SXX");		// Request sensor reading
+		exploredMap.reveal(robot, null);		// Read sensors and populate map
+		gui.refreshGUI(robot, exploredMap);		// Show it on GUI
 
-	/**
-	 * Update <tt>unknownMap</tt> based on what the <tt>Sensors</tt> from <tt>Robot</tt> sees.
-	 */
-	private static void updateExploredMap() {
-		if (isRealRun) {
-			// TODO update unknownMap based on what sensor sees
+		/* Run exploration for one step */
+		exploration.executeOneStep(robot, exploredMap);	// Send next movement
+
+		try {
+			Thread.sleep(1000);
+		} catch(Exception e) {
 		}
-
-		/* Simulated update */
-		else {
-			Sensor[] sensors = robot.getAllSensors();
-			Coordinate[] coordinates;
-
-			for (int i = 0; i < sensors.length; i++) {
-				coordinates = sensors[i].getFacingCoordinates(robot);
-
-				// Only when sensor sees some coordinates
-				if (coordinates != null) {
-					for (int j = 0; j < coordinates.length; j++) {
-						Cell unknownCell = exploredMap.getCell(coordinates[j]);
-						Cell simulatedCell = testMap.getCell(coordinates[j]);
-						unknownCell.setCellType(simulatedCell.getCellType());
-
-						// Sensor should not be able to see past walls
-						if (simulatedCell.getCellType() == Cell.WALL)
-							break;
-					}
-				}
-			}
-		}
+		
+		comms.send(TCPComm.ARDUINO, "SXX");		// Request sensor reading
+		exploredMap.reveal(robot, null);		// Read sensors and populate map
+		gui.refreshGUI(robot, exploredMap);		// Show it on GUI
 	}
-
 }

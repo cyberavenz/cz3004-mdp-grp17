@@ -5,6 +5,8 @@ import java.util.ArrayList;
 public class Sensor {
 
 	public static final int NORTH = 0, EAST = 1, SOUTH = 2, WEST = 3;
+	/* 2 types of sensor range */
+	public static final int SHORT_RANGE = 2, LONG_RANGE = 5;
 
 	private int relativePos;	// The relative position of the sensor on the robot
 	private int relativeDir;	// The relative direction of the sensor from robot's perspective
@@ -130,33 +132,34 @@ public class Sensor {
 	 * @param robot     <tt>Robot</tt> for reference.
 	 * @param actualMap An actual <tt>Map</tt> to know what values to simulate. Do not parse in
 	 *                  <i>unknown.txt</i> map!
-	 * @return 0: Wall in front | 1: Wall 1 cell away | 2: Wall 2 cells away | ... | 99: No wall detected
+	 * @return 0: Wall in front | 1: Wall 1 cell away | 2: Wall 2 cells away | ... | 99: No wall
+	 *         detected
 	 */
-	public int simulatedLook(Robot robot, Map actualMap) {
-		Coordinate[] facingCoords = this.getFacingCoordinates(robot);
+//	public int simulatedLook(Robot robot, Map actualMap) {
+//		Coordinate[] facingCoords = this.getFacingCoordinates(robot);
+//
+//		// Boundary of map
+//		if (facingCoords == null)
+//			return 0;
+//
+//		// Valid map coordinates, check against actualMap for simulated value
+//		else {
+//			int i = 0;
+//			boolean wallDetected = false;
+//
+//			for (i = 0; i < facingCoords.length; i++) {
+//				if (actualMap.getCell(facingCoords[i]).getCellType() == Cell.WALL) {
+//					wallDetected = true;
+//					break;
+//				}
+//			}
+//			if (wallDetected)
+//				return i;
+//			else
+//				return 99;	// Sensor sees no wall at all
+//		}
+//	}
 
-		// Boundary of map
-		if (facingCoords == null)
-			return 0;
-
-		// Valid map coordinates, check against actualMap for simulated value
-		else {
-			int i = 0;
-			boolean wallDetected = false;
-
-			for (i = 0; i < facingCoords.length; i++) {
-				if (actualMap.getCell(facingCoords[i]).getCellType() == Cell.WALL) {
-					wallDetected = true;
-					break;
-				}
-			}
-			if (wallDetected)
-				return i;
-			else
-				return 99;	// Sensor sees no wall at all
-		}
-	}
-	
 	public int getRelativePos() {
 		return this.relativePos;
 	}

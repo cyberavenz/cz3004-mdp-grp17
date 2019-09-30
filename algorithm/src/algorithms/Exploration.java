@@ -1,6 +1,5 @@
 package algorithms;
 
-import communications.TCPComm;
 import entities.Cell;
 import entities.Coordinate;
 import entities.Map;
@@ -12,6 +11,7 @@ import main.Main;
 public class Exploration {
 
 	private char state;	// No need start from state 1 when exploration first starts
+	private boolean outOfStart;
 
 	/**
 	 * Constructor for exploration. Prepares <tt>Map</tt> for a new exploration by restarting state
@@ -20,11 +20,15 @@ public class Exploration {
 	 * @param map To reset all <tt>isVisited</tt> flags.
 	 */
 	public Exploration(Map map) {
-		// Reset isVisited for all cells
-		// TODO
+		// Reset all isVisited flags in map
+		for (int y = Map.maxY - 1; y >= 0; y--)
+			for (int x = 0; x < Map.maxX; x++)
+				map.getCell(new Coordinate(y, x)).setVisited(false);
 
-		// Start from state 2 as exploration begins at start position
-		state = '2';
+		// Initialise state
+		state = '1';
+		// Indicate that Robot has left start position at least once
+		outOfStart = false;
 	}
 
 	/**
@@ -36,8 +40,8 @@ public class Exploration {
 	 * @return <i>true</i> when exploration has ended.
 	 */
 	public boolean executeOneStep(Robot robot, Map map) {
-		boolean done = false;		
-		
+		boolean moved = false;
+
 		/* Set currPos as visited */
 		map.getCell(robot.getCurrPos()).setVisited();
 
@@ -46,12 +50,12 @@ public class Exploration {
 		 * 
 		 * Refer to right-hugging flowchart under documentation folder.
 		 */
-		while (!done) {	// Repeat until movement command
+		while (!moved) {	// Repeat state machine until movement command
 			switch (state) {
 
 			case '1':	// Back to start position?
 				System.out.print(Character.toString(state) + ' ');
-				if (Coordinate.isEqual(robot.getCurrPos(), map.getStartCoord()))
+				if (outOfStart && Coordinate.isEqual(robot.getCurrPos(), map.getStartCoord()))
 					state = 'A';
 				else
 					state = '2';
@@ -71,8 +75,12 @@ public class Exploration {
 				// Check all coordinates if there is a wall
 				else {
 					for (int i = 0; i < rightCoordinates.length; i++) {
-						if (Main.testMap.getCell(rightCoordinates[i]).getCellType() == Cell.WALL) {
-							state = '3';	// Yes
+						if (Main.isRealRun) {
+							if (Main.exploredMap.getCell(rightCoordinates[i]).getCellType() == Cell.WALL)
+								state = '3';	// Yes
+						} else {
+							if (Main.testMap.getCell(rightCoordinates[i]).getCellType() == Cell.WALL)
+								state = '3';	// Yes
 						}
 					}
 				}
@@ -92,8 +100,13 @@ public class Exploration {
 				// Check all coordinates if there is a wall
 				else {
 					for (int i = 0; i < frontCoordinates.length; i++) {
-						if (Main.testMap.getCell(frontCoordinates[i]).getCellType() == Cell.WALL)
-							state = 'B';	// Yes
+						if (Main.isRealRun) {
+							if (Main.exploredMap.getCell(frontCoordinates[i]).getCellType() == Cell.WALL)
+								state = 'B';	// Yes
+						} else {
+							if (Main.testMap.getCell(frontCoordinates[i]).getCellType() == Cell.WALL)
+								state = 'B';	// Yes
+						}
 					}
 				}
 				break;
@@ -109,7 +122,7 @@ public class Exploration {
 				else
 					state = 'D';	// No
 				break;
-				
+
 			case '5':	// Is there a wall in the front?
 				System.out.print(Character.toString(state) + ' ');
 				frontCoordinates = genFrontCoordinates(robot);
@@ -124,12 +137,17 @@ public class Exploration {
 				// Check all coordinates if there is a wall
 				else {
 					for (int i = 0; i < frontCoordinates.length; i++) {
-						if (Main.testMap.getCell(frontCoordinates[i]).getCellType() == Cell.WALL)
-							state = 'D';	// Yes
+						if (Main.isRealRun) {
+							if (Main.exploredMap.getCell(frontCoordinates[i]).getCellType() == Cell.WALL)
+								state = 'D';	// Yes
+						} else {
+							if (Main.testMap.getCell(frontCoordinates[i]).getCellType() == Cell.WALL)
+								state = 'D';	// Yes
+						}
 					}
 				}
 				break;
-			
+
 			case '6':	// Has the cell in the front been visited?
 				System.out.print(Character.toString(state) + ' ');
 				robotFootprint = robot.getFootprint();
@@ -150,37 +168,28 @@ public class Exploration {
 				System.out.println("\nRotate left.");
 				robot.rotate(Rotate.LEFT);
 				state = '1';
-				
-				// If realRun, send command to Arduino
-				if (Main.isRealRun)
-					Main.comms.send(TCPComm.ARDUINO, "L45");
-				
-				done = true;
+				moved = true;
 				break;
 
 			case 'C':	// Move forward
 				System.out.println("\nMove forward.");
 				robot.moveForward(1);
 				state = '1';
-				
-				// If realRun, send command to Arduino
-				if (Main.isRealRun)
-					Main.comms.send(TCPComm.ARDUINO, "F1");
-				
-				done = true;
+				moved = true;
+				outOfStart = true;
 				break;
 
 			case 'D':	// Rotate right and move forward
 				System.out.println("\nRotate right and move forward.");
 				robot.rotate(Rotate.RIGHT);
+				try {
+					Thread.sleep(1000);
+				} catch (Exception e) {
+				}
 				robot.moveForward(1);
 				state = '1';
-				
-				// If realRun, send command to Arduino
-				if (Main.isRealRun)
-					Main.comms.send(TCPComm.ARDUINO, "R45 F1");
-				
-				done = true;
+				moved = true;
+				outOfStart = true;
 				break;
 
 			default:	// Do nothing

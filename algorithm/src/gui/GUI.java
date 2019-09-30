@@ -6,7 +6,6 @@ import entities.Cell;
 import entities.Coordinate;
 import entities.Map;
 import entities.Robot;
-import entities.Robot.Rotate;
 import main.Main;
 
 import java.awt.*;
@@ -204,7 +203,6 @@ public class GUI extends JFrame {
 	 * Populate Labels and Buttons in the <tt>ctrlPanel</tt>.
 	 */
 	private void populateCtrlPanel() {
-
 		/* Display Mode */
 		String mode = Main.isRealRun ? "Real Run" : "Simulation";
 		ctrlPanel.add(new JLabel("MODE: " + mode, JLabel.CENTER));
@@ -229,40 +227,26 @@ public class GUI extends JFrame {
 		JButton printDescriptors = new JButton("Print P1 and P2");
 		printDescriptors.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Main.btnPrintDescriptors();
+				System.out.println("P1: " + map.getP1Descriptors());
+				System.out.println("P2: " + map.getP2Descriptors());
 			}
 		});
 
-		JButton moveForward = new JButton("Move Forward");
-		moveForward.addActionListener(new ActionListener() {
+		/* Real Run Explore */
+		JButton startRealExplore = new JButton("START EXPLORATION");
+		startRealExplore.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				robot.moveForward(1);
-				mapPanel.repaint();
+				Main.btnStartRealExplore();
 			}
 		});
 
-		JButton rotateLeft = new JButton("Rotate Left");
-		rotateLeft.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				robot.rotate(Rotate.LEFT);
-				mapPanel.repaint();
-			}
-		});
-
-		JButton rotateRight = new JButton("Rotate Right");
-		rotateRight.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				robot.rotate(Rotate.RIGHT);
-				mapPanel.repaint();
-			}
-		});
-
-		ctrlPanel.add(explorePerStep);
-		ctrlPanel.add(exploreAll);
+		if (Main.isRealRun) {
+			ctrlPanel.add(startRealExplore);
+		} else {
+			ctrlPanel.add(explorePerStep);
+			ctrlPanel.add(exploreAll);
+		}
 		ctrlPanel.add(printDescriptors);
-		ctrlPanel.add(moveForward);
-		ctrlPanel.add(rotateLeft);
-		ctrlPanel.add(rotateRight);
 	}
 
 	/**
