@@ -125,7 +125,7 @@ void moveForward(int distance,int left_speed,int right_speed){
 void sendSensors() {
   int fl,fc,fr,r,bs,bl;
   fl = getDistance(FL, 11);
-  fc = getDistance(FC, 7);
+  fc = getDistance(FC, 9);
   fr = getDistance(FR, 10);
    r = getDistance(R, 10);
   bs = getDistance(BS, 8);
@@ -161,6 +161,61 @@ int getDistance(SharpIR sensor, int offset) {
 //  return average;
   return round(average/10);
 }
+
+//=========================Calibrate Codes=====================================
+double getError(){
+
+  double error = 0;
+  double L = getDistance(FL);
+  double R = getDistance(FR) + 1.4;
+  error = L-R;
+  Serial.println(error);
+  return error;
+}
+
+void calibrate(double error){
+  if(error > 0) {
+    moveRight(error);
+  }
+  else if(error < 0) {
+    moveLeft(error);
+  }
+  else {
+    md.setBrakes(375, 400);
+  }
+}
+
+//=======================Calibrate Right========================================
+void moveRight(double error){
+  md.setSpeeds(400,-400);
+  delay(abs(error*30));
+  md.setBrakes(375, 400);
+  delay(1000);
+}
+
+//=======================Calibrate Left=========================================
+void moveLeft(double error){
+  md.setSpeeds(-400,400);
+  delay(abs(error*30));
+  md.setBrakes(375, 400);
+  delay(1000);
+}
+
+double getDistance(SharpIR sensor){
+  double sum = 0;
+  double average = 0;
+  for (int i = 0; i < 10; i++) {
+    sum = sum + sensor.distance();
+  }
+  delay(100);
+  for (int i = 0; i < 10; i++) {
+    sum = sum + sensor.distance();
+  }
+  average = (sum / 20);
+  return average;
+//  return round(average/10);
+}
+/////////////
 
 void rotateR(int degree){
       int output;
