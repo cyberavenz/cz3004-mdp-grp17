@@ -63,11 +63,11 @@ void setup() {
 }
 
 void loop() {
-
+  
   if(stringComplete){
     switch(inputCommand[0]){
-      case 'S': sendSensors(); break;
-      case 'F': moveForward(value.toInt(),222,200); break;
+      case 'S': sendSensors();
+      case 'F': moveForward(value.toInt(),340,300); break;
       case 'L': rotateL(value.toInt()); break;
       case 'R': rotateR(value.toInt()); break;
       default: inputCommand = "";
@@ -80,9 +80,9 @@ void loop() {
 
 int pidControlForward(int left_encoder_val, int right_encoder_val){
   int pwmL = testSpeed, pwmR = testSpeed;
-  float kp = 38;
+  float kp = 40;
   float ki = 1;
-  float kd = 1;
+  float kd = 2;
   integral += error;
   derivative = error - prevError;
   
@@ -110,7 +110,7 @@ int pidControlTurn(int left_encoder_val, int right_encoder_val){
 
 void moveForward(int distance,int left_speed,int right_speed){
       int output;
-      float actual_distance = (distance*323) - (30*distance); //323 is the tick required to move 10 cm
+      float actual_distance = (distance*300) - (30*distance); //323 is the tick required to move 10 cm
       while(right_encoder_val < actual_distance) {
               output = pidControlForward(left_encoder_val, right_encoder_val);
               md.setSpeeds(left_speed+output,right_speed-output);
@@ -119,13 +119,13 @@ void moveForward(int distance,int left_speed,int right_speed){
       delay(1000);
       right_encoder_val = 0;
       left_encoder_val = 0;
-//      sendSensors();
+      sendSensors();
 }
 
 void sendSensors() {
   int fl,fc,fr,r,bs,bl;
   fl = getDistance(FL, 11);
-  fc = getDistance(FC, 7);
+  fc = getDistance(FC, 9);
   fr = getDistance(FR, 10);
    r = getDistance(R, 10);
   bs = getDistance(BS, 8);
@@ -158,16 +158,15 @@ int getDistance(SharpIR sensor, int offset) {
     sum = sum + sensor.distance();
   }
   average = (sum / 20) - offset;
-//  return average;
   return round(average/10);
 }
 
 void rotateR(int degree){
       int output;
       float dis = degree / 90.0;
-      int left_speed = 222;
-      int right_speed = 200;
-      float actual_distance = (dis*410) - (5*dis);
+      int left_speed = 340;
+      int right_speed = 300;
+      float actual_distance = (dis*390) - (5*dis);
       while (right_encoder_val < actual_distance){
         output = pidControlForward(left_encoder_val, right_encoder_val);
         md.setSpeeds(left_speed+output,-right_speed+output);
@@ -176,15 +175,15 @@ void rotateR(int degree){
         delay(2000);     
         left_encoder_val = 0;
         right_encoder_val = 0;
-//        sendSensors();
+        sendSensors();
 }
 
 void rotateL(int degree){
       int output;
       float dis = degree / 90.0;
-      int left_speed = 220;
-      int right_speed = 190;
-      float actual_distance = (dis*420)-(10*dis);
+      int left_speed = 340;
+      int right_speed = 290;
+      float actual_distance = (dis*410)-(10*dis);
       while(left_encoder_val < actual_distance){
           output = pidControlTurn(left_encoder_val, right_encoder_val);
           md.setSpeeds(-(left_speed+output),right_speed-output);
@@ -193,7 +192,7 @@ void rotateL(int degree){
       delay(2000);
       left_encoder_val = 0;
       right_encoder_val = 0;
-//      sendSensors();
+      sendSensors();
 }
 
 void serialEvent(){
