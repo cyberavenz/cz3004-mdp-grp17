@@ -11,7 +11,7 @@
 #define FL A0 // 
 #define FC A1 //
 #define FR A2 //
-#define R  A3 //
+#define R A3 //
 #define BS A4 //
 #define BL A5 // Long
 
@@ -149,42 +149,28 @@ void sendSensors() {
 
 
 //=========================Calibrate Codes=====================================
-void checkAlignmentOne(){
-  double error = getError();
-    while (!(error > -0.1 && error < 0.1)) {
-      calibrate(error);
-      error = getError();
-    }
-}
-
 double getError(){
 
   double error = 0;
   double L = getDistance(sensorRead(20, FL), FL, 1);
-  double R = getDistance(sensorRead(20, FR), FR, 1) + 1.1;
+  double R = getDistance(sensorRead(20, FR), FR, 1);
   
-//  Serial.print("L: ");
-//  Serial.println(L);
-//  
-//  Serial.print("R: ");
-//  Serial.println(R);
+  Serial.print("L: ");
+  Serial.println(L);
+  
+  Serial.print("R: ");
+  Serial.println(R);
   error = L-R;
-  if(error < -7) {
-    error = -7;
-  }
-  else if(error > 7) {
-    error = 7;
-  }
   Serial.println(error);
   return error;
 }
 
 void calibrate(double error){
   if(error > 0) {
-    moveLeft(error);
+    moveRight(error);
   }
   else if(error < 0) {
-    moveRight(error);
+    moveLeft(error);
   }
   else {
     md.setBrakes(375, 400);
@@ -193,18 +179,26 @@ void calibrate(double error){
 
 //=======================Calibrate Right========================================
 void moveRight(double error){
-  md.setSpeeds(-375, 400);
-  delay(abs(error*20));
+  md.setSpeeds(400,-400);
+  delay(abs(error*30));
   md.setBrakes(375, 400);
-  delay(500);
+  delay(1000);
 }
 
 //=======================Calibrate Left=========================================
 void moveLeft(double error){
-  md.setSpeeds(375, -400);
-  delay(abs(error*20));
+  md.setSpeeds(-400,400);
+  delay(abs(error*30));
   md.setBrakes(375, 400);
-  delay(500);
+  delay(1000);
+}
+
+void checkAlignmentOne(){
+  double error = getError();
+    while (error > 0 || error < 0) {
+      error = getError();
+      calibrate(error);
+    }
 }
 
 void insertionsort(int array[], int length) {
@@ -235,24 +229,24 @@ int sensorRead(int n, int sensor) {
 }
 
 
-float getDistance(int reading, int sensor, bool cali){
+int getDistance(int reading, int sensor, bool cali){
   float cm;
 
   switch (sensor) {
     case FL:
-      cm = 6088.0 / (reading  + 7) - 2;
+      cm = 6088 / (reading  + 7) - 2;
       break;
     case FC: 
-      cm = 6088.0 / (reading  + 7) - 1;
+      cm = 6088 / (reading  + 7) - 1;
       break;
     case FR:
-      cm = 6088.0 / (reading  + 7) - 2;
+      cm = 6088 / (reading  + 7) - 2;
       break;
     case R:
-      cm = 6088.0 / (reading  + 7) - 1; //15500.0 / (reading + 29) - 5
+      cm = 6088 / (reading  + 7) - 1; //15500.0 / (reading + 29) - 5
       break;
     case BS:
-      cm = 6088.0 / (reading  + 7);
+      cm = 6088 / (reading  + 7);
       break;
     case BL:
       cm = 15500.0 / (reading + 29) - 4;
