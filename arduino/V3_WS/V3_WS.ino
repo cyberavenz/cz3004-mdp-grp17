@@ -108,7 +108,9 @@ int pidControlTurn(int left_encoder_val, int right_encoder_val){
   pwmR = output;
   return pwmR;
 }
+//=========================End of PID Turn======================================
 
+//=========================Move Forward Codes===================================
 void moveForward(int distance,int left_speed,int right_speed){
       int output;
       float actual_distance = (distance*300) - (30*distance); //323 is the tick required to move 10 cm
@@ -123,20 +125,65 @@ void moveForward(int distance,int left_speed,int right_speed){
       
       int fl = getDistance(sensorRead(20, FL), FL, 0);
       int fr = getDistance(sensorRead(20, FR), FR, 0);
-      if (fl == 0 && fr == 0){
+      
+//      if (fl == 0 && fr == 0 
+      if ((fl == 0 && fr == 0) || (fl == 1 && fr == 1)) {
         checkAlignmentOne();
+        right_encoder_val = 0;
+        left_encoder_val = 0;
+        return;
       }
 //      sendSensors();
 }
+//=========================End of Move Forward Codes============================
 
+//=========================Rotate Right Codes===================================
+void rotateR(int degree){
+      int output;
+      float dis = degree / 90.0;
+      int left_speed = 222;
+      int right_speed = 200;
+      float actual_distance = (dis*380) - (5*dis);
+      while (right_encoder_val < actual_distance){
+        output = pidControlForward(left_encoder_val, right_encoder_val);
+        md.setSpeeds(left_speed+output,-right_speed+output);
+      }
+        md.setBrakes(375, 400);
+        delay(2000);     
+        left_encoder_val = 0;
+        right_encoder_val = 0;
+//        sendSensors();
+}
+//=========================End of Rotate Right Codes============================
+
+//=========================Rotate Left Codes====================================
+void rotateL(int degree){
+      int output;
+      float dis = degree / 90.0;
+      int left_speed = 220;
+      int right_speed = 190;
+      float actual_distance = (dis*425)-(10*dis);
+      while(left_encoder_val < actual_distance){
+          output = pidControlTurn(left_encoder_val, right_encoder_val);
+          md.setSpeeds(-(left_speed+output),right_speed-output);
+      }
+      md.setBrakes(375, 400);
+      delay(2000);
+      left_encoder_val = 0;
+      right_encoder_val = 0;
+//      sendSensors();
+}
+//=========================End of Rotate Left Codes=============================
+
+//=========================Send Sensor String Codes=============================
 void sendSensors() {
   int fl,fc,fr,r,bs,bl;
-  fl = getDistance(sensorRead(20, FL), FL, 0);
-  fc = getDistance(sensorRead(20, FC), FC, 0);
-  fr = getDistance(sensorRead(20, FR), FR, 0);
-   r = getDistance(sensorRead(20, R), R, 0);
-  bs = getDistance(sensorRead(20, BS), BS, 0);
-  bl = getDistance(sensorRead(20, BL), BL, 0);
+  fl = getDistanceinGrids(getDistance(sensorRead(40, FL), FL, 0), FL);
+  fc = getDistanceinGrids(getDistance(sensorRead(40, FC), FC, 0), FC);
+  fr = getDistanceinGrids(getDistance(sensorRead(40, FR), FR, 0), FR);
+   r = getDistanceinGrids(getDistance(sensorRead(40, R), R, 0), R);
+  bs = getDistanceinGrids(getDistance(sensorRead(40, BS), BS, 0), BS);
+  bl = getDistanceinGrids(getDistance(sensorRead(40, BL), BL, 0), BL);
   Serial.print("@t");
   Serial.print(fl);
   Serial.print("|");
@@ -152,18 +199,73 @@ void sendSensors() {
   Serial.print(bl);
   Serial.println("!");
 }
+//=========================End of Send Sensor String Codes======================
 
-
-//=========================Calibrate Codes=====================================
+//=========================Alignment for Rotation Codes=========================
 void checkAlignmentOne(){
-  double error = getError();
-    while (!(error > -0.1 && error < 0.1)) {
-      calibrate(error);
-      error = getError();
+  double error = getRotError();
+    while (!(error > -0.2 && error < 0.2)) {
+      calibrateRot(error);
+      error = getRotError();
     }
 }
 
-double getError(){
+double getRotError(){
+
+  double error = 0;
+  double L = getDistance(sensorRead(20, FL), FL, 1);
+  double R = getDistance(sensorRead(20, FR), FR, 1) + 1.1;
+  
+  error = L-R;
+  if(error < -7) {
+    error = -7;
+  }
+  else if(error > 7) {
+    error = 7;
+  }
+//  Serial.println(error);
+  return error;
+}
+
+void calibrateRot(double error){
+  if(error > 0) {
+    moveLeft(error);
+  }
+  else if(error < 0) {
+    moveRight(error);
+  }
+  else {
+    md.setBrakes(375, 400);
+  }
+}
+
+//======Calibrate Right======
+void moveRight(double error){
+  md.setSpeeds(-375, 400);
+  delay(abs(error*20));
+  md.setBrakes(375, 400);
+  delay(500);
+}
+
+//======Calibrate Left=======
+void moveLeft(double error){
+  md.setSpeeds(375, -400);
+  delay(abs(error*20));
+  md.setBrakes(375, 400);
+  delay(500);
+}
+//=========================End of Alignment for Rotation Codes==================
+
+//=========================Alignment for Wall Distance Codes====================
+void checkAlignmentTwo(){
+  double error = getDistError();
+    while (!(error > -0.1 && error < 0.1)) {
+      calibrateDist(error);
+      error = getDistError();
+    }
+}
+
+double getDistError(){
 
   double error = 0;
   double L = getDistance(sensorRead(20, FL), FL, 1);
@@ -181,36 +283,51 @@ double getError(){
   else if(error > 7) {
     error = 7;
   }
-  Serial.println(error);
+//  Serial.println(error);
   return error;
 }
 
-void calibrate(double error){
+void calibrateDist(double error){
   if(error > 0) {
-    moveLeft(error);
+    spinLeft(error);
   }
   else if(error < 0) {
-    moveRight(error);
+    spinRight(error);
   }
   else {
     md.setBrakes(375, 400);
   }
 }
 
-//=======================Calibrate Right========================================
-void moveRight(double error){
-  md.setSpeeds(-375, 400);
+//======Spin Right======
+void spinRight(double error){
+  md.setSpeeds(-375, 0);
   delay(abs(error*20));
   md.setBrakes(375, 400);
   delay(500);
 }
 
-//=======================Calibrate Left=========================================
-void moveLeft(double error){
-  md.setSpeeds(375, -400);
+//======Spin Left=======
+void spinLeft(double error){
+  md.setSpeeds(0, -400);
   delay(abs(error*20));
   md.setBrakes(375, 400);
   delay(500);
+}
+//=========================End of Alignment for Wall Distance Codes=============
+
+
+
+
+int sensorRead(int n, int sensor) {
+  int x[n];
+  int i;
+  int sum = 0;
+  for (i = 0; i < n; i++) {
+    x[i] = analogRead(sensor);
+  }
+  insertionsort(x, n);
+  return x[n / 2];        //Return Median
 }
 
 void insertionsort(int array[], int length) {
@@ -229,85 +346,98 @@ void insertionsort(int array[], int length) {
   }
 }
 
-int sensorRead(int n, int sensor) {
-  int x[n];
-  int i;
-  int sum = 0;
-  for (i = 0; i < n; i++) {
-    x[i] = analogRead(sensor);
-  }
-  insertionsort(x, n);
-  return x[n / 2];        //Return Median
-}
-
-
 int getDistance(int reading, int sensor, bool cali){
   float cm;
 
   switch (sensor) {
     case FL:
-      cm = 6088 / (reading  + 7) - 2;
+      cm = 6088 / (reading  + 7); // 21-26=2  11-17=1  -6=0
       break;
     case FC: 
-      cm = 6088 / (reading  + 7) - 1;
+      cm = 6088 / (reading  + 7); // 18-21=2  10-14=1  -5=0
       break;
     case FR:
-      cm = 6088 / (reading  + 7) - 2;
+      cm = 6088 / (reading  + 7); // 19-23=2  10-14=1  -5=0
       break;
     case R:
-      cm = 6088 / (reading  + 7) - 1; 
+      cm = 6088 / (reading  + 7); // 17-22=2   8-13=1  -2=0
       break;
     case BS:
-      cm = 6088 / (reading  + 7);
+      cm = 6088 / (reading  + 7); // 17-=2 8-13=1 -2=0
       break;
     case BL:
-      cm = 15500.0 / (reading + 29) - 4; //15500.0 / (reading + 29) - 5
+      cm = 15500.0 / (reading + 29) - 4; // 46-=5 36-40=4  26-31=3  17-22=2
       break;
     default:
       return -1;
   }
-  if (!cali) {
-    return round(cm/10) - 1;
+  
+  return cm-10;
+//  if (!cali) {
+//    return round(cm/10) - 1;
+//  }
+//  else {
+//    return cm - 10;
+//  }
+}
+
+int getDistanceinGrids(int reading, int sensor){
+  int grid;
+  switch(sensor){
+    case FL: if(reading >= 21){
+                grid = 2;
+              }else if(reading >= 11){
+                grid = 1;
+              }else if(reading <= 6){
+                grid = 0;
+              }
+              break;
+    case FC: if(reading >= 18){
+                grid = 2;
+              }else if(reading >= 10){
+                grid = 1;
+              }else if(reading <= 5){
+                grid = 0;
+              }
+              break;
+    case FR: if(reading >= 19){
+                grid = 2;
+              }else if(reading >= 10){
+                grid = 1;
+              }else if(reading <= 5){
+                grid = 0;
+              }
+              break;
+    case  R: if(reading >= 17){
+                grid = 2;
+              }else if(reading >= 8){
+                grid = 1;
+              }else if(reading <= 2){
+                grid = 0;
+              }break;
+    case BS: if(reading >= 14){
+                grid = 2;
+              }else if(reading >= 8){
+                grid = 1;
+              }else if(reading <= 2){
+                grid = 0;
+              }break;
+    case BL:  if (reading >= 41 ){
+                grid = 5;
+              }else if(reading >= 36){
+                grid = 4;
+              }else if(reading >= 26){
+                grid = 3;
+              }else if(reading >= 17){
+                grid = 2;
+              }else if(reading <= 16){
+                grid = 2;
+              }break;
+    default: return -1;
   }
-  else {
-    return cm - 10;
-  }
+  return grid;
 }
 
-
-void rotateR(int degree){
-      int output;
-      float dis = degree / 90.0;
-      int left_speed = 222;
-      int right_speed = 200;
-      float actual_distance = (dis*380) - (5*dis);
-      while (right_encoder_val < actual_distance){
-        output = pidControlForward(left_encoder_val, right_encoder_val);
-        md.setSpeeds(left_speed+output,-right_speed+output);
-      }
-        md.setBrakes(375, 400);
-        delay(2000);     
-        left_encoder_val = 0;
-        right_encoder_val = 0;
-//        sendSensors();
-}
-
-void rotateL(int degree){
-      int output;
-      float dis = degree / 90.0;
-      int left_speed = 220;
-      int right_speed = 190;
-      float actual_distance = (dis*425)-(10*dis);
-      while(left_encoder_val < actual_distance){
-          output = pidControlTurn(left_encoder_val, right_encoder_val);
-          md.setSpeeds(-(left_speed+output),right_speed-output);
-      }
-      md.setBrakes(375, 400);
-      delay(2000);
-      left_encoder_val = 0;
-      right_encoder_val = 0;
-//      sendSensors();
-}
 
 void serialEvent(){
   while(Serial.available()){
