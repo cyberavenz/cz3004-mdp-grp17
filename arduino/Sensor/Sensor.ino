@@ -1,24 +1,16 @@
-#include "SharpIR.h"
-
-
 #define SRmodel 1080
 #define LRmodel 20150
 
-#define s1 A0 // 
-#define s2 A1 //
-#define s3 A2 //
-#define s4 A3 //
-#define s5 A4 //
-#define s6 A5 // Long
+#define FL A0 // 
+#define FC A1 //
+#define FR A2 //
+#define  R A3 //
+#define BS A4 //
+#define BL A5 // Long
 
-char cc;
+#define SR 0
+#define LR 1
 
-SharpIR FL =  SharpIR(s1, SRmodel);
-SharpIR FC =  SharpIR(s2, SRmodel);
-SharpIR FR =  SharpIR(s3, SRmodel);
-SharpIR R  =  SharpIR(s4, SRmodel);
-SharpIR BS =  SharpIR(s5, SRmodel);
-SharpIR BL =  SharpIR(s6, LRmodel);
 
 void setup() {
   // put your setup code here, to run once:
@@ -27,85 +19,154 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
+  int fl, fc, fr, r, bs, bl;
   
-  if (Serial.available() > 0) {
-    cc = char(Serial.read());
-  }
-  
-  switch (cc){
-    
-    //0 = wall
-    //1 = 1 space in front
-    
-    case 's':
-      Serial.print("Front Left: ");
-      Serial.println(getDistance(FL, 11));
-      
-      Serial.print("Front Center: ");
-      Serial.println(getDistance(FC, 9));
-      
-      Serial.print("Front Right: ");
-      Serial.println(getDistance(FR, 10));
+  fl = distanceInCM(sensorRead(20, FL), FL);
+  fc = distanceInCM(sensorRead(20, FC), FC);
+  fr = distanceInCM(sensorRead(20, FR), FR);
+   r = distanceInCM(sensorRead(20, R), R);
+  bs = distanceInCM(sensorRead(20, BS), BS);
+  bl = distanceInCM(sensorRead(20, BL), BL);
 
-      Serial.print("Right: ");
-      Serial.println(getDistance(R, 10)); 
-      
-      Serial.print("Rear Left Short: ");
-      Serial.println(getDistance(BS, 8));
-      
-      Serial.print("Rear Right Long: ");
-      Serial.println(getDistance(BL, 4)); // up to 4 accurately
   
-    
-//////// FOR CheckPoint
-//    case 's':
-//      if (BL.distance() > 25) {
-//        Serial.print("The object is at: (bl) ");
-//        Serial.print(getDistance());
-//      }
-//      else {
-//        Serial.print("The object is at: (bs) ");
-//        Serial.print(BS.distance()+1);
-//        
-//      }
-//      Serial.println();
-//      break;
-///////////////////////
-  }
 
-}
-int getDistance(SharpIR sensor, int offset) {
-  double sum = 0;
-  double average = 0; 
+  delay(1000);
   
-  for (int i = 0; i < 10; i++) {
-    sum = sum + sensor.distance();
-  }
-  delay(100);
-  for (int i = 0; i < 10; i++) {
-    sum = sum + sensor.distance();
-  }
-  average = (sum / 20) - offset;
-//  return average;
-  return round(average/10);
+  Serial.print(fl);
+  Serial.print("|");
+  Serial.print(fc);
+  Serial.print("|");
+  Serial.print(fr);
+  Serial.print("|");
+  Serial.print(r);
+  Serial.print("|");
+  Serial.print(bs);
+  Serial.print("|");
+  Serial.print(bl);
+  Serial.println("");
+  
+  
 }
 
-//////// FOR CheckPoint
-//double getDistance(){
-//  double sum = 0;
-//  double average = 0;
-//  for (int i = 0; i < 10; i++) {
-//    sum = sum + BL.distance();
+void insertionsort(int array[], int length) {
+  int i, j;
+  int temp;
+  for (i = 1; i < length; i++) {
+    for (j = i; j > 0; j--) {
+      if (array[j] < array[j - 1]) {
+        temp = array[j];
+        array[j] = array[j - 1];
+        array[j - 1] = temp;
+      }
+      else
+        break;
+    }
+  }
+}
+
+int sensorRead(int n, int sensor) {
+  int x[n];
+  int i;
+  int sum = 0;
+  for (i = 0; i < n; i++) {
+    x[i] = analogRead(sensor);
+  }
+  insertionsort(x, n);
+  return x[n / 2];        //Return Median
+}
+
+int distanceInCM(int reading, int sensor) {
+  float cm;
+
+  switch (sensor) {
+    case FL:
+      cm = 6088 / (reading  + 7) - 4;
+      break;
+    case FC: 
+      cm = 6088 / (reading  + 7) - 3;
+      break;
+    case FR:
+      cm = 6088 / (reading  + 7) - 2;
+      break;
+    case R:
+      cm = 6088 / (reading  + 7) - 3; //15500.0 / (reading + 29) - 5
+      break;
+    case BS:
+      cm = 6088 / (reading  + 7) - 3;
+      break;
+    case BL:
+      cm = 15500.0 / (reading + 29) - 7;
+      break;
+    default:
+      return -1;
+  }
+return round(cm/10) - 1;
+}
+
+//int distanceInGrids(int dis, int sensorType) {
+//  int grids;
+//  if (sensorType == SR) {
+//    if (dis > 28) grids = 3;
+//    else if (dis >= 10 && dis <= 19) grids = 1;
+//    else if (dis >= 20 && dis <= 28) grids = 2;
+//    else grids = -1;
 //  }
-//  delay(200);
-//  for (int i = 0; i < 10; i++) {
-//    sum = sum + BL.distance();
+//  else if (sensorType == LR) {
+//    if (dis > 58) grids = 6;
+//    else if (dis >= 12 && dis <= 22) grids = 1;
+//    else if (dis >  22 && dis <= 27) grids = 2;
+//    else if (dis >= 30 && dis <= 37) grids = 3;
+//    else if (dis >= 39 && dis <= 48) grids = 4;
+//    else if (dis >= 49 && dis <= 58) grids = 5;
+//    else grids = -1;
 //  }
 //
-//  if(average<60){
-//    average = (sum / 20);
-//  }
-//  
-//  return average;
+//  return grids;
 //}
+
+//
+//
+//void sendSensors() {
+//  int fl, fc, fr, r, bs, bl;
+//  
+//  fl = distanceInCM(sensorRead(20, FL), FL);
+//  fc = distanceInCM(sensorRead(20, FC), FC);
+//  fr = distanceInCM(sensorRead(20, FR), FR);
+//   r = distanceInCM(sensorRead(20, R), R);
+//  bs = distanceInCM(sensorRead(20, BS), BS);
+//  bl = distanceInCM(sensorRead(20, BL),BL); 
+//
+//
+//  Serial.print(distanceInGrids(fl, SR));
+//  Serial.print("|");
+//  Serial.print(distanceInGrids(fc, SR));
+//  Serial.print("|");
+//  Serial.print(distanceInGrids(fr, SR));
+//  Serial.print("|");
+//  Serial.print(distanceInGrids(r, SR));
+//  Serial.print("|");
+//  Serial.print(distanceInGrids(bs, SR));
+//  Serial.print("|");
+//  Serial.print(distanceInGrids(bl, LR));
+//}
+
+
+
+//int getDistance(SharpIR sensor, int offset) {
+//  double sum = 0;
+//  double average = 0; 
+//  
+//  for (int i = 0; i < 10; i++) {
+//    sum = sum + sensor.distance();
+//  }
+//  delay(100);
+//  for (int i = 0; i < 10; i++) {
+//    sum = sum + sensor.distance();
+//  }
+//  average = (sum / 20) - offset;
+////  return average;
+//  return round(average/10);
+//}
+
+
 ///////////////////////

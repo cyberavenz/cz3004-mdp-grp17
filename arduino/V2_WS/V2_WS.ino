@@ -70,7 +70,7 @@ void loop() {
       case 'F': moveForward(value.toInt(),222,200); break;
       case 'L': rotateL(value.toInt()); break;
       case 'R': rotateR(value.toInt()); break;
-      default: inputCommand = "";
+      default: inputCommand = ""; 
     }
       inputCommand = "";
       stringComplete = false;
