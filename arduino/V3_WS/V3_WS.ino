@@ -123,14 +123,12 @@ void moveForward(int distance,int left_speed,int right_speed){
       right_encoder_val = 0;
       left_encoder_val = 0;
       
-      int fl = getDistance(sensorRead(20, FL), FL, 0);
-      int fr = getDistance(sensorRead(20, FR), FR, 0);
+      int fl = getDistanceinGrids(getDistance(sensorRead(20, FL), FL, 0), FL);
+      int fr = getDistanceinGrids(getDistance(sensorRead(20, FR), FR, 0), FR);
       
-//      if (fl == 0 && fr == 0 
-      if ((fl == 0 && fr == 0) || (fl == 1 && fr == 1)) {
+      if (fl == 0 && fr == 0) {
+//      if ((fl == 0 && fr == 0) || (fl == 1 && fr == 1)) {
         checkAlignmentOne();
-        right_encoder_val = 0;
-        left_encoder_val = 0;
         return;
       }
 //      sendSensors();
@@ -148,10 +146,18 @@ void rotateR(int degree){
         output = pidControlForward(left_encoder_val, right_encoder_val);
         md.setSpeeds(left_speed+output,-right_speed+output);
       }
-        md.setBrakes(375, 400);
-        delay(2000);     
-        left_encoder_val = 0;
-        right_encoder_val = 0;
+      md.setBrakes(375, 400);
+      delay(2000);     
+      left_encoder_val = 0;
+      right_encoder_val = 0;
+      int fl = getDistanceinGrids(getDistance(sensorRead(20, FL), FL, 0), FL);
+      int fr = getDistanceinGrids(getDistance(sensorRead(20, FR), FR, 0), FR);
+      
+      if (fl == 0 && fr == 0) {
+//      if ((fl == 0 && fr == 0) || (fl == 1 && fr == 1)) {
+        checkAlignmentOne();
+        return;
+      }
 //        sendSensors();
 }
 //=========================End of Rotate Right Codes============================
@@ -171,6 +177,15 @@ void rotateL(int degree){
       delay(2000);
       left_encoder_val = 0;
       right_encoder_val = 0;
+      int fl = getDistanceinGrids(getDistance(sensorRead(20, FL), FL, 0), FL);
+      int fr = getDistanceinGrids(getDistance(sensorRead(20, FR), FR, 0), FR);
+      
+      if (fl == 0 && fr == 0) {
+//      if ((fl == 0 && fr == 0) || (fl == 1 && fr == 1)) {
+        checkAlignmentOne();
+        return;
+      }
+      
 //      sendSensors();
 }
 //=========================End of Rotate Left Codes=============================
@@ -204,18 +219,26 @@ void sendSensors() {
 //=========================Alignment for Rotation Codes=========================
 void checkAlignmentOne(){
   double error = getRotError();
-    while (!(error > -0.2 && error < 0.2)) {
-      calibrateRot(error);
-      error = getRotError();
-    }
+  while (!(error > -0.2 && error < 0.2)) {
+    calibrateRot(error);
+    error = getRotError();
+  }
+  delay(50);
+  right_encoder_val = 0;
+  left_encoder_val = 0;
 }
 
 double getRotError(){
 
   double error = 0;
   double L = getDistance(sensorRead(20, FL), FL, 1);
-  double R = getDistance(sensorRead(20, FR), FR, 1) + 1.1;
+  double R = getDistance(sensorRead(20, FR), FR, 1) + 1;
   
+//  Serial.print("L: ");
+//  Serial.println(L);
+//  
+//  Serial.print("R: ");
+//  Serial.println(R);
   error = L-R;
   if(error < -7) {
     error = -7;
@@ -392,9 +415,9 @@ int getDistanceinGrids(int reading, int sensor){
                 grid = 0;
               }
               break;
-    case FC: if(reading >= 18){
+    case FC: if(reading >= 14){
                 grid = 2;
-              }else if(reading >= 10){
+              }else if(reading >= 9){
                 grid = 1;
               }else if(reading <= 5){
                 grid = 0;
