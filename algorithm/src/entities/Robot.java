@@ -1,5 +1,8 @@
 package entities;
 
+import communications.TCPComm;
+import main.Main;
+
 public class Robot {
 
 	//	@formatter:off
@@ -141,6 +144,7 @@ public class Robot {
 	 */
 	public void moveForward(int steps) {
 		int newPos;
+		boolean send = false;
 		String warning = "WARNING: moveRobot() is going out of map boundary.";
 
 		switch (currDir) {
@@ -148,37 +152,45 @@ public class Robot {
 			newPos = currPos.getY() + steps;
 
 			// Prevents Robot from going out of map boundary
-			if (newPos < Map.maxY - 1)
+			if (newPos < Map.maxY - 1) {
 				currPos.setY(newPos);
-			else
+				send = true;
+			} else
 				System.out.println(warning);
 			break;
 		case SOUTH:
 			newPos = currPos.getY() - steps;
 
-			if (newPos > 0)
+			if (newPos > 0) {
 				currPos.setY(newPos);
-			else
+				send = true;
+			} else
 				System.out.println(warning);
 			break;
 		case EAST:
 			newPos = currPos.getX() + steps;
 
-			if (newPos < Map.maxX - 1)
+			if (newPos < Map.maxX - 1) {
 				currPos.setX(newPos);
-			else
+				send = true;
+			} else
 				System.out.println(warning);
 			break;
 		case WEST:
 			newPos = currPos.getX() - steps;
 
-			if (newPos > 0)
+			if (newPos > 0) {
 				currPos.setX(newPos);
-			else
+				send = true;
+			} else
 				System.out.println(warning);
 			break;
 		default: // Do nothing
 		}
+
+		// If Real Run, send command!
+		if (Main.isRealRun && send)
+			Main.comms.send(TCPComm.ARDUINO, "F01");
 	}
 
 	/**
@@ -190,6 +202,10 @@ public class Robot {
 		switch (direction) {
 		case RIGHT:	// Rotate clockwise
 			currDir = (currDir + 1) % 4;
+
+			// If Real Run, send command!
+			if (Main.isRealRun)
+				Main.comms.send(TCPComm.ARDUINO, "R90");
 			break;
 		case LEFT:	// Rotate counter-clockwise
 			float newDir = (currDir - 1) % 4;
@@ -199,6 +215,10 @@ public class Robot {
 				newDir += 4;
 
 			currDir = (int) newDir;
+
+			// If Real Run, send command!
+			if (Main.isRealRun)
+				Main.comms.send(TCPComm.ARDUINO, "L90");
 			break;
 		default: // Do nothing
 		}
@@ -228,19 +248,19 @@ public class Robot {
 	 */
 	private void initSensors() {
 		sensors = new Sensor[6];	// 6 sensors in total
-	
+
 		// Short_FrontLeft_NORTH : 0
-		sensors[S_FL_N] = new Sensor(3, FRONT_LEFT, NORTH);
+		sensors[S_FL_N] = new Sensor(Sensor.SHORT_RANGE, FRONT_LEFT, NORTH);
 		// Short_FrontCenter_NORTH : 1
-		sensors[S_FC_N] = new Sensor(3, FRONT_CENTER, NORTH);
+		sensors[S_FC_N] = new Sensor(Sensor.SHORT_RANGE, FRONT_CENTER, NORTH);
 		// Short_FrontRight_NORTH : 2
-		sensors[S_FR_N] = new Sensor(3, FRONT_RIGHT, NORTH);
+		sensors[S_FR_N] = new Sensor(Sensor.SHORT_RANGE, FRONT_RIGHT, NORTH);
 		// Short_FrontRight_EAST : 3
-		sensors[S_FR_E] = new Sensor(3, FRONT_RIGHT, EAST);
+		sensors[S_FR_E] = new Sensor(Sensor.SHORT_RANGE, FRONT_RIGHT, EAST);
 		// Short_Back_Left_WEST : 4
-		sensors[S_BL_W] = new Sensor(3, BACK_LEFT, WEST);
+		sensors[S_BL_W] = new Sensor(Sensor.SHORT_RANGE, BACK_LEFT, WEST);
 		// Long_BackLeft_WEST : 5
-		sensors[L_BL_W] = new Sensor(5, BACK_LEFT, WEST);
+		sensors[L_BL_W] = new Sensor(Sensor.LONG_RANGE, BACK_LEFT, WEST);
 	}
 
 }

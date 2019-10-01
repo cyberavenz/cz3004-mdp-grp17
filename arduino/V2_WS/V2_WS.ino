@@ -110,12 +110,12 @@ int pidControlTurn(int left_encoder_val, int right_encoder_val){
 
 void moveForward(int distance,int left_speed,int right_speed){
       int output;
-      float actual_distance = (distance*323) - (30*distance); //323 is the tick required to move 10 cm
+      float actual_distance = (distance*316) - (30*distance); //314 is the tick required to move 10 cm
       while(right_encoder_val < actual_distance) {
               output = pidControlForward(left_encoder_val, right_encoder_val);
               md.setSpeeds(left_speed+output,right_speed-output);
       }
-      md.setBrakes(375, 400);
+      md.setBrakes(400, 397);
       delay(1000);
       right_encoder_val = 0;
       left_encoder_val = 0;
@@ -222,7 +222,7 @@ void rotateR(int degree){
       float dis = degree / 90.0;
       int left_speed = 222;
       int right_speed = 200;
-      float actual_distance = (dis*410) - (5*dis);
+      float actual_distance = (dis*398) - (5*dis);
       while (right_encoder_val < actual_distance){
         output = pidControlForward(left_encoder_val, right_encoder_val);
         md.setSpeeds(left_speed+output,-right_speed+output);

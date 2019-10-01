@@ -6,12 +6,13 @@ import entities.Cell;
 import entities.Coordinate;
 import entities.Map;
 import entities.Robot;
-import entities.Robot.Rotate;
 import main.Main;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 public class GUI extends JFrame {
 
@@ -93,6 +94,38 @@ public class GUI extends JFrame {
 		mainContainer.add(ctrlPanel);
 		this.setSize(1000, 800); // Width, Height
 		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // Exit mainUI on close
+		this.addWindowListener(new WindowListener() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				// Close socket before exiting (In Real Run Mode)
+				if (Main.isRealRun)
+					Main.comms.close();
+			}
+
+			@Override
+			public void windowOpened(WindowEvent e) {
+			}
+
+			@Override
+			public void windowClosed(WindowEvent e) {
+			}
+
+			@Override
+			public void windowIconified(WindowEvent e) {
+			}
+
+			@Override
+			public void windowDeiconified(WindowEvent e) {
+			}
+
+			@Override
+			public void windowActivated(WindowEvent e) {
+			}
+
+			@Override
+			public void windowDeactivated(WindowEvent e) {
+			}
+		});
 
 		// Center mainUI in the middle of the screen
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -204,7 +237,6 @@ public class GUI extends JFrame {
 	 * Populate Labels and Buttons in the <tt>ctrlPanel</tt>.
 	 */
 	private void populateCtrlPanel() {
-
 		/* Display Mode */
 		String mode = Main.isRealRun ? "Real Run" : "Simulation";
 		ctrlPanel.add(new JLabel("MODE: " + mode, JLabel.CENTER));
@@ -229,40 +261,26 @@ public class GUI extends JFrame {
 		JButton printDescriptors = new JButton("Print P1 and P2");
 		printDescriptors.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Main.btnPrintDescriptors();
+				System.out.println("P1: " + map.getP1Descriptors());
+				System.out.println("P2: " + map.getP2Descriptors());
 			}
 		});
 
-		JButton moveForward = new JButton("Move Forward");
-		moveForward.addActionListener(new ActionListener() {
+		/* Real Run Explore */
+		JButton startRealExplore = new JButton("START EXPLORATION");
+		startRealExplore.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				robot.moveForward(1);
-				mapPanel.repaint();
+				Main.btnStartRealExplore();
 			}
 		});
 
-		JButton rotateLeft = new JButton("Rotate Left");
-		rotateLeft.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				robot.rotate(Rotate.LEFT);
-				mapPanel.repaint();
-			}
-		});
-
-		JButton rotateRight = new JButton("Rotate Right");
-		rotateRight.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				robot.rotate(Rotate.RIGHT);
-				mapPanel.repaint();
-			}
-		});
-
-		ctrlPanel.add(explorePerStep);
-		ctrlPanel.add(exploreAll);
+		if (Main.isRealRun) {
+			ctrlPanel.add(startRealExplore);
+		} else {
+			ctrlPanel.add(explorePerStep);
+			ctrlPanel.add(exploreAll);
+		}
 		ctrlPanel.add(printDescriptors);
-		ctrlPanel.add(moveForward);
-		ctrlPanel.add(rotateLeft);
-		ctrlPanel.add(rotateRight);
 	}
 
 	/**
