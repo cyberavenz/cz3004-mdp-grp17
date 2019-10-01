@@ -15,6 +15,8 @@
 #define BS A4 //
 #define BL A5 // Long
 
+#include <Queue.h>
+
 
 //////////////////////////////////////
 
@@ -28,15 +30,17 @@ DualVNH5019MotorShield md;
 
 // For Global Variable
 int right_encoder_val = 0, left_encoder_val = 0;
-const byte numChars = 32;
-char commands[numChars];
-char command;
 boolean newData = false; 
 int error, prevError;
 float integral, derivative, output;
 String inputCommand = "";
 bool stringComplete = false;
-String value = "";
+struct Command {
+  char command;
+  String value = "";
+};
+
+DataQueue<Command> commandQueue(20);
 
 //Function Decleration
 void RightEncoderInc(){right_encoder_val++;}
@@ -58,17 +62,19 @@ void setup() {
 void loop() {
 
   if(stringComplete){
-    switch(inputCommand[0]){
-      case 'S': sendSensors(); break;
-      case 'F': moveForward(value.toInt(),RUN_SPEED,RUN_SPEED); break;
-      case 'L': rotateL(value.toInt()); break;
-      case 'R': rotateR(value.toInt()); break;
-      case 'C': checkAlignmentOne(); break;
-      default: inputCommand = ""; 
+    while(!commandQueue.isEmpty()){
+      struct Command com;
+      com = commandQueue.dequeue();
+      switch(com.command){
+        case 'S': sendSensors(); break;
+        case 'F': moveForward(com.value.toInt(),RUN_SPEED,RUN_SPEED); break;
+        case 'L': rotateL(com.value.toInt()); break;
+        case 'R': rotateR(com.value.toInt()); break;
+        case 'C': checkAlignmentOne(); break;
+        default: inputCommand = ""; 
+      }
     }
-      inputCommand = "";
-      stringComplete = false;
-      value = "";
+    stringComplete = false;
   }
 }
 
@@ -294,10 +300,27 @@ void rotateL(int degree){
 void serialEvent(){
   while(Serial.available()){
     char inChar = (char)Serial.read();
-    inputCommand += inChar;
+    if(inChar == '|'){
+      struct Command c;
+      c.command = inputCommand[0];
+      c.value += inputCommand[1];
+      c.value += inputCommand[2];
+      delay(50);
+      inputCommand = "";
+      commandQueue.enqueue(c);
+    }else{
+      inputCommand += inChar;
+    }
+    
+    
     if(inChar == '\n'){
-      value += inputCommand[1];
-      value += inputCommand[2];
+      struct Command c;
+      c.command = inputCommand[0];
+      c.value += inputCommand[1];
+      c.value += inputCommand[2];
+      delay(50);
+      inputCommand = "";
+      commandQueue.enqueue(c);
       stringComplete = true;
     }
   }
