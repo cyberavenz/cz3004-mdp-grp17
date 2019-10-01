@@ -1,6 +1,7 @@
 #include "DualVNH5019MotorShield.h"
 #include "PinChangeInt.h"
 #include "SharpIR.h"
+#include <Queue.h>
 
 //////////////////////////////////
 // Sensors
@@ -15,7 +16,6 @@
 #define BS A4 //
 #define BL A5 // Long
 
-#include <Queue.h>
 
 
 //////////////////////////////////////
@@ -120,6 +120,12 @@ void moveForward(int distance,int left_speed,int right_speed){
       delay(1000);
       right_encoder_val = 0;
       left_encoder_val = 0;
+      
+      int fl = getDistance(sensorRead(20, FL), FL, 0);
+      int fr = getDistance(sensorRead(20, FR), FR, 0);
+      if (fl == 0 && fr == 0){
+        checkAlignmentOne();
+      }
 //      sendSensors();
 }
 
@@ -149,28 +155,42 @@ void sendSensors() {
 
 
 //=========================Calibrate Codes=====================================
+void checkAlignmentOne(){
+  double error = getError();
+    while (!(error > -0.1 && error < 0.1)) {
+      calibrate(error);
+      error = getError();
+    }
+}
+
 double getError(){
 
   double error = 0;
   double L = getDistance(sensorRead(20, FL), FL, 1);
-  double R = getDistance(sensorRead(20, FR), FR, 1);
+  double R = getDistance(sensorRead(20, FR), FR, 1) + 1.1;
   
-  Serial.print("L: ");
-  Serial.println(L);
-  
-  Serial.print("R: ");
-  Serial.println(R);
+//  Serial.print("L: ");
+//  Serial.println(L);
+//  
+//  Serial.print("R: ");
+//  Serial.println(R);
   error = L-R;
+  if(error < -7) {
+    error = -7;
+  }
+  else if(error > 7) {
+    error = 7;
+  }
   Serial.println(error);
   return error;
 }
 
 void calibrate(double error){
   if(error > 0) {
-    moveRight(error);
+    moveLeft(error);
   }
   else if(error < 0) {
-    moveLeft(error);
+    moveRight(error);
   }
   else {
     md.setBrakes(375, 400);
@@ -179,26 +199,18 @@ void calibrate(double error){
 
 //=======================Calibrate Right========================================
 void moveRight(double error){
-  md.setSpeeds(400,-400);
-  delay(abs(error*30));
+  md.setSpeeds(-375, 400);
+  delay(abs(error*20));
   md.setBrakes(375, 400);
-  delay(1000);
+  delay(500);
 }
 
 //=======================Calibrate Left=========================================
 void moveLeft(double error){
-  md.setSpeeds(-400,400);
-  delay(abs(error*30));
+  md.setSpeeds(375, -400);
+  delay(abs(error*20));
   md.setBrakes(375, 400);
-  delay(1000);
-}
-
-void checkAlignmentOne(){
-  double error = getError();
-    while (error > 0 || error < 0) {
-      error = getError();
-      calibrate(error);
-    }
+  delay(500);
 }
 
 void insertionsort(int array[], int length) {
@@ -243,13 +255,13 @@ int getDistance(int reading, int sensor, bool cali){
       cm = 6088 / (reading  + 7) - 2;
       break;
     case R:
-      cm = 6088 / (reading  + 7) - 1; //15500.0 / (reading + 29) - 5
+      cm = 6088 / (reading  + 7) - 1; 
       break;
     case BS:
       cm = 6088 / (reading  + 7);
       break;
     case BL:
-      cm = 15500.0 / (reading + 29) - 4;
+      cm = 15500.0 / (reading + 29) - 4; //15500.0 / (reading + 29) - 5
       break;
     default:
       return -1;
