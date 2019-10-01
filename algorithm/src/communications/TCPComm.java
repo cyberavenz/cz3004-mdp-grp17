@@ -41,9 +41,11 @@ public class TCPComm {
 	 */
 	public void send(char recipient, String message) {
 		try {
-			String outgoingString = "@" + recipient + message + "!";
-			this.outgoingStream.writeBytes(outgoingString);
-			System.out.println("TCP Sent: " + outgoingString);
+			if (this.clientSocket != null) {
+				String outgoingString = "@" + recipient + message + "!";
+				this.outgoingStream.writeBytes(outgoingString);
+				System.out.println("TCP Sent: " + outgoingString);
+			}
 		} catch (IOException e) {
 			System.err.format("TCP Connection IOException: %s%n", e);
 			Main.gui.setModeColour(false);
@@ -69,6 +71,13 @@ public class TCPComm {
 		return toReturn;
 	}
 
+	/**
+	 * Read incoming stream from a specific device. Any messages from a non-specified device will be
+	 * discarded.
+	 * 
+	 * @param device
+	 * @return
+	 */
 	public String readFrom(char device) {
 		while (true) {
 			System.out.println("TCP: Waiting for message...");
@@ -89,6 +98,20 @@ public class TCPComm {
 			return false;
 
 		return this.clientSocket.isConnected();
+	}
+
+	/**
+	 * Closes the socket.
+	 * 
+	 * @throws IOException
+	 */
+	public void close() {
+		if (this.clientSocket != null) {
+			try {
+				this.clientSocket.close();
+			} catch (IOException e) {
+			}
+		}
 	}
 
 //	private void startListening() {
