@@ -3,7 +3,7 @@
 #include "SharpIR.h"
 #include <Queue.h>
 
-//////////////////////////////////
+//////////////////////////////////////
 // Sensors
 
 #define SRmodel 1080
@@ -15,8 +15,6 @@
 #define R A3 //
 #define BS A4 //
 #define BL A5 // Long
-
-
 
 //////////////////////////////////////
 
@@ -42,7 +40,7 @@ struct Command {
 
 DataQueue<Command> commandQueue(20);
 
-//Function Decleration
+//==============================Function Decleration============================
 void RightEncoderInc(){right_encoder_val++;}
 void LeftEncoderInc(){left_encoder_val++;}
 int pidControlForward(int left_encoder_val, int right_encoder_val);
@@ -51,6 +49,9 @@ int getDistance(SharpIR sensor, int offset);
 void rotateR(int degree);
 void rotateL(int degree);
 
+//=======================End of Function Decleration============================
+
+//=================================Setup========================================
 void setup() {
     Serial.begin(9600);
     md.init();
@@ -58,7 +59,9 @@ void setup() {
     PCintPort::attachInterrupt(motor_L_encoder, LeftEncoderInc, FALLING);
     inputCommand.reserve(200);
 }
+//=================================End of Setup=================================
 
+//====================================Loop======================================
 void loop() {
 
   if(stringComplete){
@@ -70,15 +73,17 @@ void loop() {
         case 'F': moveForward(com.value.toInt(),RUN_SPEED,RUN_SPEED); break;
         case 'L': rotateL(com.value.toInt()); break;
         case 'R': rotateR(com.value.toInt()); break;
-        case 'C': checkAlignmentOne(); break;
+//        case 'C': checkAlignmentOne(); break;
+//        case 'V': checkAlignmentTwo(); break;
         default: inputCommand = ""; 
       }
     }
     stringComplete = false;
   }
 }
+//=========================End of Loop==========================================
 
-
+//===================================Turn PID===================================
 int pidControlForward(int left_encoder_val, int right_encoder_val){
   int pwmL = RUN_SPEED, pwmR = RUN_SPEED;
   float kp = 40;
@@ -108,7 +113,7 @@ int pidControlTurn(int left_encoder_val, int right_encoder_val){
   pwmR = output;
   return pwmR;
 }
-//=========================End of PID Turn======================================
+//=========================End of Turn PID======================================
 
 //=========================Move Forward Codes===================================
 void moveForward(int distance,int left_speed,int right_speed){
@@ -119,7 +124,7 @@ void moveForward(int distance,int left_speed,int right_speed){
               md.setSpeeds(left_speed+output,right_speed-output);
       }
       md.setBrakes(337, 400);
-      delay(1000);
+      delay(20);
       right_encoder_val = 0;
       left_encoder_val = 0;
       
@@ -129,6 +134,8 @@ void moveForward(int distance,int left_speed,int right_speed){
       if (fl == 0 && fr == 0) {
 //      if ((fl == 0 && fr == 0) || (fl == 1 && fr == 1)) {
         checkAlignmentOne();
+        delay(20);
+        checkAlignmentTwo();
         return;
       }
 //      sendSensors();
@@ -147,7 +154,7 @@ void rotateR(int degree){
         md.setSpeeds(left_speed+output,-right_speed+output);
       }
       md.setBrakes(375, 400);
-      delay(2000);     
+      delay(20);     
       left_encoder_val = 0;
       right_encoder_val = 0;
       int fl = getDistanceinGrids(getDistance(sensorRead(20, FL), FL, 0), FL);
@@ -156,6 +163,8 @@ void rotateR(int degree){
       if (fl == 0 && fr == 0) {
 //      if ((fl == 0 && fr == 0) || (fl == 1 && fr == 1)) {
         checkAlignmentOne();
+        delay(20);
+        checkAlignmentTwo();
         return;
       }
 //        sendSensors();
@@ -174,19 +183,19 @@ void rotateL(int degree){
           md.setSpeeds(-(left_speed+output),right_speed-output);
       }
       md.setBrakes(375, 400);
-      delay(2000);
+      delay(20);
       left_encoder_val = 0;
       right_encoder_val = 0;
       int fl = getDistanceinGrids(getDistance(sensorRead(20, FL), FL, 0), FL);
       int fr = getDistanceinGrids(getDistance(sensorRead(20, FR), FR, 0), FR);
       
       if (fl == 0 && fr == 0) {
-//      if ((fl == 0 && fr == 0) || (fl == 1 && fr == 1)) {
+//      if ((fl == 0 && fr == 0) || (fl == 1 && fr == 1))
         checkAlignmentOne();
+        delay(20);
+        checkAlignmentTwo();
         return;
       }
-      
-//      sendSensors();
 }
 //=========================End of Rotate Left Codes=============================
 
@@ -219,11 +228,13 @@ void sendSensors() {
 //=========================Alignment for Rotation Codes=========================
 void checkAlignmentOne(){
   double error = getRotError();
-  while (!(error > -0.2 && error < 0.2)) {
+  while (error != 0) {
+//  while (!(error > -0.1 && error < 0.1)) {
     calibrateRot(error);
     error = getRotError();
   }
-  delay(50);
+  Serial.print("DONE");
+  delay(20);
   right_encoder_val = 0;
   left_encoder_val = 0;
 }
@@ -234,11 +245,6 @@ double getRotError(){
   double L = getDistance(sensorRead(20, FL), FL, 1);
   double R = getDistance(sensorRead(20, FR), FR, 1) + 1;
   
-//  Serial.print("L: ");
-//  Serial.println(L);
-//  
-//  Serial.print("R: ");
-//  Serial.println(R);
   error = L-R;
   if(error < -7) {
     error = -7;
@@ -264,58 +270,85 @@ void calibrateRot(double error){
 
 //======Calibrate Right======
 void moveRight(double error){
-  md.setSpeeds(-375, 400);
+  md.setSpeeds(-225, 250);
   delay(abs(error*20));
   md.setBrakes(375, 400);
-  delay(500);
+  delay(20);
 }
 
 //======Calibrate Left=======
 void moveLeft(double error){
-  md.setSpeeds(375, -400);
+  md.setSpeeds(225, -250);
   delay(abs(error*20));
   md.setBrakes(375, 400);
-  delay(500);
+  delay(20);
 }
 //=========================End of Alignment for Rotation Codes==================
 
 //=========================Alignment for Wall Distance Codes====================
 void checkAlignmentTwo(){
-  double error = getDistError();
-    while (!(error > -0.1 && error < 0.1)) {
-      calibrateDist(error);
-      error = getDistError();
-    }
+  bool error = getDistError();
+  while (error) {
+    error = getDistError();
+  }
+//  Serial.print("DONE");
+  delay(20);
+  right_encoder_val = 0;
+  left_encoder_val = 0;
 }
 
-double getDistError(){
+bool getDistError(){
 
-  double error = 0;
+  double errorL = 0;
+  double errorR = 0;
   double L = getDistance(sensorRead(20, FL), FL, 1);
-  double R = getDistance(sensorRead(20, FR), FR, 1) + 1.1;
+  double R = getDistance(sensorRead(20, FR), FR, 1);
+
+  errorL = 3 - L;
+  errorR = 3 - R;
+
+  if(errorL < -3) {
+    errorL = -3;
+  }
+  else if(errorL > 3) {
+    errorL = 3;
+  }
+
+  if(errorR < -3) {
+    errorR = -3;
+  }
+  else if(errorR > 3) {
+    errorR = 3;
+  }
   
-//  Serial.print("L: ");
-//  Serial.println(L);
-//  
-//  Serial.print("R: ");
-//  Serial.println(R);
-  error = L-R;
-  if(error < -7) {
-    error = -7;
+  if (errorL == 0 && errorR == 0) {
+    return 0;
   }
-  else if(error > 7) {
-    error = 7;
+  else {
+      calibrateDistR(errorR);
+      calibrateDistL(errorL);
   }
-//  Serial.println(error);
-  return error;
+  return 1;
 }
 
-void calibrateDist(double error){
-  if(error > 0) {
-    spinLeft(error);
+void calibrateDistR(double errorR){
+  if(errorR > 0) {
+    spinRightB(errorR);
   }
-  else if(error < 0) {
-    spinRight(error);
+  else if(errorR < 0) {
+    spinRightF(errorR);
+  }
+  else {
+    md.setBrakes(375, 400);
+  }
+}
+
+void calibrateDistL(double errorL){
+  if(errorL > 0) {
+    spinLeftB(errorL);
+  }
+  else if(errorL < 0) {
+    spinLeftF(errorL);
   }
   else {
     md.setBrakes(375, 400);
@@ -323,25 +356,33 @@ void calibrateDist(double error){
 }
 
 //======Spin Right======
-void spinRight(double error){
-  md.setSpeeds(-375, 0);
-  delay(abs(error*20));
+void spinRightF(double error){
+  md.setSpeeds(0, 100);
+  delay(abs(50/error));
   md.setBrakes(375, 400);
-  delay(500);
+}
+
+void spinRightB(double error){
+  md.setSpeeds(0, -100);
+  delay(abs(50/error));
+  md.setBrakes(375, 400);
 }
 
 //======Spin Left=======
-void spinLeft(double error){
-  md.setSpeeds(0, -400);
-  delay(abs(error*20));
+void spinLeftF(double error){
+  md.setSpeeds(150, 0);
+  delay(abs(50/error));
   md.setBrakes(375, 400);
-  delay(500);
+}
+
+void spinLeftB(double error){
+  md.setSpeeds(-100, 0);
+  delay(abs(50/error));
+  md.setBrakes(375, 400);
 }
 //=========================End of Alignment for Wall Distance Codes=============
 
-
-
-
+//==============================Get Sensor Codes================================
 int sensorRead(int n, int sensor) {
   int x[n];
   int i;
@@ -386,7 +427,7 @@ int getDistance(int reading, int sensor, bool cali){
       cm = 6088 / (reading  + 7); // 17-22=2   8-13=1  -2=0
       break;
     case BS:
-      cm = 6088 / (reading  + 7); // 17-=2 8-13=1 -2=0
+      cm = 6088 / (reading  + 7); // 17-27=2   8-13=1  -2=0
       break;
     case BL:
       cm = 15500.0 / (reading + 29) - 4; // 46-=5 36-40=4  26-31=3  17-22=2
@@ -396,72 +437,73 @@ int getDistance(int reading, int sensor, bool cali){
   }
   
   return cm-10;
-//  if (!cali) {
-//    return round(cm/10) - 1;
-//  }
-//  else {
-//    return cm - 10;
-//  }
 }
+//=========================End of Get Sensor Codes==============================
 
+//===============================Get Grid Codes=================================
 int getDistanceinGrids(int reading, int sensor){
   int grid;
   switch(sensor){
-    case FL: if(reading >= 21){
-                grid = 2;
-              }else if(reading >= 11){
-                grid = 1;
-              }else if(reading <= 6){
-                grid = 0;
-              }
-              break;
-    case FC: if(reading >= 14){
-                grid = 2;
-              }else if(reading >= 9){
-                grid = 1;
-              }else if(reading <= 5){
-                grid = 0;
-              }
-              break;
-    case FR: if(reading >= 19){
-                grid = 2;
-              }else if(reading >= 10){
-                grid = 1;
-              }else if(reading <= 5){
-                grid = 0;
-              }
-              break;
-    case  R: if(reading >= 17){
-                grid = 2;
-              }else if(reading >= 8){
-                grid = 1;
-              }else if(reading <= 2){
-                grid = 0;
-              }break;
-    case BS: if(reading >= 14){
-                grid = 2;
-              }else if(reading >= 8){
-                grid = 1;
-              }else if(reading <= 2){
-                grid = 0;
-              }break;
-    case BL:  if (reading >= 41 ){
-                grid = 5;
-              }else if(reading >= 36){
-                grid = 4;
-              }else if(reading >= 26){
-                grid = 3;
-              }else if(reading >= 17){
-                grid = 2;
-              }else if(reading <= 16){
-                grid = 2;
-              }break;
+    case FL: 
+      if(reading >= 21){
+        grid = 2;
+      }else if(reading >= 11){
+        grid = 1;
+      }else if(reading <= 6){
+        grid = 0;
+      } break;
+    case FC: 
+      if(reading >= 14){
+        grid = 2;
+      }else if(reading >= 9){
+        grid = 1;
+      }else if(reading <= 5){
+        grid = 0;
+      }
+      break;
+    case FR: 
+      if(reading >= 19){
+        grid = 2;
+      }else if(reading >= 10){
+        grid = 1;
+      }else if(reading <= 5){
+        grid = 0;
+      } break;
+    case  R: 
+      if(reading >= 17){
+        grid = 2;
+      }else if(reading >= 8){
+        grid = 1;
+      }else if(reading <= 2){
+        grid = 0;
+      } break;
+    case BS: 
+      if(reading >= 14){
+        grid = 2;
+      }else if(reading >= 8){
+        grid = 1;
+      }else if(reading <= 2){
+        grid = 0;
+      } break;
+    case BL:  
+      if (reading >= 41 ){
+        grid = 5;
+      }else if(reading >= 36){
+        grid = 4;
+      }else if(reading >= 26){
+        grid = 3;
+      }else if(reading >= 17){
+        grid = 2;
+      }else if(reading <= 16){
+        grid = 2;
+      } break;
     default: return -1;
   }
   return grid;
 }
+//=========================End of Get Grid Codes================================
 
-
+//====================Serial Communication Codes================================
 void serialEvent(){
   while(Serial.available()){
     char inChar = (char)Serial.read();
@@ -483,10 +525,11 @@ void serialEvent(){
       c.command = inputCommand[0];
       c.value += inputCommand[1];
       c.value += inputCommand[2];
-      delay(50);
+      delay(20);
       inputCommand = "";
       commandQueue.enqueue(c);
       stringComplete = true;
     }
   }
 }
+//==================End of Serial Communication Codes===========================
