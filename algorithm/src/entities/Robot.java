@@ -139,8 +139,9 @@ public class Robot {
 	}
 
 	/**
-	 * Move <tt>Robot</tt> forward in direction of <tt>currDir</tt>.
+	 * Move <tt>Robot</tt> forward by a specified number of steps.
 	 * 
+	 * @param steps
 	 */
 	public void moveForward(int steps) {
 		int newPos;
@@ -194,7 +195,7 @@ public class Robot {
 	}
 
 	/**
-	 * Rotate <tt>Robot</tt>
+	 * Rotate <tt>Robot</tt> in the specified direction.
 	 * 
 	 * @param direction
 	 */
@@ -222,6 +223,20 @@ public class Robot {
 			break;
 		default: // Do nothing
 		}
+	}
+
+	/**
+	 * Combined instruction for rotate and forward movement.
+	 * 
+	 * @param direction
+	 * @param steps
+	 */
+	public void rotateAndForward(Rotate direction, int steps) {
+		this.rotate(direction);
+		this.moveForward(steps);
+
+		if (Main.isRealRun)
+			Main.comms.send(TCPComm.ARDUINO, "L90|F01");
 	}
 
 	/**
