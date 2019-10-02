@@ -92,7 +92,7 @@ public class GUI extends JFrame {
 		mainContainer.setLayout(new BorderLayout(0, 0));
 		mainContainer.add(mapPanel, BorderLayout.WEST);
 		mainContainer.add(ctrlPanel);
-		this.setSize(1000, 800); // Width, Height
+		this.setSize(900, 800); // Width, Height
 		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // Exit mainUI on close
 		this.addWindowListener(new WindowAdapter() {
 			@Override
@@ -105,7 +105,7 @@ public class GUI extends JFrame {
 
 		// Center mainUI in the middle of the screen
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-		this.setLocation(dim.width / 2 - getSize().width / 2, dim.height / 2 - getSize().height / 2);
+		this.setLocation(dim.width / 1 - getSize().width / 1, dim.height / 2 - getSize().height / 2 - 20);
 	}
 
 	/**
