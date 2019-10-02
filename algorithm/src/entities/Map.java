@@ -203,8 +203,7 @@ public class Map {
 	}
 
 	/**
-	 * Actual reveal of cells around the <tt>Robot</tt> based on the provided sensor values from
-	 * Arduino.
+	 * Actual reveal of cells around the <tt>Robot</tt> based on the provided sensor values from Arduino.
 	 * 
 	 * @param robot
 	 * @param incomingReadings
@@ -212,51 +211,61 @@ public class Map {
 	public void actualReveal(Robot robot, String incomingReadings) {
 		/* Real Run Mode */
 		Sensor[] sensors = robot.getAllSensors();
+		int[] arduinoSensorValues = Sensor.cleanAllReadings(sensors, incomingReadings);
 		Coordinate[] coordinates;
+		boolean ignore_L_BL_W = false;
 
-		String[] arduinoSensors = incomingReadings.split("[|]");	// Requires the use of [] character class
-
-		if (arduinoSensors.length != sensors.length) {
+		if (arduinoSensorValues.length != sensors.length) {
 			System.err.println("Incorrect sensor format received from Arduino!");
 			return;
 		}
 
-		System.out.print("Cleaned sensor values:");
-		// ORIGINAL: sensors.length
-		for (int i = 0; i < 5; i++) {
-			int arduinoSensorValue = Integer.parseInt(arduinoSensors[i]);
-
+		/*
+		 * Read sensor values only if robot has some facing coordinates.
+		 * 
+		 * Sensors 0 to 4: Short Range | Sensor 5: Long Range
+		 * 
+		 * IMPORTANT: Only if Sensor 4 sees no wall at all, then read from Sensor 5.
+		 */
+		for (int i = 0; i < sensors.length; i++) {
 			coordinates = sensors[i].getFacingCoordinates(robot);
 
+			// For all sensors, run only when there are facing coordinates
 			if (coordinates != null) {
-				// If received value is above range, assume max depth
-				if (arduinoSensorValue > sensors[i].getDepth())
-					arduinoSensorValue = sensors[i].getDepth();
+				// When sensor sees a wall
+				if (arduinoSensorValues[i] < coordinates.length) {
+					/* If ignore_L_BL_W is true, break */
+					if (i == Robot.L_BL_W && ignore_L_BL_W == true)
+						break;
 
-				System.out.print(" " + arduinoSensorValue);
-
-				// Wall is detected
-				if (arduinoSensorValue < coordinates.length) {
 					for (int j = 0; j < coordinates.length; j++) {
-						if (j == arduinoSensorValue) {
+						if (j == arduinoSensorValues[i]) {
 							this.getCell(coordinates[j]).setCellType(Cell.WALL);
 							break;	// Unable to see past any wall, break!
 						} else {
 							this.getCell(coordinates[j]).setCellType(Cell.PATH);
 						}
 					}
+
+					/* If S_BL_W detects a wall, ignore L_BL_W sensor */
+					if (i == Robot.S_BL_W)
+						ignore_L_BL_W = true;
 				}
 
-				// No walls detected
-				else if (arduinoSensorValue == coordinates.length) {
+				// When sensor sees no wall at all (when max value is received)
+				else if (arduinoSensorValues[i] == coordinates.length) {
 					for (int j = 0; j < coordinates.length; j++) {
 						this.getCell(coordinates[j]).setCellType(Cell.PATH);
 					}
-				}
 
+					/*
+					 * If S_BL_W does not detect a wall, set flag to true so it will read from L_BL_W sensor in the next
+					 * loop.
+					 */
+					if (i == Robot.S_BL_W)
+						ignore_L_BL_W = false;
+				}
 			}
 		}
-		System.out.println();
 	}
-
 }
