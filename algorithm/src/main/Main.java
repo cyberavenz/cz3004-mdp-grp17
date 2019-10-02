@@ -12,7 +12,7 @@ import gui.GUI;
 
 public class Main {
 
-	public static boolean isRealRun = true;				// RealRun or Simulation mode?
+	public static boolean isRealRun = false;				// RealRun or Simulation mode?
 	public static Map testMap;								// testMap (only used in simulation mode)
 	public static Map exploredMap = new Map("unknown.txt");	// Set exploredMap (starts from an unknown state)
 	public static Robot robot = new Robot();				// Default starting position of robot
@@ -44,21 +44,20 @@ public class Main {
 			comms = new TCPComm();
 			gui.setModeColour(comms.isConnected());
 
+			/* Wait for TCP server to be up */
 			try {
 				Thread.sleep(3000);
 			} catch (Exception e) {
 			}
 
-			comms.send(TCPComm.ARDUINO, "R90|L90");
+			comms.send(TCPComm.ARDUINO, "R90|L90");	// Calibrate first
 		}
 
 		// SIMULATION MODE
 		else {
 			// Load testMap
-			testMap = new Map("test3.txt");	// Set simulatedMap for use (if simulation)
-			gui.refreshGUI(robot, testMap); // Display testMap first if simulation mode
-			
-			
+			testMap = new Map("empty.txt");			// Set simulatedMap for use (if simulation)
+			gui.refreshGUI(robot, testMap); 		// Display testMap first if simulation mode
 		}
 	}
 
@@ -112,38 +111,35 @@ public class Main {
 	}
 
 	public static void btnStartRealExplore() {
-		/* Don't start again if thread is alive */
-//		if (realExplorationThread != null || realExplorationThread.isAlive())
-//			return;
-		
-//		comms.send(TCPComm.ARDUINO, "CXX");		// Request sensor reading
 		comms.send(TCPComm.ARDUINO, "SXX");		// Request sensor reading
-		exploredMap.actualReveal(robot, comms.readFrom(TCPComm.ARDUINO));		// Read sensors and populate map
+		exploredMap.actualReveal(robot, comms.readFrom(TCPComm.ARDUINO));	// Read sensors and populate map
 		gui.refreshGUI(robot, exploredMap);		// Show it on GUI
 
 		Runnable realExplorable = new Runnable() {
-			private boolean done = false, exit = false;
+			private boolean done = false;
 
 			@Override
 			public void run() {
-				exit = false;
 				System.out.println("Inside realExplorable thread: " + Thread.currentThread().getName());
 
 				do {
-					/* To exit cleanly before each exploration step */
-					if (exit)
-						return;
-
 					try {
 						/* Run exploration for one step */
 						done = exploration.executeOneStep(robot, exploredMap);	// Send next movement
+						gui.refreshGUI(robot, exploredMap);						// Show it on GUI
 
-						Thread.sleep(1000);
+						Thread.sleep(700);
 
-						comms.send(TCPComm.ARDUINO, "SXX");		// Request sensor reading
-						exploredMap.actualReveal(robot, comms.readFrom(TCPComm.ARDUINO));		// Read sensors and
-																									// populate map
-						gui.refreshGUI(robot, exploredMap);		// Show it on GUI
+						System.out.println("Robot is at: " + robot.getCurrPos().getY() + " "
+								+ robot.getCurrPos().getX());
+						comms.send(TCPComm.ARDUINO, "SXX");						// Request sensor reading
+						String fromArduino = comms.readFrom(TCPComm.ARDUINO); 	// Wait for reading
+						exploredMap.actualReveal(robot, fromArduino);			// Populate map
+						gui.refreshGUI(robot, exploredMap);						// Show it on GUI
+
+						Thread.sleep(100);						// So your eyes can see the change
+
+						System.out.println("============= END STEP =============\n");
 					} catch (Exception e) {
 					}
 				} while (!done);
@@ -151,7 +147,6 @@ public class Main {
 		};
 
 		realExplorationThread = new Thread(realExplorable);
-
 		System.out.println("Starting realExploration thread...");
 		realExplorationThread.start();
 	}
