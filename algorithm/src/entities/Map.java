@@ -5,10 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Scanner;
-
-import communications.TCPComm;
 import entities.Cell;
-import main.Main;
 
 public class Map {
 	public static final int maxY = 20;
@@ -177,83 +174,89 @@ public class Map {
 	}
 
 	/**
-	 * Reveal cells around the <tt>Robot</tt> based on the current mode.<br>
-	 * <b>Simulation</b>: Must provide a <tt>testMap</tt>.<br>
-	 * <b>Real Run</b>: Read sensor values from Arduino.
+	 * Simulated reveal of cells around the <tt>Robot</tt> based on the provided <tt>testMap</tt>.
 	 * 
 	 * @param robot
 	 * @param testMap Set to <tt>null</tt> for real run
 	 */
-	public void reveal(Robot robot, Map testMap) {
+	public void simulatedReveal(Robot robot, Map testMap) {
 		Sensor[] sensors = robot.getAllSensors();
 		Coordinate[] coordinates;
 
-		/* Real Run Mode */
-		if (Main.isRealRun) {
-			String message = Main.comms.readFrom(TCPComm.ARDUINO);
-			String[] arduinoSensors = message.split("[|]");	// Requires the use of [] character class
-
-			if (arduinoSensors.length != sensors.length) {
-				System.err.println("Incorrect sensor format received from Arduino!");
-				return;
-			}
-
-			System.out.print("Cleaned sensor values:");
-			// ORIGINAL: sensors.length
-			for (int i = 0; i < 5; i++) {
-				int arduinoSensorValue = Integer.parseInt(arduinoSensors[i]);
-
-				coordinates = sensors[i].getFacingCoordinates(robot);
-
-				if (coordinates != null) {
-					// If received value is above range, assume max depth
-					if (arduinoSensorValue > sensors[i].getDepth())
-						arduinoSensorValue = sensors[i].getDepth();
-
-					System.out.print(" " + arduinoSensorValue);
-
-					// Wall is detected
-					if (arduinoSensorValue < coordinates.length) {
-						for (int j = 0; j < coordinates.length; j++) {
-							if (j == arduinoSensorValue) {
-								this.getCell(coordinates[j]).setCellType(Cell.WALL);
-								break;	// Unable to see past any wall, break!
-							} else {
-								this.getCell(coordinates[j]).setCellType(Cell.PATH);
-							}
-						}
-					}
-
-					// No walls detected
-					else if (arduinoSensorValue == coordinates.length) {
-						for (int j = 0; j < coordinates.length; j++) {
-							this.getCell(coordinates[j]).setCellType(Cell.PATH);
-						}
-					}
-
-				}
-			}
-			System.out.println();
-		}
-
 		/* Simulation Mode */
-		else {
-			for (int i = 0; i < sensors.length; i++) {
-				coordinates = sensors[i].getFacingCoordinates(robot);
+		for (int i = 0; i < sensors.length; i++) {
+			coordinates = sensors[i].getFacingCoordinates(robot);
 
-				// Only when sensor sees some coordinates
-				if (coordinates != null) {
-					for (int j = 0; j < coordinates.length; j++) {
-						Cell unknownCell = this.getCell(coordinates[j]);
-						Cell simulatedCell = testMap.getCell(coordinates[j]);
-						unknownCell.setCellType(simulatedCell.getCellType());
+			// Only when sensor sees some coordinates
+			if (coordinates != null) {
+				for (int j = 0; j < coordinates.length; j++) {
+					Cell unknownCell = this.getCell(coordinates[j]);
+					Cell simulatedCell = testMap.getCell(coordinates[j]);
+					unknownCell.setCellType(simulatedCell.getCellType());
 
-						// Sensor should not be able to see past walls
-						if (simulatedCell.getCellType() == Cell.WALL)
-							break;
-					}
+					// Sensor should not be able to see past walls
+					if (simulatedCell.getCellType() == Cell.WALL)
+						break;
 				}
 			}
 		}
 	}
+
+	/**
+	 * Actual reveal of cells around the <tt>Robot</tt> based on the provided sensor values from
+	 * Arduino.
+	 * 
+	 * @param robot
+	 * @param incomingReadings
+	 */
+	public void actualReveal(Robot robot, String incomingReadings) {
+		/* Real Run Mode */
+		Sensor[] sensors = robot.getAllSensors();
+		Coordinate[] coordinates;
+
+		String[] arduinoSensors = incomingReadings.split("[|]");	// Requires the use of [] character class
+
+		if (arduinoSensors.length != sensors.length) {
+			System.err.println("Incorrect sensor format received from Arduino!");
+			return;
+		}
+
+		System.out.print("Cleaned sensor values:");
+		// ORIGINAL: sensors.length
+		for (int i = 0; i < 5; i++) {
+			int arduinoSensorValue = Integer.parseInt(arduinoSensors[i]);
+
+			coordinates = sensors[i].getFacingCoordinates(robot);
+
+			if (coordinates != null) {
+				// If received value is above range, assume max depth
+				if (arduinoSensorValue > sensors[i].getDepth())
+					arduinoSensorValue = sensors[i].getDepth();
+
+				System.out.print(" " + arduinoSensorValue);
+
+				// Wall is detected
+				if (arduinoSensorValue < coordinates.length) {
+					for (int j = 0; j < coordinates.length; j++) {
+						if (j == arduinoSensorValue) {
+							this.getCell(coordinates[j]).setCellType(Cell.WALL);
+							break;	// Unable to see past any wall, break!
+						} else {
+							this.getCell(coordinates[j]).setCellType(Cell.PATH);
+						}
+					}
+				}
+
+				// No walls detected
+				else if (arduinoSensorValue == coordinates.length) {
+					for (int j = 0; j < coordinates.length; j++) {
+						this.getCell(coordinates[j]).setCellType(Cell.PATH);
+					}
+				}
+
+			}
+		}
+		System.out.println();
+	}
+
 }
