@@ -163,4 +163,26 @@ public class Sensor {
 	public int getRelativePos() {
 		return this.relativePos;
 	}
+
+	public static int[] cleanAllReadings(Sensor[] sensors, String incomingReadings) {
+		String[] splitString = incomingReadings.split("[|]");	// Requires the use of [] character class
+		int[] toReturn = new int[splitString.length];
+
+		System.out.println("Cleaned sensor values: ");
+
+		for (int i = 0; i < splitString.length; i++) {
+			toReturn[i] = Integer.parseInt(splitString[i]);
+
+			// If received value is above range, assume max depth
+			if (toReturn[i] > sensors[i].getDepth())
+				toReturn[i] = sensors[i].getDepth();
+
+			System.out.print(toReturn[i]);
+			if (i < splitString.length - 1)
+				System.out.print("|");
+		}
+
+		System.out.println();
+		return toReturn;
+	}
 }
