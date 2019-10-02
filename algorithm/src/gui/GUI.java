@@ -11,8 +11,8 @@ import main.Main;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 
 public class GUI extends JFrame {
 
@@ -94,36 +94,12 @@ public class GUI extends JFrame {
 		mainContainer.add(ctrlPanel);
 		this.setSize(1000, 800); // Width, Height
 		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // Exit mainUI on close
-		this.addWindowListener(new WindowListener() {
+		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				// Close socket before exiting (In Real Run Mode)
-				if (Main.isRealRun)
+				if (Main.isRealRun && Main.comms != null)
 					Main.comms.close();
-			}
-
-			@Override
-			public void windowOpened(WindowEvent e) {
-			}
-
-			@Override
-			public void windowClosed(WindowEvent e) {
-			}
-
-			@Override
-			public void windowIconified(WindowEvent e) {
-			}
-
-			@Override
-			public void windowDeiconified(WindowEvent e) {
-			}
-
-			@Override
-			public void windowActivated(WindowEvent e) {
-			}
-
-			@Override
-			public void windowDeactivated(WindowEvent e) {
 			}
 		});
 
@@ -266,16 +242,25 @@ public class GUI extends JFrame {
 			}
 		});
 
-		/* Real Run Explore */
+		/* Real Run: Start Explore */
 		JButton startRealExplore = new JButton("START EXPLORATION");
 		startRealExplore.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Main.btnStartRealExplore();
 			}
 		});
+		
+		/* Real Run: Force Stop Explore */
+		JButton fStopRealExplore = new JButton("!! FORCE STOP EXPLORATION !!");
+		fStopRealExplore.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Main.btnFStopRealExplore();
+			}
+		});
 
 		if (Main.isRealRun) {
 			ctrlPanel.add(startRealExplore);
+			ctrlPanel.add(fStopRealExplore);
 		} else {
 			ctrlPanel.add(explorePerStep);
 			ctrlPanel.add(exploreAll);
