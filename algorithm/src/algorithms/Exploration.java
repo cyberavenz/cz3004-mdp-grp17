@@ -161,18 +161,18 @@ public class Exploration {
 				break;
 
 			case 'A':	// End of exploration!
-				System.out.println("\nEnd of Exploration.");
+				System.out.println("Exploration: END!");
 				return true;	// Signify end of exploration
 
 			case 'B':	// Rotate left
-				System.out.println("\nRotate left.");
+				System.out.println(" Rotate left!");
 				robot.rotate(Rotate.LEFT);
 				state = '1';
 				moved = true;
 				break;
 
 			case 'C':	// Move forward
-				System.out.println("\nMove forward.");
+				System.out.println(" Move forward!");
 				robot.moveForward(1);
 				state = '1';
 				moved = true;
@@ -180,8 +180,13 @@ public class Exploration {
 				break;
 
 			case 'D':	// Rotate right and move forward
-				System.out.println("\nRotate right and move forward.");
-				robot.rotateAndForward(Rotate.RIGHT, 1);
+				System.out.println(" Rotate right and move forward!");
+				robot.rotate(Rotate.RIGHT);
+				try {
+					Thread.sleep(700);
+				} catch (Exception e) {
+				}
+				robot.moveForward(1);
 				state = '1';
 				moved = true;
 				outOfStart = true;
