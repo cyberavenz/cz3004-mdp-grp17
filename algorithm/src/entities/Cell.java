@@ -6,8 +6,9 @@ public class Cell extends Coordinate {
 //			THREE = 8, FOUR = 9, FIVE = 10, ALPHABET_A = 11, ALPHABET_B = 12, ALPHABET_C = 13, ALPHABET_D = 14,
 //			ALPHABET_E = 15;
 
-	private char cellType; 			// Cell type listed above
-	private boolean isVisited;		// Whether cell has been visited
+	private char cellType; 				// Cell type listed above
+	private boolean permanentCellType;	// Permanent cell type, do not change after set
+	private boolean isVisited;			// Whether cell has been visited
 
 	/**
 	 * <tt>Cell</tt> constructor which extends <tt>Coordinate</tt>.
@@ -16,9 +17,10 @@ public class Cell extends Coordinate {
 	 * @param x
 	 */
 	public Cell(int y, int x) {
-		super(y, x); 				// Coordinate constructor to set Y and X
-		this.cellType = UNKNOWN;	// Default to UNKNOWN
-		this.isVisited = false;		// Default to unvisited
+		super(y, x); 					// Coordinate constructor to set Y and X
+		this.cellType = UNKNOWN;		// Default to UNKNOWN
+		this.permanentCellType = false;	// Assume not permanent yet
+		this.isVisited = false;			// Default to unvisited
 	}
 
 	/**
@@ -36,7 +38,14 @@ public class Cell extends Coordinate {
 	 * @param cellType
 	 */
 	public void setCellType(char cellType) {
-		this.cellType = cellType;
+		/* If cellType is ever set as START or GOAL, it should remain permanent */
+		// For cases where sensor falsely detects a wall in START or GOAL area
+		if (cellType == Cell.START || cellType == Cell.GOAL) {
+			this.permanentCellType = true;
+			this.cellType = cellType;
+		} else if (this.permanentCellType == false) {
+			this.cellType = cellType;
+		}
 	}
 
 	/**
