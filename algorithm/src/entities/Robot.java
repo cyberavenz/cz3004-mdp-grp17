@@ -231,13 +231,14 @@ public class Robot {
 	 * @param direction
 	 * @param steps
 	 */
-	public void rotateAndForward(Rotate direction, int steps) {
-		this.rotate(direction);
-		this.moveForward(steps);
-
-		if (Main.isRealRun)
-			Main.comms.send(TCPComm.ARDUINO, "L90|F01");
-	}
+// DEPRECATED!
+//	public void rotateAndForward(Rotate direction, int steps) {
+//		this.rotate(direction);
+//		this.moveForward(steps);
+//
+//		if (Main.isRealRun)
+//			Main.comms.send(TCPComm.ARDUINO, "L90|F01");
+//	}
 
 	/**
 	 * Get a specific <tt>Sensor</tt> on <tt>Robot</tt>.
