@@ -33,8 +33,11 @@ int error, prevError;
 float integral, derivative, output;
 String inputCommand = "";
 bool stringComplete = false;
+
+//int rightWall = 0;
+
 int forwardCount = 0;
-int rightWall = 0;
+bool rightWall[] = {false, false, false};
 bool rotateRight = false;
 bool rotateLeft = false;
 
@@ -83,7 +86,7 @@ void loop() {
         case 'L': rotateL(com.value.toInt()); break;
         case 'R': rotateR(com.value.toInt()); break;
         case 'C': checkAlignmentOne(); break;
-//        case 'V': checkAlignmentTwo(1); break;
+        case 'V': checkAlignmentTwo(1); break;
         case 'B': checkAlignmentTwo(2); break;
         default: inputCommand = ""; 
       }
@@ -138,6 +141,7 @@ void moveForward(int distance,int left_speed,int right_speed){
               md.setSpeeds(left_speed+output,right_speed-output-20);
       }
       md.setBrakes(375, 400);
+      forwardCount++;
       delay(50);
       right_encoder_val = 0;
       left_encoder_val = 0;
@@ -145,55 +149,52 @@ void moveForward(int distance,int left_speed,int right_speed){
       int fl = getDistanceinGrids(getDistance(sensorRead(40, FL), FL, 0), FL);
       int fc = getDistanceinGrids(getDistance(sensorRead(40, FC), FC, 0), FC);
       int fr = getDistanceinGrids(getDistance(sensorRead(40, FR), FR, 0), FR);
-      
-      if ((getDistanceinGrids(getDistance(sensorRead(20, R), R, 0), R) == 0) && rightWall < 3) {
-        rightWall++;
+
+      if ((getDistanceinGrids(getDistance(sensorRead(20, R), R, 0), R) == 0)) {
+        rightWall[forwardCount - 1] = true;
       }
       else {
-        rightWall--;
+        rightWall[forwardCount - 1] = false;
       }
-      forwardCount++;
       
-//      Serial.print(forwardCount);
-//      Serial.print("  ");
-//      Serial.println(rightWall);
-      if (forwardCount == 3 && rightWall == 1 && rotateRight) {
-        rotateR(90);
-        delay(50);
-        rotateL(90);
-        delay(10);
-        forwardCount = 0;
-        rightWall = 0;
-        rotateRight = false;
+      Serial.print("Fcount:  ");
+      Serial.println(forwardCount);
+      Serial.print("Wall:  ");
+      for (byte i = 0; i < 3; i = i + 1) {
+        Serial.print("  ");
+        Serial.print(rightWall[i]);
       }
-      else if (forwardCount == 2 && rightWall == 0 && rotateLeft) {
+      Serial.println("");
+      Serial.print("Rotate Right:  ");
+      Serial.println(rotateRight);
+      Serial.print("Rotate Left:  ");
+      Serial.println(rotateLeft);
+      Serial.println("");
+
+      if ((forwardCount == 3 && rightWall[0] && rightWall[1] && !rightWall[2] && rotateRight) || (forwardCount == 2 && rightWall[0] && rightWall[1] && !rightWall[2] && rotateLeft) || (forwardCount == 3 && rightWall[0] && rightWall[2])) {
         rotateR(90);
-        delay(50);
-        rotateL(90);
-        delay(10);
-        forwardCount = 0;
-        rightWall = 0;
-        rotateLeft = false;
-      
-      }
-      else if (rightWall == 3 && forwardCount == 3) {
-        rotateR(90);
-        delay(50);
+        delay(70);
         rotateL(90);
         delay(20);
         forwardCount = 0;
-        rightWall = 0;
+        for (byte i = 0; i < 3; i = i + 1) {
+          rightWall[i] = false;
+        }
+        if (rotateRight) {
+          rotateRight = false;
+        }
+        if (rotateLeft) {
+          rotateLeft = false;
+        }
       }
-      
+
+      //When Front Left and Front Right has wall
       if (fl == 0 && fr == 0) {
-//      if ((fl == 0 && fr == 0) || (fl == 1 && fr == 1)) {
         checkAlignmentOne();
-        delay(50);
+        delay(70);
         checkAlignmentTwo(1);
         return;
       }
-
-//      sendSensors();
 }
 //=========================End of Move Forward Codes============================
 
@@ -217,21 +218,23 @@ void rotateR(int degree){
       int fr = getDistanceinGrids(getDistance(sensorRead(40, FR), FR, 0), FR);
       
       if (fl == 0 && fr == 0) {
-//      if ((fl == 0 && fr == 0) || (fl == 1 && fr == 1)) {
         checkAlignmentOne();
         delay(50);
         checkAlignmentTwo(1);
         return;
       }
+      
       forwardCount = 0;
-      rightWall = 0;
+      for (byte i = 0; i < 3; i = i + 1) {
+        rightWall[i] = false;
+      }
+      
       rotateRight = true;
       rotateLeft = false;
       if (fr == 0 && fc == 0) {
         checkAlignmentTwo(2);
         rotateRight = false;
       }
-//        sendSensors();
 }
 //=========================End of Rotate Right Codes============================
 
@@ -241,7 +244,7 @@ void rotateL(int degree){
       float dis = degree / 90.0;
       int left_speed = 220;
       int right_speed = 190;
-      float actual_distance = (dis*415)-(10*dis);
+      float actual_distance = (dis*425)-(10*dis);
       while(left_encoder_val < actual_distance){
           output = pidControlTurn(left_encoder_val, right_encoder_val);
           md.setSpeeds(-(left_speed+output),right_speed-output);
@@ -255,14 +258,17 @@ void rotateL(int degree){
       int fr = getDistanceinGrids(getDistance(sensorRead(20, FR), FR, 0), FR);
       
       if (fl == 0 && fr == 0) {
-//      if ((fl == 0 && fr == 0) || (fl == 1 && fr == 1))
         checkAlignmentOne();
         delay(50);
         checkAlignmentTwo(1);
         return;
       }
+      
       forwardCount = 0;
-      rightWall = 0;
+      for (byte i = 0; i < 3; i = i + 1) {
+        rightWall[i] = false;
+      }
+      
       rotateLeft = true;
       rotateRight = false;
       if (fr == 0 && fc == 0) {
@@ -301,7 +307,6 @@ void sendSensors() {
 //=========================Alignment for Rotation Codes=========================
 void checkAlignmentOne(){
   double error = getRotError();
-//  while (error != 0) {
   while (!(error > -0.05 && error < 0.05)) {
     calibrateRot(error);
     error = getRotError();
@@ -570,7 +575,7 @@ int getDistanceinGrids(int reading, int sensor){
       } 
       break;
     case FC: 
-      if(reading >= 14){
+      if(reading >= 13){
         grid = 2;
       }else if(reading >= 9){
         grid = 1;
