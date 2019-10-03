@@ -168,7 +168,7 @@ public class Sensor {
 		String[] splitString = incomingReadings.split("[|]");	// Requires the use of [] character class
 		int[] toReturn = new int[splitString.length];
 
-		System.out.println("Cleaned sensor values: ");
+		System.out.print("Cleaned sensor values: ");
 
 		for (int i = 0; i < splitString.length; i++) {
 			toReturn[i] = Integer.parseInt(splitString[i]);
