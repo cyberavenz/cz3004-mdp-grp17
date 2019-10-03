@@ -14,8 +14,8 @@ public class Exploration {
 	private boolean outOfStart;
 
 	/**
-	 * Constructor for exploration. Prepares <tt>Map</tt> for a new exploration by restarting state
-	 * machine and resetting all <tt>isVisited</tt> flags.
+	 * Constructor for exploration. Prepares <tt>Map</tt> for a new exploration by restarting state machine and
+	 * resetting all <tt>isVisited</tt> flags.
 	 * 
 	 * @param map To reset all <tt>isVisited</tt> flags.
 	 */
@@ -55,7 +55,7 @@ public class Exploration {
 
 			case '1':	// Back to start position?
 				System.out.print(Character.toString(state) + ' ');
-				if (outOfStart && Coordinate.isEqual(robot.getCurrPos(), map.getStartCoord()))
+				if (outOfStart && robot.getCurrPos().equals(map.getStartCoord()))
 					state = 'A';
 				else
 					state = '2';
@@ -161,18 +161,18 @@ public class Exploration {
 				break;
 
 			case 'A':	// End of exploration!
-				System.out.println("Exploration: END!");
+				System.out.println("END!");
 				return true;	// Signify end of exploration
 
 			case 'B':	// Rotate left
-				System.out.println(" Rotate left!");
+				System.out.println("Rotate left!");
 				robot.rotate(Rotate.LEFT);
 				state = '1';
 				moved = true;
 				break;
 
 			case 'C':	// Move forward
-				System.out.println(" Move forward!");
+				System.out.println("Move forward!");
 				robot.moveForward(1);
 				state = '1';
 				moved = true;
@@ -180,12 +180,8 @@ public class Exploration {
 				break;
 
 			case 'D':	// Rotate right and move forward
-				System.out.println(" Rotate right and move forward!");
+				System.out.println("Rotate right and move forward!");
 				robot.rotate(Rotate.RIGHT);
-				try {
-					Thread.sleep(700);
-				} catch (Exception e) {
-				}
 				robot.moveForward(1);
 				state = '1';
 				moved = true;
@@ -200,8 +196,8 @@ public class Exploration {
 	}
 
 	/**
-	 * Generate the coordinates on the right side of the <tt>Robot</tt>. Useful to cross-check with
-	 * existing <tt>Map</tt> memory.
+	 * Generate the coordinates on the right side of the <tt>Robot</tt>. Useful to cross-check with existing
+	 * <tt>Map</tt> memory.
 	 * 
 	 * @param robot       <tt>Robot</tt>
 	 * @param coordinates Coordinates that the sensor sees for reference.
@@ -247,8 +243,8 @@ public class Exploration {
 	}
 
 	/**
-	 * Generate the coordinates on the front side of the <tt>Robot</tt>. Useful to cross-check with
-	 * existing <tt>Map</tt> memory.
+	 * Generate the coordinates on the front side of the <tt>Robot</tt>. Useful to cross-check with existing
+	 * <tt>Map</tt> memory.
 	 * 
 	 * @param robot       <tt>Robot</tt>
 	 * @param coordinates Coordinates that the sensor sees for reference.
