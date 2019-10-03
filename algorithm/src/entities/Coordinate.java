@@ -24,13 +24,29 @@ public class Coordinate {
 		this.x = x;
 	}
 
-	public static boolean isEqual(Coordinate c1, Coordinate c2) {
-		if (c1.y == c2.y) {
-			if (c1.x == c2.x) {
-				return true;
-			}
-		}
-		return false;
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + this.x;
+		result = prime * result + this.y;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Coordinate other = (Coordinate) obj;
+		if (x != other.getX())
+			return false;
+		if (y != other.getY())
+			return false;
+		return true;
 	}
 
 }
