@@ -53,7 +53,12 @@ public class Main {
 			} catch (Exception e) {
 			}
 
+			comms.send(TCPComm.ANDROID, genMDFAndroid(exploredMap, robot));
 			comms.send(TCPComm.ARDUINO, "R90|L90");	// Calibrate first
+
+			/* Wait for Android command */
+			while (comms.readFrom(TCPComm.ANDROID) == "STARTE");
+			btnStartRealExplore();
 		}
 
 		// SIMULATION MODE
@@ -64,9 +69,9 @@ public class Main {
 
 //			FastestPath fp = new FastestPath(testMap, new Coordinate(1, 1), new Coordinate(18, 13));
 //			fp.runAStar();
-			
-			FPTest fp = new FPTest(testMap, new Coordinate(1, 1), new Coordinate(18, 13));
-			fp.runAStar();
+
+//			FPTest fp = new FPTest(testMap, new Coordinate(1, 1), new Coordinate(18, 13));
+//			fp.runAStar();
 		}
 	}
 
@@ -135,6 +140,7 @@ public class Main {
 					try {
 						/* Run exploration for one step */
 						done = exploration.executeOneStep(robot, exploredMap);	// Send next movement
+						comms.send(TCPComm.ANDROID, genMDFAndroid(exploredMap, robot));	// Show it on Android
 						gui.refreshGUI(robot, exploredMap);						// Show it on GUI
 
 						Thread.sleep(700);
@@ -144,6 +150,7 @@ public class Main {
 						comms.send(TCPComm.ARDUINO, "SXX");						// Request sensor reading
 						String fromArduino = comms.readFrom(TCPComm.ARDUINO); 	// Wait for reading
 						exploredMap.actualReveal(robot, fromArduino);			// Populate map
+						comms.send(TCPComm.ANDROID, genMDFAndroid(exploredMap, robot));	// Show it on Android
 						gui.refreshGUI(robot, exploredMap);						// Show it on GUI
 
 						Thread.sleep(100);						// So your eyes can see the change
@@ -161,5 +168,14 @@ public class Main {
 	}
 
 	public static void btnFStopRealExplore() {
+	}
+
+	public static String genMDFAndroid(Map map, Robot robot) {
+		String toReturn = new String();
+
+		toReturn = "MDF" + "|" + map.getP1Descriptors() + "|" + map.getP2Descriptors() + "|" + robot.getCurrDir() + "|"
+				+ (19 - robot.getCurrPos().getY()) + "|" + robot.getCurrPos().getX() + "|" + "0";
+
+		return toReturn;
 	}
 }
