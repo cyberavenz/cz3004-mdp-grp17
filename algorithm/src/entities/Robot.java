@@ -41,26 +41,30 @@ public class Robot {
 	 * @param startDir
 	 */
 	public Robot(Coordinate startPos, int startDir) {
-		// Default starting position
-		currPos = new Coordinate(1, 1);
-		currDir = EAST;
+		int startY = startPos.getY();
+		int startX = startPos.getX();
+		boolean error = false;
+
+		if (startY == 0 || startY == Map.maxY - 1) {
+			error = true;
+		} else if (startX == 0 || startX == Map.maxX - 1) {
+			error = true;
+		}
+
+		if (error == true) {
+			System.out.println("ERROR: Robot(y:" + startPos.getY() + " x:" + startPos.getX()
+					+ ") cannot be initialised outside of map. Default position is assumed.");
+
+			// Default starting position
+			currPos = new Coordinate(1, 1);
+			currDir = EAST;
+		} else {
+			this.currPos = startPos;
+			this.currDir = startDir;
+		}
+
+		// Always initialise sensors
 		initSensors();
-
-		// Check for any invalid coordinates first
-		if (startPos.getY() == Map.maxY - 1 || startPos.getY() == 0 || startPos.getX() == 0
-				|| startPos.getY() == Map.maxX - 1) {
-			System.out.println(
-					"ERROR: Robot() cannot be initialised at the edge of map as robot footprint is 3 x 3 cells.");
-		} else if (startPos.getY() > Map.maxY - 1 || startPos.getY() < 0 || startPos.getX() > Map.maxX - 1
-				|| startPos.getX() < 0) {
-			System.out.println("ERROR: Robot() cannot be initialised outside of map.");
-		}
-
-		// Valid condition, overwrite default starting position
-		else {
-			currPos = startPos;
-			currDir = startDir;
-		}
 	}
 
 	/**

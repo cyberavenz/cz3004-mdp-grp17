@@ -5,7 +5,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import algorithms.Exploration;
+import algorithms.FPTest;
+import algorithms.FastestPath;
 import communications.TCPComm;
+import entities.Coordinate;
 import entities.Map;
 import entities.Robot;
 import gui.GUI;
@@ -56,8 +59,14 @@ public class Main {
 		// SIMULATION MODE
 		else {
 			// Load testMap
-			testMap = new Map("empty.txt");			// Set simulatedMap for use (if simulation)
+			testMap = new Map("prevSemWeek9.txt");	// Set simulatedMap for use (if simulation)
 			gui.refreshGUI(robot, testMap); 		// Display testMap first if simulation mode
+
+//			FastestPath fp = new FastestPath(testMap, new Coordinate(1, 1), new Coordinate(18, 13));
+//			fp.runAStar();
+			
+			FPTest fp = new FPTest(testMap, new Coordinate(1, 1), new Coordinate(18, 13));
+			fp.runAStar();
 		}
 	}
 
@@ -130,8 +139,8 @@ public class Main {
 
 						Thread.sleep(700);
 
-						System.out.println("Robot is at: " + robot.getCurrPos().getY() + " "
-								+ robot.getCurrPos().getX());
+						System.out
+								.println("Robot is at: " + robot.getCurrPos().getY() + " " + robot.getCurrPos().getX());
 						comms.send(TCPComm.ARDUINO, "SXX");						// Request sensor reading
 						String fromArduino = comms.readFrom(TCPComm.ARDUINO); 	// Wait for reading
 						exploredMap.actualReveal(robot, fromArduino);			// Populate map

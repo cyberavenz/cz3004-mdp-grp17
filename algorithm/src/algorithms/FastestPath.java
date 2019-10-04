@@ -8,6 +8,7 @@ import java.util.PriorityQueue;
 import entities.Cell;
 import entities.Coordinate;
 import entities.Map;
+import entities.Node;
 import entities.Robot;
 
 public class FastestPath {
@@ -66,40 +67,53 @@ public class FastestPath {
 		System.out.println("FastestPath: Graph has a total of " + totalEdges + " edges.");
 	}
 
-	public void runAStar() {
-		PriorityQueue<Node> priorityQueue = new PriorityQueue<Node>();	// Frontier that is sorted
-		HashMap<Node, Node> childOf = new HashMap<Node, Node>();		// Child, Parent
-		Node startNode = nodes.get(startCoord);
-		startNode.setDistance(0);
-		priorityQueue.add(startNode);
+	public ArrayList<Coordinate> runAStar() {
+		PriorityQueue<Node> orderedFrontier = new PriorityQueue<Node>();	// Frontier that is sorted
+		HashMap<Node, Node> childParent = new HashMap<Node, Node>();		// Child, Parent (Current, Previous)
 
-		Node currNode = null;
+		Node startNode = this.nodes.get(startCoord);	// Get Start Node
+		startNode.setCost(0);							// Set Start Node total cost to 0
+		orderedFrontier.add(startNode);					// Add it to the frontier
 
-		while (!priorityQueue.isEmpty()) {
-			currNode = priorityQueue.poll();
+		Node currNode;
+		while (!orderedFrontier.isEmpty()) {
+			currNode = orderedFrontier.poll();
 
-			if (!currNode.isVisited) {
-				currNode.setVisited();
+			if (!currNode.isVisited()) {
+				currNode.setVisited(true);
 
-				if (currNode.isEqual(nodes.get(goalCoord))) {
-					// TODO Reconstruct final path
+				/* Check if it is Goal Node, BREAK! */
+				if (currNode.equals(this.nodes.get(goalCoord))) {
+					ArrayList<Coordinate> toReturn = new ArrayList<Coordinate>();
+					// TODO Reconstruct final path based on childParent relation
+					return toReturn;
 				}
 
+				/* Check neighbours */
 				ArrayList<Node> neighbours = getNeighbours(currNode);
 				for (int i = 0; i < neighbours.size(); i++) {
-					if (!neighbours.get(i).isVisited) {
-						int totalDistance = 1 + neighbours.get(i).getHeuristic();
+					Node currNeighbour = neighbours.get(i);	// Current Neighbour Node for easy reference
 
-						if (totalDistance < neighbours.get(i).getDistance()) {
-							neighbours.get(i).setDistance(totalDistance);
-							childOf.put(neighbours.get(i), currNode);
+					if (!currNeighbour.isVisited()) {		// Only traverse currNeighbour if unvisited
+
+						// Total Cost = currNode.distance + weight of 1 (each edge) + currNeighbour.heuristic
+						int totalCost = currNode.getCost() + 1 + currNeighbour.getHeuristic();
+
+						if (totalCost < currNeighbour.getCost()) {
+							currNeighbour.setCost(totalCost);		// Update currNeighbour's distance
+							// TODO totalCost /= totalDistance
 							
-							priorityQueue.add(neighbours.get(i));
+							childParent.put(currNeighbour, currNode);	// Keep track of currNeighbour's parent
+
+							orderedFrontier.add(currNeighbour);		// Add currNeighbour to frontier
 						}
 					}
 				}
 			}
 		}
+
+		System.out.println("FastestPath: A*Star is unable to find a path to goal node.");
+		return new ArrayList<Coordinate>();	// No paths found, return empty list
 	}
 
 	private ArrayList<Node> getNeighbours(Node currNode) {
@@ -123,56 +137,5 @@ public class FastestPath {
 		}
 
 		return toReturn;
-	}
-
-	public class Node {
-		private int heuristic;
-		private Cell cell;
-		private boolean isVisited;
-		private int distance;
-
-		public Node(int heuristic, Cell cell) {
-			this.heuristic = heuristic;
-			this.cell = cell;
-			this.isVisited = false;
-			this.setDistance(Integer.MAX_VALUE);
-		}
-
-		public int getHeuristic() {
-			return heuristic;
-		}
-
-		public Cell getCell() {
-			return cell;
-		}
-
-		public boolean isVisited() {
-			return isVisited;
-		}
-
-		public void setVisited() {
-			this.isVisited = true;
-		}
-
-		public int getDistance() {
-			return distance;
-		}
-
-		public void setDistance(int distance) {
-			this.distance = distance;
-		}
-
-		public boolean isEqual(Node n) {
-			int nY = n.getCell().getY();
-			int nX = n.getCell().getX();
-
-			int thisY = this.getCell().getY();
-			int thisX = this.getCell().getX();
-
-			if (nY == thisY && nX == thisX)
-				return true;
-			else
-				return false;
-		}
 	}
 }
