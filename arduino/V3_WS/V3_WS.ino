@@ -34,8 +34,6 @@ float integral, derivative, output;
 String inputCommand = "";
 bool stringComplete = false;
 
-//int rightWall = 0;
-
 int forwardCount = 0;
 bool rightWall[] = {false, false, false};
 bool rotateRight = false;
@@ -76,7 +74,7 @@ void loop() {
     while(!commandQueue.isEmpty()){
       struct Command com;
       com = commandQueue.dequeue();
-      delay(125);
+      delay(100);
 //      double C = getDistance(sensorRead(40, FC), FC, 1);
 //      Serial.print(" C: ");
 //      Serial.print(C);
@@ -88,7 +86,9 @@ void loop() {
         case 'C': checkAlignmentOne(); break;
         case 'V': checkAlignmentTwo(1); break;
         case 'B': checkAlignmentTwo(2); break;
-        default: inputCommand = ""; 
+        default: inputCommand = "";
+        
+        delay(100); 
       }
 //      C = getDistance(sensorRead(40, FC), FC, 1);
 //      Serial.print(" C: ");
@@ -157,19 +157,19 @@ void moveForward(int distance,int left_speed,int right_speed){
         rightWall[forwardCount - 1] = false;
       }
       
-      Serial.print("Fcount:  ");
-      Serial.println(forwardCount);
-      Serial.print("Wall:  ");
-      for (byte i = 0; i < 3; i = i + 1) {
-        Serial.print("  ");
-        Serial.print(rightWall[i]);
-      }
-      Serial.println("");
-      Serial.print("Rotate Right:  ");
-      Serial.println(rotateRight);
-      Serial.print("Rotate Left:  ");
-      Serial.println(rotateLeft);
-      Serial.println("");
+//      Serial.print("Fcount:  ");
+//      Serial.println(forwardCount);
+//      Serial.print("Wall:  ");
+//      for (byte i = 0; i < 3; i = i + 1) {
+//        Serial.print("  ");
+//        Serial.print(rightWall[i]);
+//      }
+//      Serial.println("");
+//      Serial.print("Rotate Right:  ");
+//      Serial.println(rotateRight);
+//      Serial.print("Rotate Left:  ");
+//      Serial.println(rotateLeft);
+//      Serial.println("");
 
       if ((forwardCount == 3 && rightWall[0] && rightWall[1] && !rightWall[2] && rotateRight) || (forwardCount == 2 && rightWall[0] && rightWall[1] && !rightWall[2] && rotateLeft) || (forwardCount == 3 && rightWall[0] && rightWall[2])) {
         rotateR(90);
@@ -244,7 +244,7 @@ void rotateL(int degree){
       float dis = degree / 90.0;
       int left_speed = 220;
       int right_speed = 190;
-      float actual_distance = (dis*425)-(10*dis);
+      float actual_distance = (dis*412)-(10*dis);
       while(left_encoder_val < actual_distance){
           output = pidControlTurn(left_encoder_val, right_encoder_val);
           md.setSpeeds(-(left_speed+output),right_speed-output);
