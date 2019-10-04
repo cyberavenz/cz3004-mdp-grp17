@@ -73,4 +73,12 @@ public class Cell extends Coordinate {
 		this.isVisited = bool;
 	}
 
+	public boolean isPermanentCellType() {
+		return permanentCellType;
+	}
+
+	public void setPermanentCellType(boolean permanentCellType) {
+		this.permanentCellType = permanentCellType;
+	}
+
 }

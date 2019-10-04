@@ -240,10 +240,23 @@ public class Map {
 
 					for (int j = 0; j < coordinates.length; j++) {
 						if (j == arduinoSensorValues[i]) {
-							this.getCell(coordinates[j]).setCellType(Cell.WALL);
-							break;	// Unable to see past any wall, break!
+							// Only can set cellType is not permanent
+							if (!this.getCell(coordinates[j]).isPermanentCellType()) {
+								this.getCell(coordinates[j]).setCellType(Cell.WALL);
+
+								// Trust only Sensor 0 and 2
+								if (i == 0 || i == 2) {
+									if (!this.getCell(coordinates[j]).isPermanentCellType()) {
+										this.getCell(coordinates[j]).setPermanentCellType(true);
+									}
+								}
+							}
+							break;	// Unable to see past any wall, BREAK!
 						} else {
-							this.getCell(coordinates[j]).setCellType(Cell.PATH);
+							// Only can set cellType when not permanent
+							if (!this.getCell(coordinates[j]).isPermanentCellType()) {
+								this.getCell(coordinates[j]).setCellType(Cell.PATH);
+							}
 						}
 					}
 
