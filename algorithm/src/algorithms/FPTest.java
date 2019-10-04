@@ -5,7 +5,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Iterator;
 import java.util.PriorityQueue;
 import java.util.Collections;
 
@@ -14,7 +13,7 @@ import entities.Coordinate;
 import entities.Map;
 import entities.Robot;
 
-public class FastestPath {
+public class FPTest {
 
 	private HashMap<Coordinate, Node> nodes = new HashMap<Coordinate, Node>();
 	private HashMap<Node, ArrayList<Node>> edges = new HashMap<Node, ArrayList<Node>>();
@@ -22,7 +21,7 @@ public class FastestPath {
 	private Map currMap;
 	private Coordinate startCoord, goalCoord;
 
-	public FastestPath(Map currMap, Coordinate startCoord, Coordinate goalCoord) {
+	public FPTest(Map currMap, Coordinate startCoord, Coordinate goalCoord) {
 		this.currMap = currMap;
 		this.startCoord = startCoord;
 		this.goalCoord = goalCoord;
@@ -72,18 +71,18 @@ public class FastestPath {
 
 	public void runAStar() {
 		Set<Node> explored = new HashSet<Node>();
-		PriorityQueue<Node> priorityQueue = new PriorityQueue<Node>(100,new Comparator<Node>() {
-			public int compare(Node i, Node j){
-				if(i.totalDistance > j.totalDistance){
+		PriorityQueue<Node> priorityQueue = new PriorityQueue<Node>(100, new Comparator<Node>() {
+			public int compare(Node i, Node j) {
+				if (i.totalDistance > j.totalDistance) {
 					return 1;
-				}else if (i.totalDistance < j.totalDistance){
+				} else if (i.totalDistance < j.totalDistance) {
 					return -1;
-				}else{
-					if(i.getDistanceToStart() > j.getDistanceToStart()){
+				} else {
+					if (i.getDistanceToStart() > j.getDistanceToStart()) {
 						return 1;
-					}else if(i.getDistanceToStart() < j.getDistanceToStart()){
+					} else if (i.getDistanceToStart() < j.getDistanceToStart()) {
 						return -1;
-					}else{
+					} else {
 						return 0;
 					}
 				}
@@ -96,37 +95,42 @@ public class FastestPath {
 
 		startNode.setDistanceToStart(0);
 		priorityQueue.add(startNode);
-		while(priorityQueue.size() != 0 && !found){
+		while (priorityQueue.size() != 0 && !found) {
 			Node current = priorityQueue.poll();
 			explored.add(current);
-			if(current.isEqual(goalNode)){
+			if (current.isEqual(goalNode)) {
 				found = true;
+				ArrayList<Node> finalPath = returnPath(goalNode);
+
+				for (int i = 0; i < finalPath.size(); i++) {
+					System.out.println(finalPath.get(i).getCell().getY() + ", " + finalPath.get(i).getCell().getX());
+				}
 			}
-			ArrayList<Node> neighbours = getNeighbour(current);
-			for(int i = 0; i < neighbours.size(); i++){
+			ArrayList<Node> neighbours = getNeighbours(current);
+			for (int i = 0; i < neighbours.size(); i++) {
 				Node n = neighbours.get(i);
 				int tempDistanceToStart = n.getDistanceToStart() + 1;
 				int tempTotalDistance = n.getHeuristic() + tempDistanceToStart;
-				if(explored.contains(n) && tempTotalDistance >= n.getTotalDistance()){
+				if (explored.contains(n) && tempTotalDistance >= n.getTotalDistance()) {
 					continue;
-				}else if(!priorityQueue.contains(n) || tempTotalDistance < n.getTotalDistance()){
+				} else if (!priorityQueue.contains(n) || tempTotalDistance < n.getTotalDistance()) {
 					n.setParent(current);
 					n.setDistanceToStart(tempDistanceToStart);
 					n.setTotalDistance(tempTotalDistance);
-					if(priorityQueue.contains(n)){
+					if (priorityQueue.contains(n)) {
 						priorityQueue.remove(n);
 					}
 					priorityQueue.add(n);
 				}
-			} 
+			}
 		}
 	}
 
-	public ArrayList<Node> returnPath(Node target){
-		List<Node> path = new ArrayList<Node>();
-		for(Node node = target; node!=null; node = node.parent){
-            path.add(node);
-        }
+	public ArrayList<Node> returnPath(Node target) {
+		ArrayList<Node> path = new ArrayList<Node>();
+		for (Node node = target; node != null; node = node.parent) {
+			path.add(node);
+		}
 		Collections.reverse(path);
 		return path;
 	}
@@ -155,19 +159,18 @@ public class FastestPath {
 	}
 
 	public class Node {
-		private int heuristic; //h
-		private int distanceToStart; //g
-		private int totalDistance; //f
+		private int heuristic; // h
+		private int distanceToStart; // g
+		private int totalDistance; // f
 		private Node parent;
 		private Cell cell;
 
 		public Node(int heuristic, Cell cell) {
 			this.heuristic = heuristic;
 			this.cell = cell;
-			this.isVisited = false;
 			this.setDistanceToStart(0);
+			this.parent = null;
 		}
-
 
 		public int getHeuristic() {
 			return heuristic;
@@ -175,10 +178,6 @@ public class FastestPath {
 
 		public Cell getCell() {
 			return cell;
-		}
-
-		public boolean isVisited() {
-			return isVisited;
 		}
 
 		public int getDistanceToStart() {
@@ -189,19 +188,15 @@ public class FastestPath {
 			return totalDistance;
 		}
 
-		public void setParent(Node parent){
+		public void setParent(Node parent) {
 			this.parent = parent;
 		}
 
-		public void setVisited() {
-			this.isVisited = true;
-		}
-
-		public void setDistanceToStart(int distance){
+		public void setDistanceToStart(int distance) {
 			this.distanceToStart = distance;
 		}
 
-		public void setTotalDistance(int distance){
+		public void setTotalDistance(int distance) {
 			this.totalDistance = distance;
 		}
 
