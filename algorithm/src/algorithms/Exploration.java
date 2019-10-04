@@ -182,6 +182,12 @@ public class Exploration {
 			case 'D':	// Rotate right and move forward
 				System.out.println("Rotate right and move forward!");
 				robot.rotate(Rotate.RIGHT);
+				if (Main.isRealRun) {
+					try {
+						Thread.sleep(900);
+					} catch (Exception e) {
+					}
+				}
 				robot.moveForward(1);
 				state = '1';
 				moved = true;
