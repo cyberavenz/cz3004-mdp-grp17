@@ -57,21 +57,26 @@ public class Main {
 			comms.send(TCPComm.ARDUINO, "R90|L90");	// Calibrate first
 
 			/* Wait for Android command */
-			while (comms.readFrom(TCPComm.ANDROID) == "STARTE");
+			while (comms.readFrom(TCPComm.ANDROID) == "STARTE")
+				;
 			btnStartRealExplore();
+
+			/* State Machine for a Real Run */
+			int step = 0;
+			switch (step) {
+			case 0:
+				break;
+			case 1:
+				break;
+			default:	// Do nothing
+			}
 		}
 
-		// SIMULATION MODE
+		/* SIMULATION MODE */
 		else {
 			// Load testMap
 			testMap = new Map("prevSemWeek9.txt");	// Set simulatedMap for use (if simulation)
 			gui.refreshGUI(robot, testMap); 		// Display testMap first if simulation mode
-
-//			FastestPath fp = new FastestPath(testMap, new Coordinate(1, 1), new Coordinate(18, 13));
-//			fp.runAStar();
-
-//			FPTest fp = new FPTest(testMap, new Coordinate(1, 1), new Coordinate(18, 13));
-//			fp.runAStar();
 		}
 	}
 
@@ -123,11 +128,18 @@ public class Main {
 
 		explorationExecutor.scheduleAtFixedRate(explorable, 0, 100, TimeUnit.MILLISECONDS);
 	}
+	
+	public static void btnShowFastestPath() {
+		FastestPath fp = new FastestPath(exploredMap, new Coordinate(1, 1), new Coordinate(18, 13));
+		exploredMap.finalPathReveal(fp.runAStar());
+		gui.refreshGUI(robot, exploredMap);
+	}
 
 	public static void btnStartRealExplore() {
 		comms.send(TCPComm.ARDUINO, "SXX");		// Request sensor reading
 		exploredMap.actualReveal(robot, comms.readFrom(TCPComm.ARDUINO));	// Read sensors and populate map
 		gui.refreshGUI(robot, exploredMap);		// Show it on GUI
+		System.out.println("============= END STEP =============\n");
 
 		Runnable realExplorable = new Runnable() {
 			private boolean done = false;
