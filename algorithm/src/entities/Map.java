@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 import entities.Cell;
 
@@ -240,23 +241,15 @@ public class Map {
 
 					for (int j = 0; j < coordinates.length; j++) {
 						if (j == arduinoSensorValues[i]) {
-							// Only can set cellType is not permanent
-							if (!this.getCell(coordinates[j]).isPermanentCellType()) {
-								this.getCell(coordinates[j]).setCellType(Cell.WALL);
+							this.getCell(coordinates[j]).setCellType(Cell.WALL);
 
-								// Trust only Sensor 0 and 2
-								if (i == 0 || i == 2) {
-									if (!this.getCell(coordinates[j]).isPermanentCellType()) {
-										this.getCell(coordinates[j]).setPermanentCellType(true);
-									}
-								}
+							// Trust only Sensor 0 and 2
+							if (i == 0 || i == 2) {
+								this.getCell(coordinates[j]).setPermanentCellType(true);
 							}
 							break;	// Unable to see past any wall, BREAK!
 						} else {
-							// Only can set cellType when not permanent
-							if (!this.getCell(coordinates[j]).isPermanentCellType()) {
-								this.getCell(coordinates[j]).setCellType(Cell.PATH);
-							}
+							this.getCell(coordinates[j]).setCellType(Cell.PATH);
 						}
 					}
 
@@ -279,6 +272,23 @@ public class Map {
 						ignore_L_BL_W = false;
 				}
 			}
+		}
+	}
+
+	public void finalPathReveal(ArrayList<Node> finalPath) {
+		/* Clear any remnants of previously computed final path */
+		for (int y = 0; y < maxY; y++) {
+			for (int x = 0; x < maxX; x++) {
+				if (cells[y][x].getCellType() == Cell.FINAL_PATH)
+					cells[y][x].setCellType(Cell.PATH);
+			}
+		}
+
+		/* Mark cellType as FINAL_PATH */
+		for (int i = 0; i < finalPath.size(); i++) {
+			Node n = finalPath.get(i);
+			Cell cell = this.cells[n.getCell().getY()][n.getCell().getX()];
+			cell.setCellType(Cell.FINAL_PATH);
 		}
 	}
 }

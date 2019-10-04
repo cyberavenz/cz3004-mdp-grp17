@@ -38,12 +38,19 @@ public class Cell extends Coordinate {
 	 * @param cellType
 	 */
 	public void setCellType(char cellType) {
-		/* If cellType is ever set as START or GOAL, it should remain permanent */
+		if (cellType == FINAL_PATH) {
+			this.cellType = cellType;
+		}
+		
+		/* START and GOAL cellTypes should be permanent */
 		// For cases where sensor falsely detects a wall in START or GOAL area
-		if (cellType == Cell.START || cellType == Cell.GOAL) {
+		else if (cellType == START || cellType == GOAL) {
 			this.permanentCellType = true;
 			this.cellType = cellType;
-		} else if (this.permanentCellType == false) {
+		}
+
+		/* Can only set cellType if permanent flag is not set */
+		else if (this.permanentCellType == false) {
 			this.cellType = cellType;
 		}
 	}
