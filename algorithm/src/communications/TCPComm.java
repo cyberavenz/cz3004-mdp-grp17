@@ -9,7 +9,7 @@ import main.Main;
 
 public class TCPComm {
 	public static final String SERVER_IP = "192.168.17.17";	// Rasp Pi: 192.168.17.17
-	public static final int PORT = 4041;
+	public static final int PORT = 4042;
 	public static final char ANDROID = 'b', ARDUINO = 's', RASP_PI = 'r';
 
 	private Socket clientSocket;
