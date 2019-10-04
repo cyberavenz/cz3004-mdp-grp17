@@ -124,12 +124,11 @@ public class GUI extends JFrame {
 		}
 
 		/**
-		 * Override the getPreferredSize() of JPanel to always ensure that MapAndRobotJPanel has a dynamic
-		 * preferred size so that it maintains the original aspect ratio. In this case, it will return a
-		 * JPanel that is always sized with an aspect ratio of 3:4 (15 columns by 20 rows).
+		 * Override the getPreferredSize() of JPanel to always ensure that MapAndRobotJPanel has a dynamic preferred
+		 * size so that it maintains the original aspect ratio. In this case, it will return a JPanel that is always
+		 * sized with an aspect ratio of 3:4 (15 columns by 20 rows).
 		 * 
-		 * Referenced from:
-		 * https://stackoverflow.com/questions/21142686/making-a-robust-resizable-swing-chess-gui
+		 * Referenced from: https://stackoverflow.com/questions/21142686/making-a-robust-resizable-swing-chess-gui
 		 */
 		@Override
 		public final Dimension getPreferredSize() {
@@ -233,6 +232,14 @@ public class GUI extends JFrame {
 			}
 		});
 
+		/* Show the Fastest Path */
+		JButton fastestPath = new JButton("Show Fastest Path");
+		fastestPath.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Main.btnShowFastestPath();
+			}
+		});
+
 		/* P1 and P2 Descriptors */
 		JButton printDescriptors = new JButton("Print P1 and P2");
 		printDescriptors.addActionListener(new ActionListener() {
@@ -249,7 +256,7 @@ public class GUI extends JFrame {
 				Main.btnStartRealExplore();
 			}
 		});
-		
+
 		/* Real Run: Force Stop Explore */
 		JButton fStopRealExplore = new JButton("!! FORCE STOP EXPLORATION !!");
 		fStopRealExplore.addActionListener(new ActionListener() {
@@ -266,6 +273,7 @@ public class GUI extends JFrame {
 			ctrlPanel.add(exploreAll);
 		}
 		ctrlPanel.add(printDescriptors);
+		ctrlPanel.add(fastestPath);
 	}
 
 	/**
@@ -275,23 +283,30 @@ public class GUI extends JFrame {
 	 * @return
 	 */
 	private Color cellColour(Cell cell) {
+		Color toReturn = Color.BLACK;
+
 		if (cell.isVisited())
-			return Color.LIGHT_GRAY;
+			toReturn = Color.LIGHT_GRAY;
 
 		switch (cell.getCellType()) {
 		case Cell.UNKNOWN:
-			return Color.GRAY;
+			toReturn = Color.GRAY;
+			break;
 		case Cell.START:
-			return Color.YELLOW;
+			toReturn = Color.YELLOW;
+			break;
 		case Cell.GOAL:
-			return Color.GREEN;
+			toReturn = Color.GREEN;
+			break;
 		case Cell.PATH:
-			return Color.WHITE;
+			toReturn = Color.WHITE;
+			break;
 		case Cell.FINAL_PATH:
-			return Color.BLUE;
-		default:
-			return Color.BLACK;
+			toReturn = Color.BLUE;
+			break;
 		}
+
+		return toReturn;
 	}
 
 	/**
@@ -316,6 +331,7 @@ public class GUI extends JFrame {
 				&& actualX == robotFootprint[Robot.FRONT_CENTER].getX()) {
 			g.setColor(Color.DARK_GRAY);
 			g.fillOval(12, 12, 10, 10);
+			g.drawOval(9, 9, 16, 16);
 		}
 
 		// Paint FRONT_RIGHT of Robot

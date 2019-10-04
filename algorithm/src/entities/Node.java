@@ -3,14 +3,16 @@ package entities;
 public class Node implements Comparable<Node> {
 	private Cell cell;
 	private boolean isVisited;
-	private int heuristic;
-	private int cost;
+	private int heuristic;			// h(n): Heuristic
+	private int distanceToStart;	// g(n): Sum of weights
+	private int totalCost;			// f(n): Weights + this.heuristic
 
 	public Node(int heuristic, Cell cell) {
 		this.cell = cell;
 		this.isVisited = false;
 		this.heuristic = heuristic;
-		this.cost = Integer.MAX_VALUE;
+		this.distanceToStart = 1;			// Default 1
+		this.totalCost = Integer.MAX_VALUE;	// Default infinity
 	}
 
 	public Cell getCell() {
@@ -25,16 +27,39 @@ public class Node implements Comparable<Node> {
 		this.isVisited = isVisited;
 	}
 
+	/**
+	 * <b>h(n)</b>: Heuristic
+	 * 
+	 * @return
+	 */
 	public int getHeuristic() {
 		return heuristic;
 	}
 
-	public int getCost() {
-		return cost;
+	/**
+	 * <b>g(n)</b>: Sum of weights
+	 * 
+	 * @return
+	 */
+	public int getDistanceToStart() {
+		return distanceToStart;
 	}
 
-	public void setCost(int cost) {
-		this.cost = cost;
+	public void setDistanceToStart(int cost) {
+		this.distanceToStart = cost;
+	}
+
+	/**
+	 * <b>f(n)</b>: Weights + this.heuristic
+	 * 
+	 * @return
+	 */
+	public int getTotalCost() {
+		return totalCost;
+	}
+
+	public void setTotalCost(int totalCost) {
+		this.totalCost = totalCost;
 	}
 
 	/**
@@ -82,6 +107,11 @@ public class Node implements Comparable<Node> {
 	 */
 	@Override
 	public int compareTo(Node n) {
-		return Integer.compare(this.cost, n.cost);
+		/* Try to compare totalCost first */
+		if (this.totalCost != n.totalCost)
+			return Integer.compare(this.totalCost, n.totalCost);
+		/* If they are the same, compare the differences in weights */
+		else
+			return Integer.compare(this.distanceToStart, n.distanceToStart);
 	}
 }

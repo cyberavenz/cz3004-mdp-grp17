@@ -1,8 +1,8 @@
 package algorithms;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.PriorityQueue;
 
 import entities.Cell;
@@ -16,11 +16,9 @@ public class FastestPath {
 	private HashMap<Coordinate, Node> nodes = new HashMap<Coordinate, Node>();
 	private HashMap<Node, ArrayList<Node>> edges = new HashMap<Node, ArrayList<Node>>();
 
-	private Map currMap;
 	private Coordinate startCoord, goalCoord;
 
 	public FastestPath(Map currMap, Coordinate startCoord, Coordinate goalCoord) {
-		this.currMap = currMap;
 		this.startCoord = startCoord;
 		this.goalCoord = goalCoord;
 
@@ -54,7 +52,7 @@ public class FastestPath {
 				}
 			}
 		}
-		System.out.println("FastestPath: Graph has a total of " + nodes.size() + " nodes.");
+		System.out.println("FastestPath: " + nodes.size() + " nodes");
 
 		int totalEdges = 0;
 		/* Step 2: Link nodes with edges */
@@ -64,15 +62,16 @@ public class FastestPath {
 
 			totalEdges += neighbours.size();
 		}
-		System.out.println("FastestPath: Graph has a total of " + totalEdges + " edges.");
+		System.out.println("FastestPath: " + totalEdges + " edges");
 	}
 
-	public ArrayList<Coordinate> runAStar() {
+	public ArrayList<Node> runAStar() {
 		PriorityQueue<Node> orderedFrontier = new PriorityQueue<Node>();	// Frontier that is sorted
 		HashMap<Node, Node> childParent = new HashMap<Node, Node>();		// Child, Parent (Current, Previous)
 
 		Node startNode = this.nodes.get(startCoord);	// Get Start Node
-		startNode.setCost(0);							// Set Start Node total cost to 0
+		Node goalNode = this.nodes.get(goalCoord);		// Get Goal Node
+		startNode.setDistanceToStart(0);				// Set Start Node total cost to 0
 		orderedFrontier.add(startNode);					// Add it to the frontier
 
 		Node currNode;
@@ -83,37 +82,37 @@ public class FastestPath {
 				currNode.setVisited(true);
 
 				/* Check if it is Goal Node, BREAK! */
-				if (currNode.equals(this.nodes.get(goalCoord))) {
-					ArrayList<Coordinate> toReturn = new ArrayList<Coordinate>();
-					// TODO Reconstruct final path based on childParent relation
-					return toReturn;
+				if (currNode.equals(goalNode)) {
+					return genFinalPath(goalNode, childParent);
 				}
 
 				/* Check neighbours */
 				ArrayList<Node> neighbours = getNeighbours(currNode);
 				for (int i = 0; i < neighbours.size(); i++) {
-					Node currNeighbour = neighbours.get(i);	// Current Neighbour Node for easy reference
+					Node currNeighbour = neighbours.get(i);
 
-					if (!currNeighbour.isVisited()) {		// Only traverse currNeighbour if unvisited
+					/* Only traverse currNeighbour if it is unvisited */
+					if (!currNeighbour.isVisited()) {
+						// Determine weight based on actual robot movement
+						int weight = determineWeight(currNeighbour, childParent);
+						int newTotalCost = currNode.getDistanceToStart() + weight + currNeighbour.getHeuristic();
 
-						// Total Cost = currNode.distance + weight of 1 (each edge) + currNeighbour.heuristic
-						int totalCost = currNode.getCost() + 1 + currNeighbour.getHeuristic();
+						/* Only traverse currNeighbour if new totalCost is lower */
+						if (newTotalCost < currNeighbour.getTotalCost()) {
+							childParent.put(currNeighbour, currNode);
 
-						if (totalCost < currNeighbour.getCost()) {
-							currNeighbour.setCost(totalCost);		// Update currNeighbour's distance
-							// TODO totalCost /= totalDistance
-							
-							childParent.put(currNeighbour, currNode);	// Keep track of currNeighbour's parent
+							currNeighbour.setDistanceToStart(currNode.getDistanceToStart() + weight);
+							currNeighbour.setTotalCost(newTotalCost);
 
-							orderedFrontier.add(currNeighbour);		// Add currNeighbour to frontier
+							orderedFrontier.add(currNeighbour);
 						}
 					}
 				}
 			}
 		}
 
-		System.out.println("FastestPath: A*Star is unable to find a path to goal node.");
-		return new ArrayList<Coordinate>();	// No paths found, return empty list
+		System.err.println("FastestPath: A*Star is unable to find a path to goal node.");
+		return new ArrayList<Node>();	// No paths found, return empty list
 	}
 
 	private ArrayList<Node> getNeighbours(Node currNode) {
@@ -137,5 +136,38 @@ public class FastestPath {
 		}
 
 		return toReturn;
+	}
+
+	/**
+	 * Reconstruct final path based on childParent relation
+	 * 
+	 * @param n
+	 * @param childParent
+	 * @return
+	 */
+	private ArrayList<Node> genFinalPath(Node n, HashMap<Node, Node> childParent) {
+		ArrayList<Node> toReturn = new ArrayList<Node>();
+
+		while (n != null) {
+			toReturn.add(n);
+			n = childParent.get(n);
+		}
+		Collections.reverse(toReturn);
+
+		if (toReturn.isEmpty())
+			System.err.println("FastestPath: Unable to back track to start node.");
+
+		return toReturn;
+	}
+
+	/**
+	 * Determine weight based on actual robot movement. That is, penalise whenever rotation is required.
+	 * 
+	 * @param n
+	 * @param childParent
+	 * @return
+	 */
+	private int determineWeight(Node n, HashMap<Node, Node> childParent) {
+		return 1;
 	}
 }
