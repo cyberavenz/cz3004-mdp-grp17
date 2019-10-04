@@ -24,6 +24,9 @@ public class Coordinate {
 		this.x = x;
 	}
 
+	/**
+	 * Object hash code contract for use in a HashMap.
+	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -33,6 +36,9 @@ public class Coordinate {
 		return result;
 	}
 
+	/**
+	 * Object equals contract for use in a HashMap.
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -48,5 +54,4 @@ public class Coordinate {
 			return false;
 		return true;
 	}
-
 }
