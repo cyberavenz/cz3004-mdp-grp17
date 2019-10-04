@@ -55,7 +55,8 @@ public class GUI extends JFrame {
 		for (int y = Map.maxY - 1; y >= 0; y--) {
 			for (int x = 0; x < Map.maxX; x++) {
 				// Note: cellsUI[][] uses actualY and actualX and does not include axis labelling
-				cellsUI[y][x].setBackground(cellColour(map.getCell(new Coordinate(y, x))));
+				Cell cell = map.getCell(new Coordinate(y, x));
+				cellsUI[y][x].setBackground(cellColour(cell));
 			}
 		}
 		mapPanel.repaint();	// Repaint mapPanel to show updated Robot position
@@ -103,7 +104,7 @@ public class GUI extends JFrame {
 			}
 		});
 
-		// Center mainUI in the middle of the screen
+		// Launch mainUI to the right of the screen
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		this.setLocation(dim.width / 1 - getSize().width / 1, dim.height / 2 - getSize().height / 2 - 20);
 	}
@@ -124,11 +125,12 @@ public class GUI extends JFrame {
 		}
 
 		/**
-		 * Override the getPreferredSize() of JPanel to always ensure that MapAndRobotJPanel has a dynamic preferred
-		 * size so that it maintains the original aspect ratio. In this case, it will return a JPanel that is always
-		 * sized with an aspect ratio of 3:4 (15 columns by 20 rows).
+		 * Override the getPreferredSize() of JPanel to always ensure that MapAndRobotJPanel has a dynamic
+		 * preferred size so that it maintains the original aspect ratio. In this case, it will return a
+		 * JPanel that is always sized with an aspect ratio of 3:4 (15 columns by 20 rows).
 		 * 
-		 * Referenced from: https://stackoverflow.com/questions/21142686/making-a-robust-resizable-swing-chess-gui
+		 * Referenced from:
+		 * https://stackoverflow.com/questions/21142686/making-a-robust-resizable-swing-chess-gui
 		 */
 		@Override
 		public final Dimension getPreferredSize() {
@@ -171,7 +173,7 @@ public class GUI extends JFrame {
 					private static final long serialVersionUID = -4788108468649278480L;
 
 					/**
-					 * Paint cell if robot is occupying it.
+					 * Paint robot and visited cells.
 					 */
 					@Override
 					public void paintComponent(Graphics g) {
@@ -283,30 +285,22 @@ public class GUI extends JFrame {
 	 * @return
 	 */
 	private Color cellColour(Cell cell) {
-		Color toReturn = Color.BLACK;
-
-		if (cell.isVisited())
-			toReturn = Color.LIGHT_GRAY;
-
 		switch (cell.getCellType()) {
 		case Cell.UNKNOWN:
-			toReturn = Color.GRAY;
-			break;
+			return Color.GRAY;
 		case Cell.START:
-			toReturn = Color.YELLOW;
-			break;
+			return Color.YELLOW;
 		case Cell.GOAL:
-			toReturn = Color.GREEN;
-			break;
+			return Color.GREEN;
 		case Cell.PATH:
-			toReturn = Color.WHITE;
-			break;
+			return Color.WHITE;
 		case Cell.FINAL_PATH:
-			toReturn = Color.BLUE;
-			break;
+			return Color.BLUE;
+		case Cell.WALL:
+			return Color.BLACK;
+		default:
+			return Color.GRAY;
 		}
-
-		return toReturn;
 	}
 
 	/**
