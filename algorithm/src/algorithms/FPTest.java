@@ -3,8 +3,11 @@ package algorithms;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Iterator;
 import java.util.PriorityQueue;
+import java.util.Collections;
 
 import entities.Cell;
 import entities.Coordinate;
@@ -68,6 +71,7 @@ public class FastestPath {
 	}
 
 	public void runAStar() {
+		Set<Node> explored = new HashSet<Node>();
 		PriorityQueue<Node> priorityQueue = new PriorityQueue<Node>(100,new Comparator<Node>() {
 			public int compare(Node i, Node j){
 				if(i.totalDistance > j.totalDistance){
@@ -85,10 +89,46 @@ public class FastestPath {
 				}
 			}
 		});	// Frontier that is sorted
-		Node startNode = nodes.get(startCoord);
+
+		Node startNode = nodes.get(startCoord); // Where do we get this node??
 		Node goalNode = nodes.get(goalCoord);
-		
-		
+		Boolean found = false;
+
+		startNode.setDistanceToStart(0);
+		priorityQueue.add(startNode);
+		while(priorityQueue.size() != 0 && !found){
+			Node current = priorityQueue.poll();
+			explored.add(current);
+			if(current.isEqual(goalNode)){
+				found = true;
+			}
+			ArrayList<Node> neighbours = getNeighbour(current);
+			for(int i = 0; i < neighbours.size(); i++){
+				Node n = neighbours.get(i);
+				int tempDistanceToStart = n.getDistanceToStart() + 1;
+				int tempTotalDistance = n.getHeuristic() + tempDistanceToStart;
+				if(explored.contains(n) && tempTotalDistance >= n.getTotalDistance()){
+					continue;
+				}else if(!priorityQueue.contains(n) || tempTotalDistance < n.getTotalDistance()){
+					n.setParent(current);
+					n.setDistanceToStart(tempDistanceToStart);
+					n.setTotalDistance(tempTotalDistance);
+					if(priorityQueue.contains(n)){
+						priorityQueue.remove(n);
+					}
+					priorityQueue.add(n);
+				}
+			} 
+		}
+	}
+
+	public ArrayList<Node> returnPath(Node target){
+		List<Node> path = new ArrayList<Node>();
+		for(Node node = target; node!=null; node = node.parent){
+            path.add(node);
+        }
+		Collections.reverse(path);
+		return path;
 	}
 
 	private ArrayList<Node> getNeighbours(Node currNode) {
@@ -125,7 +165,7 @@ public class FastestPath {
 			this.heuristic = heuristic;
 			this.cell = cell;
 			this.isVisited = false;
-			this.setDistanceToStart(Integer.MAX_VALUE);
+			this.setDistanceToStart(0);
 		}
 
 
