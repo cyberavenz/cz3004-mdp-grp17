@@ -1,11 +1,7 @@
 package main;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 import algorithms.Exploration;
-import algorithms.FPTest;
+
 import algorithms.FastestPath;
 import communications.TCPComm;
 import entities.Coordinate;
@@ -24,8 +20,8 @@ public class Main {
 	public static GUI gui;
 	public static Exploration exploration;
 
-	private static ScheduledExecutorService explorationExecutor;
-	private static Thread realExplorationThread;
+	private static Thread simExploration;
+	private static Thread realExploration;
 
 	/**
 	 * Main program
@@ -47,29 +43,7 @@ public class Main {
 			comms = new TCPComm();
 			gui.setModeColour(comms.isConnected());
 
-			/* Wait for TCP server to be up */
-			try {
-				Thread.sleep(3000);
-			} catch (Exception e) {
-			}
-
-			comms.send(TCPComm.ANDROID, genMDFAndroid(exploredMap, robot));
-			comms.send(TCPComm.ARDUINO, "R90|L90");	// Calibrate first
-
-			/* Wait for Android command */
-			while (comms.readFrom(TCPComm.ANDROID) == "STARTE")
-				;
-			btnStartRealExplore();
-
-			/* State Machine for a Real Run */
-			int step = 0;
-			switch (step) {
-			case 0:
-				break;
-			case 1:
-				break;
-			default:	// Do nothing
-			}
+			// TODO Call runnable
 		}
 
 		/* SIMULATION MODE */
@@ -81,113 +55,55 @@ public class Main {
 	}
 
 	/**
+	 * <b>SIMULATION ONLY</b><br>
 	 * Static function called by <tt>GUI</tt> when "Exploration (per step)" button is pressed.
 	 * 
 	 */
-	public static void btnExplorePerStep() {
+	public static void btnSimExplorePerStep() {
 		exploredMap.simulatedReveal(robot, testMap);
 		gui.refreshGUI(robot, exploredMap);
 
 		/* Run exploration for one step */
-		exploration.executeOneStep(robot, exploredMap);
+		boolean done = exploration.executeOneStep(robot, exploredMap);
 
 		exploredMap.simulatedReveal(robot, testMap);
 		gui.refreshGUI(robot, exploredMap);
+
+		if (done) {
+			// Reset all objects to a clean state
+			robot = new Robot();
+			exploredMap = new Map("unknown.txt");
+			exploration = new Exploration(exploredMap);
+		}
 	}
 
 	/**
-	 * Static function called by <tt>GUI</tt> when "Explore all" button is pressed.
+	 * <b>SIMULATION ONLY</b><br>
+	 * Start new <tt>SimExploration</tt> thread when "Explore all" button is pressed.
 	 */
-	public static void btnExploreAll() {
-		// Reset all objects to clean state first
-		robot = new Robot();
-		exploredMap = new Map("unknown.txt");
-		exploration = new Exploration(exploredMap);
-
-		// Only 1 instance should be running. Cancel previous executor if it exists.
-		if (explorationExecutor != null)
-			explorationExecutor.shutdown();
-
-		// Assign a new thread pool
-		explorationExecutor = Executors.newScheduledThreadPool(1);
-
-		// Create a Runnable task
-		Runnable explorable = new Runnable() {
-			@Override
-			public void run() {
-				exploredMap.simulatedReveal(robot, testMap);
-				// Run exploration for one step
-				boolean done = exploration.executeOneStep(robot, exploredMap);
-				exploredMap.simulatedReveal(robot, testMap);
-				gui.refreshGUI(robot, exploredMap);
-
-				if (done)
-					explorationExecutor.shutdown();
-			}
-		};
-
-		explorationExecutor.scheduleAtFixedRate(explorable, 0, 100, TimeUnit.MILLISECONDS);
+	public static void btnSimExploration() {
+		if (simExploration == null || !simExploration.isAlive()) {
+			simExploration = new Thread(new SimExploration());
+			simExploration.start();
+		} else {
+			simExploration.interrupt();
+		}
 	}
-	
+
+	/**
+	 * <b>REAL RUN ONLY</b><br>
+	 * Start new <tt>RealExploration</tt> thread.
+	 */
+	public static void btnRealStartExploration() {
+		if (realExploration == null || !realExploration.isAlive()) {
+			realExploration = new Thread(new RealExploration());
+			realExploration.start();
+		}
+	}
+
 	public static void btnShowFastestPath() {
 		FastestPath fp = new FastestPath(exploredMap, new Coordinate(1, 1), new Coordinate(18, 13));
 		exploredMap.finalPathReveal(fp.runAStar());
 		gui.refreshGUI(robot, exploredMap);
-	}
-
-	public static void btnStartRealExplore() {
-		comms.send(TCPComm.ARDUINO, "SXX");		// Request sensor reading
-		exploredMap.actualReveal(robot, comms.readFrom(TCPComm.ARDUINO));	// Read sensors and populate map
-		gui.refreshGUI(robot, exploredMap);		// Show it on GUI
-		System.out.println("============= END STEP =============\n");
-
-		Runnable realExplorable = new Runnable() {
-			private boolean done = false;
-
-			@Override
-			public void run() {
-				System.out.println("Inside realExplorable thread: " + Thread.currentThread().getName());
-
-				do {
-					try {
-						/* Run exploration for one step */
-						done = exploration.executeOneStep(robot, exploredMap);	// Send next movement
-						comms.send(TCPComm.ANDROID, genMDFAndroid(exploredMap, robot));	// Show it on Android
-						gui.refreshGUI(robot, exploredMap);						// Show it on GUI
-
-						Thread.sleep(700);
-
-						System.out
-								.println("Robot is at: " + robot.getCurrPos().getY() + " " + robot.getCurrPos().getX());
-						comms.send(TCPComm.ARDUINO, "SXX");						// Request sensor reading
-						String fromArduino = comms.readFrom(TCPComm.ARDUINO); 	// Wait for reading
-						exploredMap.actualReveal(robot, fromArduino);			// Populate map
-						comms.send(TCPComm.ANDROID, genMDFAndroid(exploredMap, robot));	// Show it on Android
-						gui.refreshGUI(robot, exploredMap);						// Show it on GUI
-
-						Thread.sleep(100);						// So your eyes can see the change
-
-						System.out.println("============= END STEP =============\n");
-					} catch (Exception e) {
-					}
-				} while (!done);
-			}
-		};
-
-		realExplorationThread = new Thread(realExplorable);
-		System.out.println("Starting realExploration thread...");
-		realExplorationThread.start();
-	}
-
-	public static void btnFStopRealExplore() {
-	}
-
-	public static String genMDFAndroid(Map map, Robot robot) {
-		String toReturn = new String();
-
-		toReturn = "MDF" + "|" + map.getP1Descriptors() + "|" + map.getP2Descriptors() + "|" + robot.getCurrDir() + "|"
-				+ (19 - robot.getCurrPos().getY()) + "|" + robot.getCurrPos().getX() + "|" + "0";
-
-		return toReturn;
 	}
 }
