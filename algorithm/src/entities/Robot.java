@@ -194,8 +194,10 @@ public class Robot {
 		}
 
 		// If Real Run, send command!
-		if (Main.isRealRun && send)
-			Main.comms.send(TCPComm.ARDUINO, "F01");
+		if (Main.isRealRun && send) {
+			String strSteps = String.format("%02d", steps);
+			Main.comms.send(TCPComm.ARDUINO, "F" + strSteps);
+		}
 	}
 
 	/**
@@ -228,21 +230,6 @@ public class Robot {
 		default: // Do nothing
 		}
 	}
-
-	/**
-	 * Combined instruction for rotate and forward movement.
-	 * 
-	 * @param direction
-	 * @param steps
-	 */
-// DEPRECATED!
-//	public void rotateAndForward(Rotate direction, int steps) {
-//		this.rotate(direction);
-//		this.moveForward(steps);
-//
-//		if (Main.isRealRun)
-//			Main.comms.send(TCPComm.ARDUINO, "L90|F01");
-//	}
 
 	/**
 	 * Get a specific <tt>Sensor</tt> on <tt>Robot</tt>.

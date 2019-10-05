@@ -227,7 +227,7 @@ public class GUI extends JFrame {
 		JButton explorePerStep = new JButton("Exploration (per step)");
 		explorePerStep.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Main.btnExplorePerStep();
+				Main.btnSimExplorePerStep();
 			}
 		});
 
@@ -235,7 +235,7 @@ public class GUI extends JFrame {
 		JButton exploreAll = new JButton("Explore all");
 		exploreAll.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Main.btnExploreAll();
+				Main.btnSimExploration();
 			}
 		});
 
@@ -260,33 +260,24 @@ public class GUI extends JFrame {
 		JButton startRealExplore = new JButton("START EXPLORATION");
 		startRealExplore.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Main.btnStartRealExplore();
-			}
-		});
-
-		/* Real Run: Force Stop Explore */
-		JButton fStopRealExplore = new JButton("!! FORCE STOP EXPLORATION !!");
-		fStopRealExplore.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				Main.btnFStopRealExplore();
+				Main.btnRealStartExploration();
 			}
 		});
 
 		/* Exploration Section */
 		ctrlPanel.add(new JLabel("=== Exploration ===", JLabel.CENTER));
-		
+
 		if (Main.isRealRun) {
 			ctrlPanel.add(startRealExplore);
-			ctrlPanel.add(fStopRealExplore);
 		} else {
 			ctrlPanel.add(explorePerStep);
 			ctrlPanel.add(exploreAll);
 		}
-		
+
 		/* Fastest Path Section */
 		ctrlPanel.add(new JLabel("=== Fastest Path ===", JLabel.CENTER));
 		ctrlPanel.add(fastestPath);
-		
+
 		/* About Map */
 		ctrlPanel.add(new JLabel("=== About Map ===", JLabel.CENTER));
 		ctrlPanel.add(printDescriptors);
@@ -326,7 +317,7 @@ public class GUI extends JFrame {
 	 */
 	private void paintRobot(int width, int actualY, int actualX, Coordinate[] robotFootprint, Graphics g) {
 		width /= 2;		// For a responsive UI
-		
+
 		// Paint FRONT_LEFT of Robot
 		if (actualY == robotFootprint[Robot.FRONT_LEFT].getY() && actualX == robotFootprint[Robot.FRONT_LEFT].getX()) {
 			g.setColor(new Color(127, 204, 196));
@@ -401,7 +392,7 @@ public class GUI extends JFrame {
 	 */
 	private void paintVisited(int width, Cell cell, Graphics g) {
 		width /= 2;		// For a responsive UI
-		
+
 		if (cell.isVisited() == true) {
 			g.setColor(Color.LIGHT_GRAY);
 			g.fillRect(width / 4, width / 4, (int) (width * 1.5), (int) (width * 1.5));

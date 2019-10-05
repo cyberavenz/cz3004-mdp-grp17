@@ -27,9 +27,13 @@ public class TCPComm {
 
 			outgoingStream = new DataOutputStream(clientSocket.getOutputStream());
 			incomingStream = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
+			Thread.sleep(2000);		// Raspberry Pi needs to get ready
 		} catch (IOException e) {
 			System.err.format("TCP Connection IOException: %s%n", e);
 			Main.gui.setModeColour(false);
+		} catch (InterruptedException e) {
+			
 		}
 	}
 

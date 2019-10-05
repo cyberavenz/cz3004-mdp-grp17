@@ -14,8 +14,8 @@ public class Exploration {
 	private boolean outOfStart;
 
 	/**
-	 * Constructor for exploration. Prepares <tt>Map</tt> for a new exploration by restarting state machine and
-	 * resetting all <tt>isVisited</tt> flags.
+	 * Constructor for exploration. Prepares <tt>Map</tt> for a new exploration by restarting state
+	 * machine and resetting all <tt>isVisited</tt> flags.
 	 * 
 	 * @param map To reset all <tt>isVisited</tt> flags.
 	 */
@@ -182,6 +182,7 @@ public class Exploration {
 			case 'D':	// Rotate right and move forward
 				System.out.println("Rotate right and move forward!");
 				robot.rotate(Rotate.RIGHT);
+				// Don't rush Arduino
 				if (Main.isRealRun) {
 					try {
 						Thread.sleep(900);
@@ -202,8 +203,8 @@ public class Exploration {
 	}
 
 	/**
-	 * Generate the coordinates on the right side of the <tt>Robot</tt>. Useful to cross-check with existing
-	 * <tt>Map</tt> memory.
+	 * Generate the coordinates on the right side of the <tt>Robot</tt>. Useful to cross-check with
+	 * existing <tt>Map</tt> memory.
 	 * 
 	 * @param robot       <tt>Robot</tt>
 	 * @param coordinates Coordinates that the sensor sees for reference.
@@ -249,8 +250,8 @@ public class Exploration {
 	}
 
 	/**
-	 * Generate the coordinates on the front side of the <tt>Robot</tt>. Useful to cross-check with existing
-	 * <tt>Map</tt> memory.
+	 * Generate the coordinates on the front side of the <tt>Robot</tt>. Useful to cross-check with
+	 * existing <tt>Map</tt> memory.
 	 * 
 	 * @param robot       <tt>Robot</tt>
 	 * @param coordinates Coordinates that the sensor sees for reference.
