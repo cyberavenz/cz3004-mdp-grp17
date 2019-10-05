@@ -86,7 +86,7 @@ public class GUI extends JFrame {
 		ctrlPanel = new JPanel();
 		ctrlPanel.setOpaque(false);
 		ctrlPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		ctrlPanel.setLayout(new GridLayout(10, 1, 10, 10));
+		ctrlPanel.setLayout(new GridLayout(10, 1, 0, 10));
 		populateCtrlPanel();	// Populate Control Panel with buttons
 
 		mainContainer = this.getContentPane();
@@ -211,10 +211,8 @@ public class GUI extends JFrame {
 					cellsUI[actualY][actualX] = newCell;
 					mapPanel.add(cellsUI[actualY][actualX]);
 				}
-
 			}
 		}
-
 	}
 
 	/**
@@ -242,7 +240,7 @@ public class GUI extends JFrame {
 		});
 
 		/* Show the Fastest Path */
-		JButton fastestPath = new JButton("Show Fastest Path");
+		JButton fastestPath = new JButton("Run A*Star for Fastest Path");
 		fastestPath.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Main.btnShowFastestPath();
@@ -274,6 +272,9 @@ public class GUI extends JFrame {
 			}
 		});
 
+		/* Exploration Section */
+		ctrlPanel.add(new JLabel("=== Exploration ===", JLabel.CENTER));
+		
 		if (Main.isRealRun) {
 			ctrlPanel.add(startRealExplore);
 			ctrlPanel.add(fStopRealExplore);
@@ -281,8 +282,14 @@ public class GUI extends JFrame {
 			ctrlPanel.add(explorePerStep);
 			ctrlPanel.add(exploreAll);
 		}
-		ctrlPanel.add(printDescriptors);
+		
+		/* Fastest Path Section */
+		ctrlPanel.add(new JLabel("=== Fastest Path ===", JLabel.CENTER));
 		ctrlPanel.add(fastestPath);
+		
+		/* About Map */
+		ctrlPanel.add(new JLabel("=== About Map ===", JLabel.CENTER));
+		ctrlPanel.add(printDescriptors);
 	}
 
 	/**
@@ -318,7 +325,8 @@ public class GUI extends JFrame {
 	 * @param g
 	 */
 	private void paintRobot(int width, int actualY, int actualX, Coordinate[] robotFootprint, Graphics g) {
-		width /= 2;
+		width /= 2;		// For a responsive UI
+		
 		// Paint FRONT_LEFT of Robot
 		if (actualY == robotFootprint[Robot.FRONT_LEFT].getY() && actualX == robotFootprint[Robot.FRONT_LEFT].getX()) {
 			g.setColor(new Color(127, 204, 196));
@@ -385,14 +393,14 @@ public class GUI extends JFrame {
 	}
 
 	/**
-	 * Paint Cells with provided Graphics <tt>g</tt> if isVisited().
+	 * Paint with provided Graphics <tt>g</tt> to represent visited cells.
 	 * 
 	 * @param width
 	 * @param cell
 	 * @param g
 	 */
 	private void paintVisited(int width, Cell cell, Graphics g) {
-		width /= 2;
+		width /= 2;		// For a responsive UI
 		
 		if (cell.isVisited() == true) {
 			g.setColor(Color.LIGHT_GRAY);
