@@ -178,7 +178,14 @@ public class GUI extends JFrame {
 					@Override
 					public void paintComponent(Graphics g) {
 						super.paintComponent(g);
-						paintRobot(actualY, actualX, robot.getFootprint(), g);
+
+						/* Don't paint on axis labelling */
+						if (actualY >= 0 && actualY < Map.maxY) {
+							if (actualX >= 0 && actualX < Map.maxX) {
+								paintVisited(this.getWidth(), map.getCell(new Coordinate(actualY, actualX)), g);
+								paintRobot(this.getWidth(), actualY, actualX, robot.getFootprint(), g);
+							}
+						}
 					}
 				};
 				newCell.setPreferredSize(new Dimension(40, 40)); // Ensure cell is a square
@@ -286,95 +293,110 @@ public class GUI extends JFrame {
 	 */
 	private Color cellColour(Cell cell) {
 		switch (cell.getCellType()) {
-		case Cell.UNKNOWN:
-			return Color.GRAY;
+		case Cell.FINAL_PATH:	// Prioritise showing FINAL_PATH
+			return Color.BLUE;
 		case Cell.START:
 			return Color.YELLOW;
 		case Cell.GOAL:
 			return Color.GREEN;
-		case Cell.PATH:
-			return Color.WHITE;
-		case Cell.FINAL_PATH:
-			return Color.BLUE;
 		case Cell.WALL:
 			return Color.BLACK;
-		default:
+		case Cell.PATH:
+			return Color.WHITE;
+		default:				// Unknown cells
 			return Color.GRAY;
 		}
 	}
 
 	/**
-	 * Paint <tt>Robot</tt> onto <tt>Graphics g</tt> if <tt>actualY</tt> and <tt>actualX</tt> matches
-	 * <tt>robotFootprint</tt>.
+	 * Paint <tt>Robot</tt> with provided Graphics <tt>g</tt> if <tt>actualY</tt> and <tt>actualX</tt>
+	 * matches <tt>robotFootprint</tt>.
 	 * 
 	 * @param actualY
 	 * @param actualX
 	 * @param robotFootprint
 	 * @param g
 	 */
-	private void paintRobot(int actualY, int actualX, Coordinate[] robotFootprint, Graphics g) {
+	private void paintRobot(int width, int actualY, int actualX, Coordinate[] robotFootprint, Graphics g) {
+		width /= 2;
 		// Paint FRONT_LEFT of Robot
 		if (actualY == robotFootprint[Robot.FRONT_LEFT].getY() && actualX == robotFootprint[Robot.FRONT_LEFT].getX()) {
 			g.setColor(new Color(127, 204, 196));
-			g.fillOval(12, 12, 10, 10);
-			g.drawOval(9, 9, 16, 16);
+			g.fillOval(width / 2, width / 2, width, width);
+			g.drawOval(width / 4, width / 4, (int) (width * 1.5), (int) (width * 1.5));	// Indicates sensor
 		}
 
 		// Paint FRONT_CENTER of Robot
 		if (actualY == robotFootprint[Robot.FRONT_CENTER].getY()
 				&& actualX == robotFootprint[Robot.FRONT_CENTER].getX()) {
 			g.setColor(Color.DARK_GRAY);
-			g.fillOval(12, 12, 10, 10);
-			g.drawOval(9, 9, 16, 16);
+			g.fillOval(width / 2, width / 2, width, width);
+			g.drawOval(width / 4, width / 4, (int) (width * 1.5), (int) (width * 1.5));	// Indicates sensor
 		}
 
 		// Paint FRONT_RIGHT of Robot
 		if (actualY == robotFootprint[Robot.FRONT_RIGHT].getY()
 				&& actualX == robotFootprint[Robot.FRONT_RIGHT].getX()) {
 			g.setColor(new Color(127, 204, 196));
-			g.fillOval(12, 12, 10, 10);
-			g.drawOval(9, 9, 16, 16);
+			g.fillOval(width / 2, width / 2, width, width);
+			g.drawOval(width / 4, width / 4, (int) (width * 1.5), (int) (width * 1.5));	// Indicates sensor
 		}
 
 		// Paint MIDDLE_LEFT of Robot
 		if (actualY == robotFootprint[Robot.MIDDLE_LEFT].getY()
 				&& actualX == robotFootprint[Robot.MIDDLE_LEFT].getX()) {
 			g.setColor(new Color(127, 204, 196));
-			g.fillOval(12, 12, 10, 10);
+			g.fillOval(width / 2, width / 2, width, width);
 		}
 
 		// Paint MIDDLE_CENTER of Robot
 		if (actualY == robotFootprint[Robot.MIDDLE_CENTER].getY()
 				&& actualX == robotFootprint[Robot.MIDDLE_CENTER].getX()) {
 			g.setColor(new Color(127, 204, 196));
-			g.fillOval(12, 12, 10, 10);
+			g.fillOval(width / 2, width / 2, width, width);
 		}
 
 		// Paint MIDDLE_RIGHT of Robot
 		if (actualY == robotFootprint[Robot.MIDDLE_RIGHT].getY()
 				&& actualX == robotFootprint[Robot.MIDDLE_RIGHT].getX()) {
 			g.setColor(new Color(127, 204, 196));
-			g.fillOval(12, 12, 10, 10);
+			g.fillOval(width / 2, width / 2, width, width);
 		}
 
 		// Paint BACK_LEFT of Robot
 		if (actualY == robotFootprint[Robot.BACK_LEFT].getY() && actualX == robotFootprint[Robot.BACK_LEFT].getX()) {
 			g.setColor(new Color(127, 204, 196));
-			g.fillOval(12, 12, 10, 10);
-			g.drawOval(9, 9, 16, 16);
+			g.fillOval(width / 2, width / 2, width, width);
+			g.drawOval(width / 4, width / 4, (int) (width * 1.5), (int) (width * 1.5));	// Indicates sensor
 		}
 
 		// Paint BACK_CENTER of Robot
 		if (actualY == robotFootprint[Robot.BACK_CENTER].getY()
 				&& actualX == robotFootprint[Robot.BACK_CENTER].getX()) {
 			g.setColor(new Color(127, 204, 196));
-			g.fillOval(12, 12, 10, 10);
+			g.fillOval(width / 2, width / 2, width, width);
 		}
 
 		// Paint BACK_RIGHT of Robot
 		if (actualY == robotFootprint[Robot.BACK_RIGHT].getY() && actualX == robotFootprint[Robot.BACK_RIGHT].getX()) {
 			g.setColor(new Color(127, 204, 196));
-			g.fillOval(12, 12, 10, 10);
+			g.fillOval(width / 2, width / 2, width, width);
+		}
+	}
+
+	/**
+	 * Paint Cells with provided Graphics <tt>g</tt> if isVisited().
+	 * 
+	 * @param width
+	 * @param cell
+	 * @param g
+	 */
+	private void paintVisited(int width, Cell cell, Graphics g) {
+		width /= 2;
+		
+		if (cell.isVisited() == true) {
+			g.setColor(Color.LIGHT_GRAY);
+			g.fillRect(width / 4, width / 4, (int) (width * 1.5), (int) (width * 1.5));
 		}
 	}
 }
