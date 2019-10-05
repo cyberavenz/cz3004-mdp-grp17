@@ -18,11 +18,11 @@ public class FPTest {
 	private HashMap<Coordinate, Node> nodes = new HashMap<Coordinate, Node>();
 	private HashMap<Node, ArrayList<Node>> edges = new HashMap<Node, ArrayList<Node>>();
 
-	private Map currMap;
+//	private Map currMap;
 	private Coordinate startCoord, goalCoord;
 
 	public FPTest(Map currMap, Coordinate startCoord, Coordinate goalCoord) {
-		this.currMap = currMap;
+//		this.currMap = currMap;
 		this.startCoord = startCoord;
 		this.goalCoord = goalCoord;
 

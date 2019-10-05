@@ -89,22 +89,22 @@ public class FastestPath {
 				/* Check neighbours */
 				ArrayList<Node> neighbours = getNeighbours(currNode);
 				for (int i = 0; i < neighbours.size(); i++) {
-					Node currNeighbour = neighbours.get(i);
+					Node neighbourNode = neighbours.get(i);
 
 					/* Only traverse currNeighbour if it is unvisited */
-					if (!currNeighbour.isVisited()) {
+					if (!neighbourNode.isVisited()) {
 						// Determine weight based on actual robot movement
-						int weight = determineWeight(currNeighbour, childParent);
-						int newTotalCost = currNode.getDistanceToStart() + weight + currNeighbour.getHeuristic();
+						int weight = determineWeight(childParent.get(currNode), neighbourNode);
+						int newTotalCost = currNode.getDistanceToStart() + weight + neighbourNode.getHeuristic();
 
 						/* Only traverse currNeighbour if new totalCost is lower */
-						if (newTotalCost < currNeighbour.getTotalCost()) {
-							childParent.put(currNeighbour, currNode);
+						if (newTotalCost < neighbourNode.getTotalCost()) {
+							childParent.put(neighbourNode, currNode);
 
-							currNeighbour.setDistanceToStart(currNode.getDistanceToStart() + weight);
-							currNeighbour.setTotalCost(newTotalCost);
+							neighbourNode.setDistanceToStart(currNode.getDistanceToStart() + weight);
+							neighbourNode.setTotalCost(newTotalCost);
 
-							orderedFrontier.add(currNeighbour);
+							orderedFrontier.add(neighbourNode);
 						}
 					}
 				}
@@ -113,6 +113,14 @@ public class FastestPath {
 
 		System.err.println("FastestPath: A*Star is unable to find a path to goal node.");
 		return new ArrayList<Node>();	// No paths found, return empty list
+	}
+
+	public void prepareRun(Robot robot) {
+		// int robotDir = robot.getCurrDir();
+	}
+
+	public String genRunString() {
+		return null;
 	}
 
 	private ArrayList<Node> getNeighbours(Node currNode) {
@@ -163,11 +171,27 @@ public class FastestPath {
 	/**
 	 * Determine weight based on actual robot movement. That is, penalise whenever rotation is required.
 	 * 
-	 * @param n
-	 * @param childParent
+	 * @param currNodeParent
+	 * @param neighbourNode
 	 * @return
 	 */
-	private int determineWeight(Node n, HashMap<Node, Node> childParent) {
-		return 1;
+	private int determineWeight(Node currNodeParent, Node neighbourNode) {
+		// parent2 does not exist, default weight
+		if (currNodeParent == null)
+			return 1;
+
+		Cell currCellParent = currNodeParent.getCell();
+		Cell neighbourCell = neighbourNode.getCell();
+
+		// currCellParent and neighbourCell are along same Y axis, no penalty
+		if (currCellParent.getY() == neighbourCell.getY())
+			return 1;
+
+		// currCellParent and neighbourCell are along same Y axis, no penalty
+		if (currCellParent.getX() == neighbourCell.getX())
+			return 1;
+
+		// currCellParent and neighbourCell are on different axis, induce penalty
+		return 3;
 	}
 }
