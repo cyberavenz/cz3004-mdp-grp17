@@ -18,36 +18,35 @@ public class RealExploration implements Runnable {
 		Main.gui.refreshGUI(Main.robot, Main.exploredMap);				// Show it on GUI
 		System.out.println("============= END STEP =============\n");
 
-		while (!Thread.currentThread().isInterrupted()) {
-			try {
-				while (!done) {
-					/* Run exploration for one step */
-					done = Main.exploration.executeOneStep(Main.robot, Main.exploredMap);	// Send next movement
+		try {
+			while (!done) {
+				/* Run exploration for one step */
+				done = Main.exploration.executeOneStep(Main.robot, Main.exploredMap);	// Send next movement
 
-					Main.comms.send(TCPComm.ANDROID, genMDFAndroid(Main.exploredMap, Main.robot));
-					Main.gui.refreshGUI(Main.robot, Main.exploredMap);						// Show it on GUI
+				Main.comms.send(TCPComm.ANDROID, genMDFAndroid(Main.exploredMap, Main.robot));
+				Main.gui.refreshGUI(Main.robot, Main.exploredMap);						// Show it on GUI
 
-					Thread.sleep(700);														// Don't rush Arduino
+				Thread.sleep(700);														// Don't rush Arduino
 
-					System.out.println(
-							"Robot is at: " + Main.robot.getCurrPos().getY() + " " + Main.robot.getCurrPos().getX());
-					Main.comms.send(TCPComm.ARDUINO, "SXX");								// Request sensor reading
-					fromArduino = Main.comms.readFrom(TCPComm.ARDUINO); 					// Wait for reading
-					Main.exploredMap.actualReveal(Main.robot, fromArduino);					// Populate map
+				System.out.println(
+						"Robot is at: " + Main.robot.getCurrPos().getY() + " " + Main.robot.getCurrPos().getX());
+				Main.comms.send(TCPComm.ARDUINO, "SXX");								// Request sensor reading
+				fromArduino = Main.comms.readFrom(TCPComm.ARDUINO); 					// Wait for reading
+				Main.exploredMap.actualReveal(Main.robot, fromArduino);					// Populate map
 
-					Main.comms.send(TCPComm.ANDROID, genMDFAndroid(Main.exploredMap, Main.robot));
-					Main.gui.refreshGUI(Main.robot, Main.exploredMap);						// Show it on GUI
+				Main.comms.send(TCPComm.ANDROID, genMDFAndroid(Main.exploredMap, Main.robot));
+				Main.gui.refreshGUI(Main.robot, Main.exploredMap);						// Show it on GUI
 
-					Thread.sleep(100);														// So your eyes can see the
-																								// change
+				Thread.sleep(100);														// So your eyes can see the
+																							// change
 
-					System.out.println("============= END STEP =============\n");
-				}
-			} catch (InterruptedException e) {
-				break;
+				System.out.println("============= END STEP =============\n");
 			}
+		} catch (Exception e) {
+			// IGNORE ALL INTERRUPTS TO THIS THREAD.
+			// EXPLORATION MUST RUN TO THE END.
 		}
-		
+
 		System.out.println(Thread.currentThread().getName() + ": RealExploration thread ended.");
 	}
 
