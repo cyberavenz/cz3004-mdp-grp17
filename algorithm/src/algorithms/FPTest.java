@@ -31,7 +31,7 @@ public class FPTest {
 			for (int x = 1; x <= Map.maxX - 2; x++) {
 				Coordinate currPos = new Coordinate(y, x);
 
-				Robot robot = new Robot(currPos, Robot.NORTH);
+				Robot robot = new Robot(currPos, Robot.NORTH, false);
 				Coordinate[] robotFootprint = robot.getFootprint();
 
 				boolean hasWall = false;
