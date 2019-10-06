@@ -240,10 +240,24 @@ public class GUI extends JFrame {
 		});
 
 		/* Show the Fastest Path */
-		JButton fastestPath = new JButton("Run A*Star for Fastest Path");
+		JButton fastestPath = new JButton("Calculate A*Star Fastest Path");
 		fastestPath.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Main.btnShowFastestPath();
+			}
+		});
+		
+		/* Standby for Fastest Path */
+		JButton standbyFastestPath = new JButton("Standby for Fastest Path");
+		standbyFastestPath.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+		
+		/* Start Fastest Path */
+		JButton startRealFastestPath = new JButton("Start Fastest Path");
+		startRealFastestPath.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 			}
 		});
 

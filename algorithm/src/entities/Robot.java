@@ -1,5 +1,7 @@
 package entities;
 
+import java.util.LinkedList;
+
 import communications.TCPComm;
 import main.Main;
 
@@ -19,6 +21,7 @@ public class Robot {
 		S_BL_W = 4, L_BL_W = 5;
 	//	@formatter:on
 
+	private boolean isRealRun;	// Real Run or Simulation (Whether to send movement command)
 	private Coordinate currPos;	// MIDDLE_CENTER of Robot
 	private int currDir;		// North, South, East, West
 	private Sensor[] sensors;	// Initialised by initSensors()
@@ -28,7 +31,8 @@ public class Robot {
 	 * 
 	 * Default Position: y=1 | x=1, Default Direction: EAST.
 	 */
-	public Robot() {
+	public Robot(boolean isRealRun) {
+		this.isRealRun = isRealRun;
 		currPos = new Coordinate(1, 1);
 		currDir = EAST;
 		initSensors();
@@ -40,7 +44,9 @@ public class Robot {
 	 * @param startPos
 	 * @param startDir
 	 */
-	public Robot(Coordinate startPos, int startDir) {
+	public Robot(Coordinate startPos, int startDir, boolean isRealRun) {
+		this.isRealRun = isRealRun;
+
 		int startY = startPos.getY();
 		int startX = startPos.getX();
 		boolean error = false;
@@ -194,7 +200,7 @@ public class Robot {
 		}
 
 		// If Real Run, send command!
-		if (Main.isRealRun && send) {
+		if (this.isRealRun && send) {
 			String strSteps = String.format("%02d", steps);
 			Main.comms.send(TCPComm.ARDUINO, "F" + strSteps);
 		}
@@ -211,7 +217,7 @@ public class Robot {
 			currDir = (currDir + 1) % 4;
 
 			// If Real Run, send command!
-			if (Main.isRealRun)
+			if (this.isRealRun)
 				Main.comms.send(TCPComm.ARDUINO, "R90");
 			break;
 		case LEFT:	// Rotate counter-clockwise
@@ -224,11 +230,43 @@ public class Robot {
 			currDir = (int) newDir;
 
 			// If Real Run, send command!
-			if (Main.isRealRun)
+			if (this.isRealRun)
 				Main.comms.send(TCPComm.ARDUINO, "L90");
 			break;
 		default: // Do nothing
 		}
+	}
+
+	public void sendFastestPath(LinkedList<String> navigateSteps) {
+		if (navigateSteps.isEmpty()) {
+			System.err.println("Fastest Path does not exist. Call runAStar() again.");
+			return;
+		}
+
+		String pointer = navigateSteps.poll();
+		String toSend = "";
+
+		while (pointer != null) {
+
+			int numOfForwards = 0;
+			while (pointer == "F01") {
+				numOfForwards++;
+				pointer = navigateSteps.poll();
+			}
+			if (numOfForwards > 0)
+				toSend += "F" + String.format("%02d", numOfForwards) + "|";
+
+			if (pointer != null)
+				toSend += pointer + "|";
+
+			pointer = navigateSteps.poll();
+
+		}
+
+		System.out.println(toSend);
+
+		if (this.isRealRun)
+			Main.comms.send(TCPComm.ARDUINO, toSend);
 	}
 
 	/**

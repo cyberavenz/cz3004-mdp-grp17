@@ -3,6 +3,7 @@ package algorithms;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.PriorityQueue;
 
 import entities.Cell;
@@ -10,6 +11,7 @@ import entities.Coordinate;
 import entities.Map;
 import entities.Node;
 import entities.Robot;
+import entities.Robot.Rotate;
 
 public class FastestPath {
 
@@ -17,6 +19,8 @@ public class FastestPath {
 	private HashMap<Node, ArrayList<Node>> edges = new HashMap<Node, ArrayList<Node>>();
 
 	private Coordinate startCoord, goalCoord;
+
+	private ArrayList<Node> finalPath = new ArrayList<Node>();
 
 	public FastestPath(Map currMap, Coordinate startCoord, Coordinate goalCoord) {
 		this.startCoord = startCoord;
@@ -27,7 +31,7 @@ public class FastestPath {
 			for (int x = 1; x <= Map.maxX - 2; x++) {
 				Coordinate currPos = new Coordinate(y, x);
 
-				Robot robot = new Robot(currPos, Robot.NORTH);
+				Robot robot = new Robot(currPos, Robot.NORTH, false);
 				Coordinate[] robotFootprint = robot.getFootprint();
 
 				boolean hasWall = false;
@@ -83,7 +87,8 @@ public class FastestPath {
 
 				/* Check if it is Goal Node, BREAK! */
 				if (currNode.equals(goalNode)) {
-					return genFinalPath(goalNode, childParent);
+					this.finalPath = genFinalPath(goalNode, childParent);
+					return this.finalPath;
 				}
 
 				/* Check neighbours */
@@ -112,15 +117,65 @@ public class FastestPath {
 		}
 
 		System.err.println("FastestPath: A*Star is unable to find a path to goal node.");
-		return new ArrayList<Node>();	// No paths found, return empty list
+		this.finalPath = new ArrayList<Node>();
+		return this.finalPath;	// No paths found, return empty list
 	}
 
-	public void prepareRun(Robot robot) {
-		// int robotDir = robot.getCurrDir();
-	}
+	/**
+	 * Generate navigation per step based. Call <tt>StandbyFastestPath</tt> runnable first.
+	 * 
+	 * @param robot
+	 * @return
+	 */
+	public LinkedList<String> navigateSteps() {
 
-	public String genRunString() {
-		return null;
+		LinkedList<String> fastestPathBuilder = new LinkedList<String>();
+
+		if (finalPath.isEmpty()) {
+			System.err.println("Fastest Path does not exist. Call runAStar() again.");
+			return fastestPathBuilder;
+		}
+
+		Robot virtualRobot;
+
+		/* Create a Virtual robot for reference */
+		// Fastest Path goes North
+		if (finalPath.get(1).getCell().getY() == 2 && finalPath.get(1).getCell().getX() == 1) {
+			virtualRobot = new Robot(new Coordinate(1, 1), Robot.NORTH, false);
+		}
+
+		// Fastest Path goes East
+		else {
+			virtualRobot = new Robot(new Coordinate(1, 1), Robot.EAST, false);
+		}
+
+		/* Traverse from 2nd step (from index 1) */
+		for (int i = 1; i < finalPath.size(); i++) {
+			Coordinate[] footprint = virtualRobot.getFootprint();
+
+			Cell nextCell = finalPath.get(i).getCell();
+			Coordinate nextCoord = new Coordinate(nextCell.getY(), nextCell.getX());
+
+			if (nextCoord.equals(footprint[Robot.FRONT_CENTER])) {
+				fastestPathBuilder.add("F01");
+
+				virtualRobot.moveForward(1);
+			} else if (nextCoord.equals(footprint[Robot.MIDDLE_RIGHT])) {
+				fastestPathBuilder.add("R90");
+				fastestPathBuilder.add("F01");
+
+				virtualRobot.rotate(Rotate.RIGHT);
+				virtualRobot.moveForward(1);
+			} else if (nextCoord.equals(footprint[Robot.MIDDLE_LEFT])) {
+				fastestPathBuilder.add("L90");
+				fastestPathBuilder.add("F01");
+
+				virtualRobot.rotate(Rotate.LEFT);
+				virtualRobot.moveForward(1);
+			}
+		}
+
+		return fastestPathBuilder;
 	}
 
 	private ArrayList<Node> getNeighbours(Node currNode) {

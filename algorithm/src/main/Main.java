@@ -14,7 +14,7 @@ public class Main {
 	public static boolean isRealRun = false;				// RealRun or Simulation mode?
 	public static Map testMap;								// testMap (only used in simulation mode)
 	public static Map exploredMap = new Map("unknown.txt");	// Set exploredMap (starts from an unknown state)
-	public static Robot robot = new Robot();				// Default starting position of robot
+	public static Robot robot = new Robot(isRealRun);		// Default starting position of robot
 
 	public static TCPComm comms;
 	public static GUI gui;
@@ -43,7 +43,7 @@ public class Main {
 			comms = new TCPComm();
 			gui.setModeColour(comms.isConnected());
 
-			// TODO Call runnable
+			// TODO Start RealFlow thread
 		}
 
 		/* SIMULATION MODE */
@@ -71,7 +71,7 @@ public class Main {
 
 		if (done) {
 			// Reset all objects to a clean state
-			robot = new Robot();
+			robot = new Robot(isRealRun);
 			exploredMap = new Map("unknown.txt");
 			exploration = new Exploration(exploredMap);
 		}
@@ -105,5 +105,7 @@ public class Main {
 		FastestPath fp = new FastestPath(exploredMap, new Coordinate(1, 1), new Coordinate(18, 13));
 		exploredMap.finalPathReveal(fp.runAStar());
 		gui.refreshGUI(robot, exploredMap);
+		
+		robot.sendFastestPath(fp.navigateSteps());
 	}
 }

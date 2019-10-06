@@ -11,7 +11,7 @@ public class SimExploration implements Runnable {
 		System.out.println(Thread.currentThread().getName() + ": Started new SimExploration thread.");
 		
 		// Reset all objects to a clean state
-		Main.robot = new Robot();
+		Main.robot = new Robot(Main.isRealRun);
 		Main.exploredMap = new Map("unknown.txt");
 		Main.exploration = new Exploration(Main.exploredMap);
 
