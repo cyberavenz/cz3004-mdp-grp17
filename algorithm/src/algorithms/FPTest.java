@@ -13,6 +13,10 @@ import entities.Coordinate;
 import entities.Map;
 import entities.Robot;
 
+/**
+ * @deprecated use FastestPath.java instead.
+ */
+@Deprecated
 public class FPTest {
 
 	private HashMap<Coordinate, Node> nodes = new HashMap<Coordinate, Node>();
