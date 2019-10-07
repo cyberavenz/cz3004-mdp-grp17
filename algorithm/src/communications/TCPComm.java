@@ -5,6 +5,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.LinkedList;
+
+import entities.Map;
+import entities.Robot;
 import main.Main;
 
 public class TCPComm {
@@ -72,7 +76,12 @@ public class TCPComm {
 	}
 
 	/**
-	 * Read incoming stream from a specific device. Any messages from a non-specified device will be discarded.
+	 * STRICTLY read incoming stream to find a message from the specified device. Any messages from a
+	 * non-specified device will be discarded.
+	 * <p>
+	 * This function is implemented in a very strict (or bad) way as the while(true) loop is blocking
+	 * and it discards everything else. Might need to be re-implemented.
+	 * </p>
 	 * 
 	 * @param device
 	 * @return
@@ -111,6 +120,62 @@ public class TCPComm {
 			} catch (IOException e) {
 			}
 		}
+	}
+
+	/**
+	 * Send movement instructions to Serial and Bluetooth.
+	 * 
+	 * @param navigateSteps
+	 */
+	public void sendFastestPath(LinkedList<String> navigateSteps) {
+		if (navigateSteps.isEmpty()) {
+			System.err.println("Unable to send Fastest Path as it does not exist. Call runAStar() again.");
+			return;
+		}
+
+		String pointer = navigateSteps.poll();
+		String forArduino = "";
+		String forAndroid = "";
+
+		while (pointer != null) {
+
+			int numOfForwards = 0;
+			while (pointer == "F01") {
+				numOfForwards++;
+				pointer = navigateSteps.poll();
+			}
+			if (numOfForwards > 0) {
+				forArduino += "F" + String.format("%02d", numOfForwards) + "|";
+				forAndroid += "F" + String.format("%02d", numOfForwards);
+			}
+
+			if (pointer != null) {
+				forArduino += pointer + "|";
+				forAndroid += pointer;
+			}
+
+			pointer = navigateSteps.poll();
+
+		}
+
+		this.send(TCPComm.SERIAL, forArduino);
+		this.send(TCPComm.BLUETOOTH, forAndroid);
+	}
+
+	/**
+	 * Generate MDF String for Bluetooth (Android tablet).
+	 * 
+	 * @param map
+	 * @param robot
+	 * @return
+	 */
+	public static String genMDFBluetooth(Map map, Robot robot) {
+		String toReturn = new String();
+
+		toReturn = "MDF" + "|" + map.getP1Descriptors() + "|" + map.getP2Descriptors() + "|" + robot.getCurrDir() + "|"
+				+ (19 - robot.getCurrPos().getY()) + "|" + robot.getCurrPos().getX() + "|" + "0";
+
+		return toReturn;
 	}
 
 //	private void startListening() {
