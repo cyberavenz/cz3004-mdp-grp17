@@ -41,7 +41,7 @@ public class Cell extends Coordinate {
 		if (cellType == FINAL_PATH) {
 			this.cellType = cellType;
 		}
-		
+
 		/* START and GOAL cellTypes should be permanent */
 		// For cases where sensor falsely detects a wall in START or GOAL area
 		else if (cellType == START || cellType == GOAL) {
@@ -69,10 +69,12 @@ public class Cell extends Coordinate {
 	 */
 	public void setVisited() {
 		this.isVisited = true;
-		
-		/* Cells that are visited should be permanent a path */
+
+		/* Cells that are visited should be set permanently as a path */
 		// For cases where sensor falsely detects a wall in a isVisited cell
-		this.cellType = PATH;
+		if (!(this.cellType == START || this.cellType == GOAL))
+			this.cellType = PATH;
+
 		this.permanentCellType = true;
 	}
 
