@@ -56,7 +56,7 @@ public class GUI extends JFrame {
 		this.map = map;
 
 		mapPanel.repaint();	// Repaint mapPanel to show updated Robot position
-		
+
 		/* Also update Android tablet screen */
 		if (Main.isRealRun) {
 			Main.comms.send(TCPComm.BLUETOOTH, TCPComm.genMDFBluetooth(map, robot));
@@ -437,9 +437,10 @@ public class GUI extends JFrame {
 	 */
 	private void labelPermanentFlag(Cell currCell, JLabel jl) {
 		/* Show isPermanent flag */
-		if (currCell.isPermanentCellType())
+		if (currCell.isPermanentCellType()) {
+			jl.setForeground(Color.GRAY);
 			jl.setText("P");
-		else
+		} else
 			jl.setText("");
 	}
 }
