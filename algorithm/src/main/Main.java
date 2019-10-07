@@ -11,20 +11,20 @@ import gui.GUI;
 
 public class Main {
 
-	public static boolean isRealRun = false;				// RealRun or Simulation mode?
-	public static Map testMap;								// testMap (only used in simulation mode)
-	public static Map exploredMap = new Map("unknown.txt");	// Set exploredMap (starts from an unknown state)
-	public static Robot robot = new Robot(isRealRun);		// Default starting position of robot
+	public static boolean isRealRun = false;	// Set current mode: RealRun or Simulation mode?
+	public static Map testMap;
+	public static Map exploredMap;
+	public static Robot robot;
 
 	public static TCPComm comms;
 	public static GUI gui;
-	public static Exploration exploration;
+	public static Exploration explorer;
 
-	public static Thread simExploration;
+	public static Thread threadSimExplore;
+
 	public static Thread standbyRealExploration;
 	public static Thread realExploration;
 	public static Thread standbyRealFastestPath;
-//	private static Thread realFastestPath;
 
 	/**
 	 * Main program
@@ -32,18 +32,23 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		/* 1. Initialise GUI */
+		/* 1. Initialise Variables */
+		robot = new Robot(isRealRun);			// Default starting position of robot (1,1 facing East)
+		exploredMap = new Map("unknown.txt");	// Set exploredMap (starts from an unknown state)
+
+		/* 2. Initialise GUI */
 		gui = new GUI(robot, exploredMap);
-		gui.setVisible(true);
 
-		/* 2. Initialise algorithms */
-		exploration = new Exploration(exploredMap);		// Exploration algorithm
+		/* 3. Initialise algorithms */
+		explorer = new Exploration(exploredMap);	// Exploration algorithm
 
-		/* 3. Check if real run? */
-		// REAL RUN MODE
+		/* 4. Check if current mode */
+		/* ============ REAL RUN MODE ============ */
 		if (isRealRun) {
 			gui.setModeColour(false);
-			comms = new TCPComm();
+
+			comms = new TCPComm();		// Initialise TCP Communication (Will wait until successful)
+
 			gui.setModeColour(comms.isConnected());
 
 			try {
@@ -51,15 +56,16 @@ public class Main {
 			} catch (Exception e) {
 			}
 
-			// TODO Start RealFlow thread
 			standbyRealExploration = new Thread(new StandbyRealExploration());
 			standbyRealExploration.start();
+
+			// TODO Change to Thread.join()
 		}
 
-		/* SIMULATION MODE */
+		/* ============ SIMULATION MODE ============ */
 		else {
 			// Load testMap
-			testMap = new Map("prevSemWeek9.txt");	// Set simulatedMap for use (if simulation)
+			testMap = new Map("prevSemWeek9.txt");	// Set simulatedMap for use
 			gui.refreshGUI(robot, testMap); 		// Display testMap first if simulation mode
 		}
 	}
@@ -74,7 +80,7 @@ public class Main {
 		gui.refreshGUI(robot, exploredMap);
 
 		/* Run exploration for one step */
-		boolean done = exploration.executeOneStep(robot, exploredMap);
+		boolean done = explorer.executeOneStep(robot, exploredMap);
 
 		exploredMap.simulatedReveal(robot, testMap);
 		gui.refreshGUI(robot, exploredMap);
@@ -83,20 +89,21 @@ public class Main {
 			// Reset all objects to a clean state
 			robot = new Robot(isRealRun);
 			exploredMap = new Map("unknown.txt");
-			exploration = new Exploration(exploredMap);
+			explorer = new Exploration(exploredMap);
+			gui.refreshGUI(robot, exploredMap);
 		}
 	}
 
 	/**
 	 * <b>SIMULATION ONLY</b><br>
-	 * Start new <tt>SimExploration</tt> thread when "Explore all" button is pressed.
+	 * Start new <tt>SimulateExploration</tt> thread when "Explore all" button is pressed.
 	 */
 	public static void runSimExploration() {
-		if (simExploration == null || !simExploration.isAlive()) {
-			simExploration = new Thread(new SimExploration());
-			simExploration.start();
+		if (threadSimExplore == null || !threadSimExplore.isAlive()) {
+			threadSimExplore = new Thread(new SimulateExploration());
+			threadSimExplore.start();
 		} else {
-			simExploration.interrupt();
+			threadSimExplore.interrupt();
 		}
 	}
 

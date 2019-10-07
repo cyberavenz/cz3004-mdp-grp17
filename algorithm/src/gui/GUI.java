@@ -168,7 +168,7 @@ public class GUI extends JFrame {
 					private static final long serialVersionUID = -4788108468649278480L;
 
 					/**
-					 * Paint robot and visited cells.
+					 * Paint robot, visited, etc. on the cells.
 					 */
 					@Override
 					public void paintComponent(Graphics g) {
@@ -223,17 +223,16 @@ public class GUI extends JFrame {
 		String mode = Main.isRealRun ? "Real Run" : "Simulation";
 		ctrlPanel.add(new JLabel("MODE: " + mode, JLabel.CENTER));
 
-		/* Exploration (per step) button */
-		JButton explorePerStep = new JButton("Exploration (per step)");
+		/* Explore (per step) button */
+		JButton explorePerStep = new JButton("Explore (per step) [Reset]");
 		explorePerStep.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-//				Main.runSimExplorePerStep();
-
+				Main.runSimExplorePerStep();
 			}
 		});
 
 		/* Explore all Button */
-		JButton exploreAll = new JButton("Explore all");
+		JButton exploreAll = new JButton("Explore All [Play | Pause]");
 		exploreAll.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Main.runSimExploration();
