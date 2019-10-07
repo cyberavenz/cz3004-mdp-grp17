@@ -12,8 +12,8 @@ public class RealExploration implements Runnable {
 	public void run() {
 		System.out.println(Thread.currentThread().getName() + ": Started new RealExploration thread.");
 
-		Main.comms.send(TCPComm.ARDUINO, "SXX");						// Request sensor reading
-		String fromArduino = Main.comms.readFrom(TCPComm.ARDUINO); 		// Wait for reading
+		Main.comms.send(TCPComm.SERIAL, "SXX");						// Request sensor reading
+		String fromArduino = Main.comms.readFrom(TCPComm.SERIAL); 		// Wait for reading
 		Main.exploredMap.actualReveal(Main.robot, fromArduino);			// Read sensors and populate map
 		Main.gui.refreshGUI(Main.robot, Main.exploredMap);				// Show it on GUI
 		System.out.println("============= END STEP =============\n");
@@ -23,18 +23,18 @@ public class RealExploration implements Runnable {
 				/* Run exploration for one step */
 				done = Main.exploration.executeOneStep(Main.robot, Main.exploredMap);	// Send next movement
 
-				Main.comms.send(TCPComm.ANDROID, genMDFAndroid(Main.exploredMap, Main.robot));
+				Main.comms.send(TCPComm.BLUETOOTH, genMDFAndroid(Main.exploredMap, Main.robot));
 				Main.gui.refreshGUI(Main.robot, Main.exploredMap);						// Show it on GUI
 
 				Thread.sleep(700);														// Don't rush Arduino
 
 				System.out.println(
 						"Robot is at: " + Main.robot.getCurrPos().getY() + " " + Main.robot.getCurrPos().getX());
-				Main.comms.send(TCPComm.ARDUINO, "SXX");								// Request sensor reading
-				fromArduino = Main.comms.readFrom(TCPComm.ARDUINO); 					// Wait for reading
+				Main.comms.send(TCPComm.SERIAL, "SXX");								// Request sensor reading
+				fromArduino = Main.comms.readFrom(TCPComm.SERIAL); 					// Wait for reading
 				Main.exploredMap.actualReveal(Main.robot, fromArduino);					// Populate map
 
-				Main.comms.send(TCPComm.ANDROID, genMDFAndroid(Main.exploredMap, Main.robot));
+				Main.comms.send(TCPComm.BLUETOOTH, genMDFAndroid(Main.exploredMap, Main.robot));
 				Main.gui.refreshGUI(Main.robot, Main.exploredMap);						// Show it on GUI
 
 				Thread.sleep(100);														// So your eyes can see the
@@ -46,6 +46,10 @@ public class RealExploration implements Runnable {
 			// IGNORE ALL INTERRUPTS TO THIS THREAD.
 			// EXPLORATION MUST RUN TO THE END.
 		}
+
+		/* Start StandbyFastestPath Runnable */
+		Thread standby = new Thread(new StandbyRealFastestPath());
+		standby.start();
 
 		System.out.println(Thread.currentThread().getName() + ": RealExploration thread ended.");
 	}

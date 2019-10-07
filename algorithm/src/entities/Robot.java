@@ -202,7 +202,7 @@ public class Robot {
 		// If Real Run, send command!
 		if (this.isRealRun && send) {
 			String strSteps = String.format("%02d", steps);
-			Main.comms.send(TCPComm.ARDUINO, "F" + strSteps);
+			Main.comms.send(TCPComm.SERIAL, "F" + strSteps);
 		}
 	}
 
@@ -218,7 +218,7 @@ public class Robot {
 
 			// If Real Run, send command!
 			if (this.isRealRun)
-				Main.comms.send(TCPComm.ARDUINO, "R90");
+				Main.comms.send(TCPComm.SERIAL, "R90");
 			break;
 		case LEFT:	// Rotate counter-clockwise
 			float newDir = (currDir - 1) % 4;
@@ -231,7 +231,7 @@ public class Robot {
 
 			// If Real Run, send command!
 			if (this.isRealRun)
-				Main.comms.send(TCPComm.ARDUINO, "L90");
+				Main.comms.send(TCPComm.SERIAL, "L90");
 			break;
 		default: // Do nothing
 		}
@@ -239,12 +239,13 @@ public class Robot {
 
 	public void sendFastestPath(LinkedList<String> navigateSteps) {
 		if (navigateSteps.isEmpty()) {
-			System.err.println("Fastest Path does not exist. Call runAStar() again.");
+			System.err.println("Unable to send Fastest Path as it does not exist. Call runAStar() again.");
 			return;
 		}
 
 		String pointer = navigateSteps.poll();
-		String toSend = "";
+		String forArduino = "";
+		String forAndroid = "";
 
 		while (pointer != null) {
 
@@ -253,20 +254,26 @@ public class Robot {
 				numOfForwards++;
 				pointer = navigateSteps.poll();
 			}
-			if (numOfForwards > 0)
-				toSend += "F" + String.format("%02d", numOfForwards) + "|";
+			if (numOfForwards > 0) {
+				forArduino += "F" + String.format("%02d", numOfForwards) + "|";
+				forAndroid += "F" + String.format("%02d", numOfForwards);
+			}
 
-			if (pointer != null)
-				toSend += pointer + "|";
+			if (pointer != null) {
+				forArduino += pointer + "|";
+				forAndroid += pointer;
+			}
 
 			pointer = navigateSteps.poll();
 
 		}
 
-		System.out.println(toSend);
+		System.out.println(forArduino);
 
-		if (this.isRealRun)
-			Main.comms.send(TCPComm.ARDUINO, toSend);
+		if (this.isRealRun) {
+			Main.comms.send(TCPComm.SERIAL, forArduino);
+			Main.comms.send(TCPComm.BLUETOOTH, forAndroid);
+		}
 	}
 
 	/**

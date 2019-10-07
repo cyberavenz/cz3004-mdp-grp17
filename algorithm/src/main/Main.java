@@ -20,8 +20,11 @@ public class Main {
 	public static GUI gui;
 	public static Exploration exploration;
 
-	private static Thread simExploration;
-	private static Thread realExploration;
+	public static Thread simExploration;
+	public static Thread standbyRealExploration;
+	public static Thread realExploration;
+	public static Thread standbyRealFastestPath;
+//	private static Thread realFastestPath;
 
 	/**
 	 * Main program
@@ -43,7 +46,14 @@ public class Main {
 			comms = new TCPComm();
 			gui.setModeColour(comms.isConnected());
 
+			try {
+				Thread.sleep(2000);		// Raspberry Pi needs time to get ready
+			} catch (Exception e) {
+			}
+
 			// TODO Start RealFlow thread
+			standbyRealExploration = new Thread(new StandbyRealExploration());
+			standbyRealExploration.start();
 		}
 
 		/* SIMULATION MODE */
@@ -59,7 +69,7 @@ public class Main {
 	 * Static function called by <tt>GUI</tt> when "Exploration (per step)" button is pressed.
 	 * 
 	 */
-	public static void btnSimExplorePerStep() {
+	public static void runSimExplorePerStep() {
 		exploredMap.simulatedReveal(robot, testMap);
 		gui.refreshGUI(robot, exploredMap);
 
@@ -81,7 +91,7 @@ public class Main {
 	 * <b>SIMULATION ONLY</b><br>
 	 * Start new <tt>SimExploration</tt> thread when "Explore all" button is pressed.
 	 */
-	public static void btnSimExploration() {
+	public static void runSimExploration() {
 		if (simExploration == null || !simExploration.isAlive()) {
 			simExploration = new Thread(new SimExploration());
 			simExploration.start();
@@ -94,18 +104,27 @@ public class Main {
 	 * <b>REAL RUN ONLY</b><br>
 	 * Start new <tt>RealExploration</tt> thread.
 	 */
-	public static void btnRealStartExploration() {
+	public static void runRealStartExploration() {
 		if (realExploration == null || !realExploration.isAlive()) {
 			realExploration = new Thread(new RealExploration());
 			realExploration.start();
 		}
 	}
 
-	public static void btnShowFastestPath() {
+	/**
+	 * Reveal Fastest Path on GUI (Will not send it to Robot)
+	 */
+	public static void runShowFastestPath() {
 		FastestPath fp = new FastestPath(exploredMap, new Coordinate(1, 1), new Coordinate(18, 13));
 		exploredMap.finalPathReveal(fp.runAStar());
 		gui.refreshGUI(robot, exploredMap);
-		
-		robot.sendFastestPath(fp.navigateSteps());
+	}
+
+	/**
+	 * <b>REAL RUN ONLY</b><br>
+	 * Start Fastest Path to Arduino and Android.
+	 */
+	public static void runRealStartFastestPath() {
+		// TODO
 	}
 }

@@ -182,8 +182,15 @@ public class GUI extends JFrame {
 						/* Don't paint on axis labelling */
 						if (actualY >= 0 && actualY < Map.maxY) {
 							if (actualX >= 0 && actualX < Map.maxX) {
-								paintVisited(this.getWidth(), map.getCell(new Coordinate(actualY, actualX)), g);
+								Cell currCell = map.getCell(new Coordinate(actualY, actualX));
+								paintVisited(this.getWidth(), currCell, g);
 								paintRobot(this.getWidth(), actualY, actualX, robot.getFootprint(), g);
+								
+								/* Show isPermanent flag */
+								if (currCell.isPermanentCellType())
+									this.setText("P");
+								else
+									this.setText("");
 							}
 						}
 					}
@@ -227,7 +234,7 @@ public class GUI extends JFrame {
 		JButton explorePerStep = new JButton("Exploration (per step)");
 		explorePerStep.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Main.btnSimExplorePerStep();
+				Main.runSimExplorePerStep();
 			}
 		});
 
@@ -235,7 +242,7 @@ public class GUI extends JFrame {
 		JButton exploreAll = new JButton("Explore all");
 		exploreAll.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Main.btnSimExploration();
+				Main.runSimExploration();
 			}
 		});
 
@@ -243,7 +250,7 @@ public class GUI extends JFrame {
 		JButton fastestPath = new JButton("Calculate A*Star Fastest Path");
 		fastestPath.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Main.btnShowFastestPath();
+				Main.runShowFastestPath();
 			}
 		});
 		
@@ -274,7 +281,7 @@ public class GUI extends JFrame {
 		JButton startRealExplore = new JButton("START EXPLORATION");
 		startRealExplore.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Main.btnRealStartExploration();
+				Main.runRealStartExploration();
 			}
 		});
 

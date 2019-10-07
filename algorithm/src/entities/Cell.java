@@ -69,6 +69,11 @@ public class Cell extends Coordinate {
 	 */
 	public void setVisited() {
 		this.isVisited = true;
+		
+		/* Cells that are visited should be permanent a path */
+		// For cases where sensor falsely detects a wall in a isVisited cell
+		this.cellType = PATH;
+		this.permanentCellType = true;
 	}
 
 	/**
