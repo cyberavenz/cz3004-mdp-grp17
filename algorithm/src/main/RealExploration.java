@@ -1,8 +1,6 @@
 package main;
 
 import communications.TCPComm;
-import entities.Map;
-import entities.Robot;
 
 public class RealExploration implements Runnable {
 
@@ -10,9 +8,9 @@ public class RealExploration implements Runnable {
 
 	@Override
 	public void run() {
-		System.out.println(Thread.currentThread().getName() + ": Started new RealExploration thread.");
+		System.out.println(":: " + getClass().getName() + " Thread Started ::");
 
-		Main.comms.send(TCPComm.SERIAL, "SXX");						// Request sensor reading
+		Main.comms.send(TCPComm.SERIAL, "SXX");							// Request sensor reading
 		String fromArduino = Main.comms.readFrom(TCPComm.SERIAL); 		// Wait for reading
 		Main.exploredMap.actualReveal(Main.robot, fromArduino);			// Read sensors and populate map
 		Main.gui.refreshGUI(Main.robot, Main.exploredMap);				// Show it on GUI
@@ -21,24 +19,21 @@ public class RealExploration implements Runnable {
 		try {
 			while (!done) {
 				/* Run exploration for one step */
-				done = Main.exploration.executeOneStep(Main.robot, Main.exploredMap);	// Send next movement
+				done = Main.explorer.executeOneStep(Main.robot, Main.exploredMap);	// Send next movement
+				Main.gui.refreshGUI(Main.robot, Main.exploredMap);					// Show it on GUI
 
-				Main.comms.send(TCPComm.BLUETOOTH, genMDFAndroid(Main.exploredMap, Main.robot));
-				Main.gui.refreshGUI(Main.robot, Main.exploredMap);						// Show it on GUI
-
-				Thread.sleep(700);														// Don't rush Arduino
+				Thread.sleep(700);													// Don't rush Arduino
 
 				System.out.println(
 						"Robot is at: " + Main.robot.getCurrPos().getY() + " " + Main.robot.getCurrPos().getX());
 				Main.comms.send(TCPComm.SERIAL, "SXX");								// Request sensor reading
 				fromArduino = Main.comms.readFrom(TCPComm.SERIAL); 					// Wait for reading
-				Main.exploredMap.actualReveal(Main.robot, fromArduino);					// Populate map
+				
+				Main.exploredMap.actualReveal(Main.robot, fromArduino);				// Reveal sensor readings on map
 
-				Main.comms.send(TCPComm.BLUETOOTH, genMDFAndroid(Main.exploredMap, Main.robot));
-				Main.gui.refreshGUI(Main.robot, Main.exploredMap);						// Show it on GUI
+				Main.gui.refreshGUI(Main.robot, Main.exploredMap);					// Show it on GUI
 
-				Thread.sleep(100);														// So your eyes can see the
-																							// change
+				Thread.sleep(100);													// So your eyes can see the change
 
 				System.out.println("============= END STEP =============\n");
 			}
@@ -47,19 +42,6 @@ public class RealExploration implements Runnable {
 			// EXPLORATION MUST RUN TO THE END.
 		}
 
-		/* Start StandbyFastestPath Runnable */
-		Thread standby = new Thread(new StandbyRealFastestPath());
-		standby.start();
-
-		System.out.println(Thread.currentThread().getName() + ": RealExploration thread ended.");
-	}
-
-	public static String genMDFAndroid(Map map, Robot robot) {
-		String toReturn = new String();
-
-		toReturn = "MDF" + "|" + map.getP1Descriptors() + "|" + map.getP2Descriptors() + "|" + robot.getCurrDir() + "|"
-				+ (19 - robot.getCurrPos().getY()) + "|" + robot.getCurrPos().getX() + "|" + "0";
-
-		return toReturn;
+		System.out.println(":: " + getClass().getName() + " Thread Ended ::\n");
 	}
 }

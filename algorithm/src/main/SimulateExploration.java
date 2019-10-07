@@ -12,14 +12,14 @@ public class SimulateExploration implements Runnable {
 	private Map exploredMap, testMap;
 	private Exploration explorer;
 
-	public SimulateExploration(GUI gui, Map testMap) {
-		this.gui = gui;
-		this.testMap = testMap;
-		
+	public SimulateExploration() {
+		this.gui = Main.gui;
+		this.testMap = Main.testMap;
+
 		// Reset all objects to a clean state
-		robot = new Robot(false);
-		exploredMap = new Map("unknown.txt");
-		explorer = new Exploration(exploredMap);
+		robot = Main.robot;
+		exploredMap = Main.exploredMap;
+		explorer = Main.explorer;
 	}
 
 	@Override
@@ -29,9 +29,11 @@ public class SimulateExploration implements Runnable {
 		while (!Thread.currentThread().isInterrupted()) {
 			try {
 				exploredMap.simulatedReveal(robot, testMap);
-				
+				gui.refreshGUI(robot, exploredMap);
+
 				// Run exploration for one step
 				boolean done = explorer.executeOneStep(robot, exploredMap);
+
 				exploredMap.simulatedReveal(robot, testMap);
 				gui.refreshGUI(robot, exploredMap);
 

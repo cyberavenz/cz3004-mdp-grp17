@@ -11,20 +11,25 @@ import gui.GUI;
 
 public class Main {
 
-	public static boolean isRealRun = false;				// RealRun or Simulation mode?
-	public static Map testMap;								// testMap (only used in simulation mode)
-	public static Map exploredMap = new Map("unknown.txt");	// Set exploredMap (starts from an unknown state)
-	public static Robot robot = new Robot(isRealRun);		// Default starting position of robot
+	/** Set Mode here **/
+	public static boolean isRealRun = false;
 
-	public static TCPComm comms;
+	/* Shared Variables */
+	public static Robot robot;
+	public static Map exploredMap;
 	public static GUI gui;
-	public static Exploration exploration;
+	public static Exploration explorer;
+	public static FastestPath fp;
 
-	public static Thread simExploration;
-	public static Thread standbyRealExploration;
-	public static Thread realExploration;
-	public static Thread standbyRealFastestPath;
-//	private static Thread realFastestPath;
+	/* Simulation Only Variables */
+	public static Map testMap;
+	public static Thread tSimExplore;
+
+	/* Real Run Only Variables */
+	public static TCPComm comms;
+	public static Thread tStandbyRealExplore;
+	public static Thread tRealExplore;
+	public static Thread tStandbyRealFastestPath;
 
 	/**
 	 * Main program
@@ -32,18 +37,21 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		/* 1. Initialise GUI */
+		/* 1. Initialise Variables */
+		robot = new Robot(isRealRun);			// Default starting position of robot (1,1 facing East)
+		exploredMap = new Map("unknown.txt");	// Set exploredMap (starts from an unknown state)
+
+		/* 2. Initialise GUI */
 		gui = new GUI(robot, exploredMap);
-		gui.setVisible(true);
 
-		/* 2. Initialise algorithms */
-		exploration = new Exploration(exploredMap);		// Exploration algorithm
+		/* 3. Initialise algorithms */
+		explorer = new Exploration(exploredMap);	// Exploration algorithm
 
-		/* 3. Check if real run? */
-		// REAL RUN MODE
+		/* 4. Check if current mode */
+		/* ======================== REAL RUN MODE ======================== */
 		if (isRealRun) {
 			gui.setModeColour(false);
-			comms = new TCPComm();
+			comms = new TCPComm();		// Initialise TCP Communication (Will wait...)
 			gui.setModeColour(comms.isConnected());
 
 			try {
@@ -51,15 +59,44 @@ public class Main {
 			} catch (Exception e) {
 			}
 
-			// TODO Start RealFlow thread
-			standbyRealExploration = new Thread(new StandbyRealExploration());
-			standbyRealExploration.start();
+			/** 1. Wait for Android to send STARTE **/
+			tStandbyRealExplore = new Thread(new StandbyRealExploration());
+			tStandbyRealExplore.start();
+
+			try {
+				tStandbyRealExplore.join();	// Wait until above thread ends...
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			/** 2. RUNNING REAL EXPLORATION **/
+			tRealExplore = new Thread(new RealExploration());
+			tRealExplore.start();
+
+			try {
+				tRealExplore.join();	// Wait until above thread ends...
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			/** 3. RUNNING STANDBY FASTEST PATH and wait for Android to send STARTF... **/
+			tStandbyRealFastestPath = new Thread(new StandbyRealFastestPath());
+			tStandbyRealFastestPath.start();
+
+			try {
+				tStandbyRealFastestPath.join();	// Wait until above thread ends...
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			/** 4. SEND STRING TO SERIAL AND BLUETOOTH **/
+			comms.sendFastestPath(fp.navigateSteps());
 		}
 
-		/* SIMULATION MODE */
+		/* ======================== SIMULATION MODE ======================== */
 		else {
 			// Load testMap
-			testMap = new Map("prevSemWeek9.txt");	// Set simulatedMap for use (if simulation)
+			testMap = new Map("prevSemWeek9.txt");	// Set simulatedMap for use
 			gui.refreshGUI(robot, testMap); 		// Display testMap first if simulation mode
 		}
 	}
@@ -74,7 +111,7 @@ public class Main {
 		gui.refreshGUI(robot, exploredMap);
 
 		/* Run exploration for one step */
-		boolean done = exploration.executeOneStep(robot, exploredMap);
+		boolean done = explorer.executeOneStep(robot, exploredMap);
 
 		exploredMap.simulatedReveal(robot, testMap);
 		gui.refreshGUI(robot, exploredMap);
@@ -83,48 +120,43 @@ public class Main {
 			// Reset all objects to a clean state
 			robot = new Robot(isRealRun);
 			exploredMap = new Map("unknown.txt");
-			exploration = new Exploration(exploredMap);
+			explorer = new Exploration(exploredMap);
+			gui.refreshGUI(robot, exploredMap);
 		}
 	}
 
 	/**
 	 * <b>SIMULATION ONLY</b><br>
-	 * Start new <tt>SimExploration</tt> thread when "Explore all" button is pressed.
+	 * Start new <tt>SimulateExploration</tt> thread when "Explore all" button is pressed.
 	 */
-	public static void runSimExploration() {
-		if (simExploration == null || !simExploration.isAlive()) {
-			simExploration = new Thread(new SimExploration());
-			simExploration.start();
+	public static void runSimExploreAll() {
+		if (tSimExplore == null || !tSimExplore.isAlive()) {
+			tSimExplore = new Thread(new SimulateExploration());
+			tSimExplore.start();
 		} else {
-			simExploration.interrupt();
+			tSimExplore.interrupt();
 		}
 	}
 
 	/**
-	 * <b>REAL RUN ONLY</b><br>
-	 * Start new <tt>RealExploration</tt> thread.
-	 */
-	public static void runRealStartExploration() {
-		if (realExploration == null || !realExploration.isAlive()) {
-			realExploration = new Thread(new RealExploration());
-			realExploration.start();
-		}
-	}
-
-	/**
-	 * Reveal Fastest Path on GUI (Will not send it to Robot)
+	 * <b>SIMULATION ONLY</b><br>
+	 * Reveal Fastest Path on GUI. Run Exploration first.
 	 */
 	public static void runShowFastestPath() {
-		FastestPath fp = new FastestPath(exploredMap, new Coordinate(1, 1), new Coordinate(18, 13));
+		fp = new FastestPath(exploredMap, new Coordinate(1, 1), new Coordinate(18, 13));
 		exploredMap.finalPathReveal(fp.runAStar());
 		gui.refreshGUI(robot, exploredMap);
 	}
 
-	/**
-	 * <b>REAL RUN ONLY</b><br>
-	 * Start Fastest Path to Arduino and Android.
-	 */
-	public static void runRealStartFastestPath() {
-		// TODO
-	}
+//	/**
+//	 * <b>REAL RUN ONLY</b><br>
+//	 * Start new <tt>RealExploration</tt> thread.
+//	 */
+//	public static void runRealStartExploration() {
+//		if (realExploration == null || !realExploration.isAlive()) {
+//			realExploration = new Thread(new RealExploration());
+//			realExploration.start();
+//		}
+//	}
+
 }

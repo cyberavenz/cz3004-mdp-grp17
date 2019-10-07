@@ -11,11 +11,11 @@ import entities.Robot.Rotate;
 
 public class StandbyRealFastestPath implements Runnable {
 
-	private FastestPath fp;
+	private FastestPath fp = Main.fp;
 
 	/**
-	 * Standby <tt>Robot</tt> for the Fastest Path run. Assumes <tt>Robot</tt> is at start position (1, 1) facing
-	 * South.<br>
+	 * Standby <tt>Robot</tt> for the Fastest Path run. Assumes <tt>Robot</tt> is at start position (1,
+	 * 1) facing South.<br>
 	 * <ol>
 	 * <li>Run calibration</li>
 	 * <li>Rotate to direction of fastest path</li>
@@ -23,7 +23,7 @@ public class StandbyRealFastestPath implements Runnable {
 	 */
 	@Override
 	public void run() {
-		System.out.println(Thread.currentThread().getName() + ": Started new StandbyFastestPath thread.");
+		System.out.println(":: " + getClass().getName() + " Thread Started ::");
 
 		this.fp = new FastestPath(Main.exploredMap, new Coordinate(1, 1), new Coordinate(18, 13));
 		ArrayList<Node> finalPath = fp.runAStar();
@@ -39,29 +39,29 @@ public class StandbyRealFastestPath implements Runnable {
 				Main.comms.send(TCPComm.SERIAL, "C");		// Calibrate
 				Thread.sleep(2000);
 				Main.robot.rotate(Rotate.RIGHT);
+				Main.gui.refreshGUI(Main.robot, Main.exploredMap);
 				Thread.sleep(2000);
 				Main.robot.rotate(Rotate.RIGHT);
+				Main.gui.refreshGUI(Main.robot, Main.exploredMap);
 				Thread.sleep(2000);
 			}
-
 			// Fastest Path goes East
 			else {
-				Main.comms.send(TCPComm.BLUETOOTH, "C");		// Calibrate
+				Main.comms.send(TCPComm.BLUETOOTH, "C");	// Calibrate
 				Thread.sleep(2000);
 				Main.robot.rotate(Rotate.LEFT);
+				Main.gui.refreshGUI(Main.robot, Main.exploredMap);
 				Thread.sleep(2000);
 			}
-
-			/* Wait for Android to send START EXPLORATION command */
-			while (Main.comms.readFrom(TCPComm.BLUETOOTH) == "STARTF") {
-				if (!Thread.currentThread().isInterrupted())
-					break;
-			}
-
-			Main.robot.sendFastestPath(fp.navigateSteps());		// Sends to Arduino and Android
-
-			System.out.println(Thread.currentThread().getName() + ": StandbyFastestPath thread ended.");
 		} catch (Exception e) {
 		}
+
+		System.out.println("Waiting for Bluetooth to send STARTF...");
+
+		/* STRICTLY Wait for Android to send START EXPLORATION command */
+		while (Main.comms.readFrom(TCPComm.BLUETOOTH) == "STARTF")
+			;
+
+		System.out.println(":: " + getClass().getName() + " Thread Ended ::\n");
 	}
 }
