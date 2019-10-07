@@ -79,18 +79,22 @@ void loop() {
 //      Serial.print(" C: ");
 //      Serial.print(C);
       switch(com.command){
+        
         case 'S': sendSensors(); break;
-        case 'F': moveForward(com.value.toInt(),RUN_SPEED,RUN_SPEED); break;
+        case 'F': moveForward(com.value.toInt()); break;
         case 'L': rotateL(com.value.toInt()); break;
         case 'R': rotateR(com.value.toInt()); break;
         case 'C': checkAlignmentOne(); break;
         case 'V': checkAlignmentTwo(1); break;
         case 'B': checkAlignmentTwo(2); break;
-        case 'E': 
-          Serial.println(getDistance(sensorRead(60, BL), BL, 0)); 
-          
-          
-          break;
+//        case 'E': 
+//          Serial.println(getDistance(sensorRead(60, FL), FL, 0)); 
+//          Serial.println(getDistance(sensorRead(60, FC), FC, 0)); 
+//          Serial.println(getDistance(sensorRead(60, FR), FR, 0)); 
+//          Serial.println(getDistance(sensorRead(60, R), R, 0)); 
+//          Serial.println(getDistance(sensorRead(60, BS), BS, 0)); 
+//          Serial.println(getDistance(sensorRead(60, BL), BL, 0)); 
+//          break;
         default: inputCommand = "";        
         delay(100); 
       }
@@ -136,13 +140,43 @@ int pidControlTurn(int left_encoder_val, int right_encoder_val){
 //=========================End of Turn PID======================================
 
 //=========================Move Forward Codes===================================
-void moveForward(int distance,int left_speed,int right_speed){
+void moveForward(int distance) {
+      int left_speed;
+      int right_speed;
       int output;
-      float actual_distance = (distance*278);
+      int distanceMulitplier;
+      int offset;
+      if (distance == 1) {
+        left_speed = RUN_SPEED;
+        right_speed = RUN_SPEED;
+      }
+      else {
+        left_speed = MAX_SPEED;
+        right_speed = MAX_SPEED;
+      }
+      if (distance == 1) {
+        distanceMulitplier = 278; //1 grid
+        offset = 20;
+      }
+      else if (distance <= 8) {
+        distanceMulitplier = 302;
+        offset = 19
+        .;
+      }
+      else if (distance <= 12) {
+        distanceMulitplier = 300;
+        offset = 21;  
+      }
+      else if (distance <=   17) {
+        distanceMulitplier = 299;
+        offset = 24;  
+      }
+        
+      float actual_distance = (distance*distanceMulitplier);
       //- (30*distance); //323 is the tick required to move 10 cm
       while(right_encoder_val < actual_distance) {
               output = pidControlForward(left_encoder_val, right_encoder_val);
-              md.setSpeeds(left_speed+output,right_speed-output-20);
+              md.setSpeeds(left_speed+output,right_speed-output-offset);
       }
       md.setBrakes(375, 400);
       forwardCount++;
@@ -175,7 +209,7 @@ void moveForward(int distance,int left_speed,int right_speed){
 //      Serial.println(rotateLeft);
 //      Serial.println("");
 
-      if ((forwardCount == 3 && rightWall[0] && rightWall[1] && !rightWall[2] && rotateRight) || (forwardCount == 2 && rightWall[0] && rightWall[1] && !rightWall[2] && rotateLeft) || (forwardCount == 3 && rightWall[0] && rightWall[2])) {
+      if (forwardCount == 3 && rightWall[0] && rightWall[1] && !rightWall[2] && rotateRight) {
         rotateR(90);
         delay(70);
         rotateL(90);
@@ -184,12 +218,30 @@ void moveForward(int distance,int left_speed,int right_speed){
         for (byte i = 0; i < 3; i = i + 1) {
           rightWall[i] = false;
         }
-        if (rotateRight) {
-          rotateRight = false;
+        rotateRight = false;
+   
+      }
+      if (forwardCount == 2 && rightWall[0] && rightWall[1] && !rightWall[2] && rotateLeft) {
+        rotateR(90);
+        delay(70);
+        rotateL(90);
+        delay(20);
+        forwardCount = 0;
+        for (byte i = 0; i < 3; i = i + 1) {
+          rightWall[i] = false;
         }
-        if (rotateLeft) {
-          rotateLeft = false;
-        }
+        rotateLeft = false;
+      
+      }
+      if (forwardCount == 3 && rightWall[0] && rightWall[2]) {
+        rotateR(90);
+        delay(70);
+        rotateL(90);
+        delay(20);
+        forwardCount = 0;
+        for (byte i = 0; i < 3; i = i + 1) {
+          rightWall[i] = false;
+        }        
       }
 
       //When Front Left and Front Right has wall
@@ -199,8 +251,19 @@ void moveForward(int distance,int left_speed,int right_speed){
         checkAlignmentTwo(1);
         return;
       }
+      
+//  fl = getDistanceinGrids(getDistance(sensorRead(40, FL), FL, 0), FL);
+//  fc = getDistanceinGrids(getDistance(sensorRead(40, FC), FC, 0), FC);
+//  fr = getDistanceinGrids(getDistance(sensorRead(40, FR), FR, 0), FR);
+//  
+//  Serial.print("L: ");
+//  Serial.print(fl);
+//  Serial.print(" C: ");
+//  Serial.print(fc);
+//  Serial.print(" R: ");
+//  Serial.println(fr);
+//  delay(1000);
 }
-//=========================End of Move Forward Codes============================
 
 //=========================Rotate Right Codes===================================
 void rotateR(int degree){
@@ -208,7 +271,7 @@ void rotateR(int degree){
       float dis = degree / 90.0;
       int left_speed = 222;
       int right_speed = 200;
-      float actual_distance = (dis*402) - (5*dis); //380
+      float actual_distance = (dis*395) - (5*dis); //380
       while (right_encoder_val < actual_distance){
         output = pidControlForward(left_encoder_val, right_encoder_val);
         md.setSpeeds(left_speed+output,-right_speed+output);
@@ -248,7 +311,7 @@ void rotateL(int degree){
       float dis = degree / 90.0;
       int left_speed = 220;
       int right_speed = 190;
-      float actual_distance = (dis*410)-(10*dis);
+      float actual_distance = (dis*413)-(10*dis);
       while(left_encoder_val < actual_distance){
           output = pidControlTurn(left_encoder_val, right_encoder_val);
           md.setSpeeds(-(left_speed+output),right_speed-output);
@@ -571,58 +634,56 @@ int getDistanceinGrids(int reading, int sensor){
   int grid;
   switch(sensor){
     case FL: 
-      if(reading >= 21){
-        grid = 2;
-      }else if(reading >= 11){
-        grid = 1;
-      }else if(reading <= 6){
+      if(reading <= 7){
         grid = 0;
+      }else if(reading <= 17){
+        grid = 1;
+      }else if(reading > 17){
+        grid = 2;
       } 
       break;
     case FC: 
-      if(reading >= 13){
-        grid = 2;
-      }else if(reading >= 9){
-        grid = 1;
-      }else if(reading <= 5){
+      if(reading <= 8){
         grid = 0;
+      }else if(reading <= 16){
+        grid = 1;
+      }else if(reading > 16){
+        grid = 2;
       }
       break;
     case FR: 
-      if(reading >= 19){
-        grid = 2;
-      }else if(reading >= 10){
-        grid = 1;
-      }else if(reading <= 5){
+      if(reading <= 7){
         grid = 0;
+      }else if(reading <= 16){
+        grid = 1;
+      }else if(reading > 16){
+        grid = 2;
       } break;
     case  R: 
-      if(reading >= 17){
-        grid = 2;
-      }else if(reading >= 8){
-        grid = 1;
-      }else if(reading <= 2){
+      if(reading <= 4){
         grid = 0;
+      }else if(reading <= 14){
+        grid = 1;
+      }else if(reading > 14){
+        grid = 2;
       } break;
     case BS: 
-      if(reading >= 14){
-        grid = 2;
-      }else if(reading >= 8){
-        grid = 1;
-      }else if(reading <= 2){
+      if(reading <= 5){
         grid = 0;
+      }else if(reading <= 14){
+        grid = 1;
+      }else if(reading > 14){
+        grid = 2;
       } break;
-    case BL:  
-      if (reading >= 54 ){
-        grid = 5;
-      }else if(reading >= 45){
-        grid = 4;
-      }else if(reading >= 35){
+    case BL:
+      if(reading <= 23){
+        grid = 2;
+      }else if(reading <= 33){
         grid = 3;
-      }else if(reading >= 25){
-        grid = 2;
-      }else if(reading < 25){
-        grid = 2;
+      }else if(reading <= 40){ 
+        grid = 4;
+      }else if(reading > 40) {
+        grid = 5;
       } break;
     default: return -1;
   }
