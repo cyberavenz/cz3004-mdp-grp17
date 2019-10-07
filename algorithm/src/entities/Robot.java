@@ -1,7 +1,5 @@
 package entities;
 
-import java.util.LinkedList;
-
 import communications.TCPComm;
 import main.Main;
 
@@ -234,45 +232,6 @@ public class Robot {
 				Main.comms.send(TCPComm.SERIAL, "L90");
 			break;
 		default: // Do nothing
-		}
-	}
-
-	public void sendFastestPath(LinkedList<String> navigateSteps) {
-		if (navigateSteps.isEmpty()) {
-			System.err.println("Unable to send Fastest Path as it does not exist. Call runAStar() again.");
-			return;
-		}
-
-		String pointer = navigateSteps.poll();
-		String forArduino = "";
-		String forAndroid = "";
-
-		while (pointer != null) {
-
-			int numOfForwards = 0;
-			while (pointer == "F01") {
-				numOfForwards++;
-				pointer = navigateSteps.poll();
-			}
-			if (numOfForwards > 0) {
-				forArduino += "F" + String.format("%02d", numOfForwards) + "|";
-				forAndroid += "F" + String.format("%02d", numOfForwards);
-			}
-
-			if (pointer != null) {
-				forArduino += pointer + "|";
-				forAndroid += pointer;
-			}
-
-			pointer = navigateSteps.poll();
-
-		}
-
-		System.out.println(forArduino);
-
-		if (this.isRealRun) {
-			Main.comms.send(TCPComm.SERIAL, forArduino);
-			Main.comms.send(TCPComm.BLUETOOTH, forAndroid);
 		}
 	}
 
