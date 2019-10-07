@@ -2,22 +2,21 @@ package main;
 
 import communications.TCPComm;
 
-public class RealFlow implements Runnable {
+public class StandbyRealExploration implements Runnable {
 
 	@Override
 	public void run() {
 		System.out.println(Thread.currentThread().getName() + ": Started new RealMain thread.");
 
-		Main.comms.send(TCPComm.ANDROID, RealExploration.genMDFAndroid(Main.exploredMap, Main.robot));
-		Main.comms.send(TCPComm.ARDUINO, "R90|L90");	// Calibrate first
+		Main.comms.send(TCPComm.BLUETOOTH, RealExploration.genMDFAndroid(Main.exploredMap, Main.robot));
+		Main.comms.send(TCPComm.SERIAL, "R90|L90");	// Calibrate first
 
-		while (!Thread.currentThread().isInterrupted()) {
+		/* Wait for Android to send START EXPLORATION command */
+		while (Main.comms.readFrom(TCPComm.BLUETOOTH) == "STARTE")
+			;
 
-			/* Wait for Android to send START EXPLORATION command */
-			while (Main.comms.readFrom(TCPComm.ANDROID) == "STARTE")
-				;
-			Main.btnRealStartExploration();
-		}
+		/* Start Real Exploration */
+		Main.runRealStartExploration();
 
 		System.out.println(Thread.currentThread().getName() + ": RealMain thread ended.");
 	}
