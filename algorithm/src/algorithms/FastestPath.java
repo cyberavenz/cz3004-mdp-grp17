@@ -70,6 +70,10 @@ public class FastestPath {
 	}
 
 	public ArrayList<Node> runAStar() {
+		if (!this.finalPath.isEmpty()) {
+			return this.finalPath;
+		}
+		
 		PriorityQueue<Node> orderedFrontier = new PriorityQueue<Node>();	// Frontier that is sorted
 		HashMap<Node, Node> childParent = new HashMap<Node, Node>();		// Child, Parent (Current, Previous)
 
