@@ -40,6 +40,8 @@ public class GUI extends JFrame {
 
 		// Initialise overall layout
 		initLayout();
+
+		this.setVisible(true);
 	}
 
 	/**
@@ -52,13 +54,6 @@ public class GUI extends JFrame {
 		this.robot = robot;
 		this.map = map;
 
-		for (int y = Map.maxY - 1; y >= 0; y--) {
-			for (int x = 0; x < Map.maxX; x++) {
-				// Note: cellsUI[][] uses actualY and actualX and does not include axis labelling
-				Cell cell = map.getCell(new Coordinate(y, x));
-				cellsUI[y][x].setBackground(cellColour(cell));
-			}
-		}
 		mapPanel.repaint();	// Repaint mapPanel to show updated Robot position
 	}
 
@@ -183,14 +178,12 @@ public class GUI extends JFrame {
 						if (actualY >= 0 && actualY < Map.maxY) {
 							if (actualX >= 0 && actualX < Map.maxX) {
 								Cell currCell = map.getCell(new Coordinate(actualY, actualX));
+
 								paintVisited(this.getWidth(), currCell, g);
 								paintRobot(this.getWidth(), actualY, actualX, robot.getFootprint(), g);
-								
-								/* Show isPermanent flag */
-								if (currCell.isPermanentCellType())
-									this.setText("P");
-								else
-									this.setText("");
+
+								setCellBG(currCell, this);
+								labelPermanentFlag(currCell, this);
 							}
 						}
 					}
@@ -234,7 +227,8 @@ public class GUI extends JFrame {
 		JButton explorePerStep = new JButton("Exploration (per step)");
 		explorePerStep.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Main.runSimExplorePerStep();
+//				Main.runSimExplorePerStep();
+
 			}
 		});
 
@@ -253,14 +247,14 @@ public class GUI extends JFrame {
 				Main.runShowFastestPath();
 			}
 		});
-		
+
 		/* Standby for Fastest Path */
 		JButton standbyFastestPath = new JButton("Standby for Fastest Path");
 		standbyFastestPath.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			}
 		});
-		
+
 		/* Start Fastest Path */
 		JButton startRealFastestPath = new JButton("Start Fastest Path");
 		startRealFastestPath.addActionListener(new ActionListener() {
@@ -302,29 +296,6 @@ public class GUI extends JFrame {
 		/* About Map */
 		ctrlPanel.add(new JLabel("=== About Map ===", JLabel.CENTER));
 		ctrlPanel.add(printDescriptors);
-	}
-
-	/**
-	 * Cell colour rule based on <tt>cellType</tt>.
-	 * 
-	 * @param cell
-	 * @return
-	 */
-	private Color cellColour(Cell cell) {
-		switch (cell.getCellType()) {
-		case Cell.FINAL_PATH:	// Prioritise showing FINAL_PATH
-			return Color.BLUE;
-		case Cell.START:
-			return Color.YELLOW;
-		case Cell.GOAL:
-			return Color.GREEN;
-		case Cell.WALL:
-			return Color.BLACK;
-		case Cell.PATH:
-			return Color.WHITE;
-		default:				// Unknown cells
-			return Color.GRAY;
-		}
 	}
 
 	/**
@@ -418,5 +389,52 @@ public class GUI extends JFrame {
 			g.setColor(Color.LIGHT_GRAY);
 			g.fillRect(width / 4, width / 4, (int) (width * 1.5), (int) (width * 1.5));
 		}
+	}
+
+	/**
+	 * Set background colour of cell.
+	 * 
+	 * @param currCell
+	 * @param jl
+	 */
+	private void setCellBG(Cell currCell, JLabel jl) {
+		jl.setBackground(cellColour(currCell));
+	}
+
+	/**
+	 * Cell colour rule based on <tt>cellType</tt>.
+	 * 
+	 * @param cell
+	 * @return
+	 */
+	private Color cellColour(Cell cell) {
+		switch (cell.getCellType()) {
+		case Cell.FINAL_PATH:	// Prioritise showing FINAL_PATH
+			return Color.BLUE;
+		case Cell.START:
+			return Color.YELLOW;
+		case Cell.GOAL:
+			return Color.GREEN;
+		case Cell.WALL:
+			return Color.BLACK;
+		case Cell.PATH:
+			return Color.WHITE;
+		default:				// Unknown cells
+			return Color.GRAY;
+		}
+	}
+
+	/**
+	 * Label permanent flag as "P" on GUI.
+	 * 
+	 * @param currCell
+	 * @param jl
+	 */
+	private void labelPermanentFlag(Cell currCell, JLabel jl) {
+		/* Show isPermanent flag */
+		if (currCell.isPermanentCellType())
+			jl.setText("P");
+		else
+			jl.setText("");
 	}
 }
