@@ -148,15 +148,4 @@ public class Main {
 		gui.refreshGUI(robot, exploredMap);
 	}
 
-//	/**
-//	 * <b>REAL RUN ONLY</b><br>
-//	 * Start new <tt>RealExploration</tt> thread.
-//	 */
-//	public static void runRealStartExploration() {
-//		if (realExploration == null || !realExploration.isAlive()) {
-//			realExploration = new Thread(new RealExploration());
-//			realExploration.start();
-//		}
-//	}
-
 }
