@@ -171,21 +171,36 @@ void moveForward(int distance,int left_speed,int right_speed){
 //      Serial.println(rotateLeft);
 //      Serial.println("");
 
-      if ((forwardCount == 3 && rightWall[0] && rightWall[1] && !rightWall[2] && rotateRight) || (forwardCount == 2 && rightWall[0] && rightWall[1] && !rightWall[2] && rotateLeft) || (forwardCount == 3 && rightWall[0] && rightWall[2])) {
+      if (forwardCount == 2 && rightWall[0] && rightWall[1] && !rightWall[2] && rotateLeft) {
         rotateR(90);
-        delay(70);
+        delay(50);
         rotateL(90);
-        delay(20);
+        delay(50);
         forwardCount = 0;
         for (byte i = 0; i < 3; i = i + 1) {
           rightWall[i] = false;
         }
-        if (rotateRight) {
-          rotateRight = false;
-        }
-        if (rotateLeft) {
-          rotateLeft = false;
-        }
+      }
+      
+      if (forwardCount == 3 && rightWall[0] && rightWall[1] && !rightWall[2] && rotateRight) {
+        rotateR(90);
+        delay(50);
+        rotateL(90);
+        delay(50);
+        forwardCount = 0;
+        for (byte i = 0; i < 3; i = i + 1) {
+          rightWall[i] = false;
+        }       
+      }
+      if (forwardCount == 3 && rightWall[0] && rightWall[2]) {
+        rotateR(90);
+        delay(50);
+        rotateL(90);
+        delay(50);
+        forwardCount = 0;
+        for (byte i = 0; i < 3; i = i + 1) {
+          rightWall[i] = false;
+        }       
       }
 
       //When Front Left and Front Right has wall
@@ -224,11 +239,6 @@ void rotateR(int degree){
         return;
       }
       
-      forwardCount = 0;
-      for (byte i = 0; i < 3; i = i + 1) {
-        rightWall[i] = false;
-      }
-      
       rotateRight = true;
       rotateLeft = false;
       if (fr == 0 && fc == 0) {
@@ -253,9 +263,9 @@ void rotateL(int degree){
       delay(20);
       left_encoder_val = 0;
       right_encoder_val = 0;
-      int fl = getDistanceinGrids(getDistance(sensorRead(20, FL), FL, 0), FL);
+      int fl = getDistanceinGrids(getDistance(sensorRead(40, FL), FL, 0), FL);
       int fc = getDistanceinGrids(getDistance(sensorRead(40, FC), FC, 0), FC);
-      int fr = getDistanceinGrids(getDistance(sensorRead(20, FR), FR, 0), FR);
+      int fr = getDistanceinGrids(getDistance(sensorRead(40, FR), FR, 0), FR);
       
       if (fl == 0 && fr == 0) {
         checkAlignmentOne();
@@ -263,12 +273,7 @@ void rotateL(int degree){
         checkAlignmentTwo(1);
         return;
       }
-      
-      forwardCount = 0;
-      for (byte i = 0; i < 3; i = i + 1) {
-        rightWall[i] = false;
-      }
-      
+           
       rotateLeft = true;
       rotateRight = false;
       if (fr == 0 && fc == 0) {
