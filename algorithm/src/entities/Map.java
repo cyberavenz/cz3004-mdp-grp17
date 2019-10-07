@@ -250,6 +250,11 @@ public class Map {
 							break;	// Unable to see past any wall, BREAK!
 						} else {
 							this.getCell(coordinates[j]).setCellType(Cell.PATH);
+
+							// Trust only Sensor 0 and 2
+							if (i == 0 || i == 2) {
+								this.getCell(coordinates[j]).setPermanentCellType(true);
+							}
 						}
 					}
 
@@ -262,6 +267,11 @@ public class Map {
 				else if (arduinoSensorValues[i] == coordinates.length) {
 					for (int j = 0; j < coordinates.length; j++) {
 						this.getCell(coordinates[j]).setCellType(Cell.PATH);
+
+						// Trust only Sensor 0 and 2
+						if (i == 0 || i == 2) {
+							this.getCell(coordinates[j]).setPermanentCellType(true);
+						}
 					}
 
 					/*

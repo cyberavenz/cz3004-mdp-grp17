@@ -10,7 +10,7 @@ import main.Main;
 public class TCPComm {
 	public static final String SERVER_IP = "192.168.17.17";	// Rasp Pi: 192.168.17.17
 	public static final int PORT = 4042;
-	public static final char ANDROID = 'b', ARDUINO = 's', RASP_PI = 'r';
+	public static final char BLUETOOTH = 'b', SERIAL = 's', RASP_PI = 'r';
 
 	private Socket clientSocket;
 	private DataOutputStream outgoingStream;
@@ -27,13 +27,9 @@ public class TCPComm {
 
 			outgoingStream = new DataOutputStream(clientSocket.getOutputStream());
 			incomingStream = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-			Thread.sleep(2000);		// Raspberry Pi needs to get ready
 		} catch (IOException e) {
 			System.err.format("TCP Connection IOException: %s%n", e);
 			Main.gui.setModeColour(false);
-		} catch (InterruptedException e) {
-			
 		}
 	}
 
@@ -76,15 +72,14 @@ public class TCPComm {
 	}
 
 	/**
-	 * Read incoming stream from a specific device. Any messages from a non-specified device will be
-	 * discarded.
+	 * Read incoming stream from a specific device. Any messages from a non-specified device will be discarded.
 	 * 
 	 * @param device
 	 * @return
 	 */
 	public String readFrom(char device) {
 		while (true) {
-			System.out.println("TCP: Waiting for message...");
+			System.out.println("TCP: Waiting for message from " + device + "...");
 			String toReturn = read();
 
 			if (toReturn != null && toReturn.charAt(0) == device)
