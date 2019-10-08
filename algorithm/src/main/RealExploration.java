@@ -42,6 +42,7 @@ public class RealExploration implements Runnable {
 			// EXPLORATION MUST RUN TO THE END.
 		}
 
+		Main.comms.send(TCPComm.BLUETOOTH, "STOP");
 		System.out.println(":: " + getClass().getName() + " Thread Ended ::\n");
 	}
 }
