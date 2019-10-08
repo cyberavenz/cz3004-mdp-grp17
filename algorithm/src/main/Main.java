@@ -27,6 +27,7 @@ public class Main {
 
 	/* Real Run Only Variables */
 	public static TCPComm comms;
+	public static Thread tStandbyWaypoint;
 	public static Thread tStandbyRealExplore;
 	public static Thread tRealExplore;
 	public static Thread tStandbyRealFastestPath;
@@ -58,8 +59,16 @@ public class Main {
 				Thread.sleep(2000);		// Raspberry Pi needs time to get ready
 			} catch (Exception e) {
 			}
+			
+			/** R0. Preparation: Calibrate Robot and update GUI **/
+			comms.send(TCPComm.SERIAL, "R90|L90");	// Turn South to calibrate first, then turn East
+			gui.refreshGUI(Main.robot, Main.exploredMap);
+			
+			/** R1. Wait for Bluetooth to send WAYPOINT **/
+			tStandbyWaypoint = new Thread();
+			
 
-			/** 1. Wait for Android to send STARTE **/
+			/** R2. Wait for Bluetooth to send STARTE **/
 			tStandbyRealExplore = new Thread(new StandbyRealExploration());
 			tStandbyRealExplore.start();
 
@@ -69,7 +78,7 @@ public class Main {
 				e.printStackTrace();
 			}
 
-			/** 2. RUNNING REAL EXPLORATION **/
+			/** R3. RUNNING REAL EXPLORATION **/
 			tRealExplore = new Thread(new RealExploration());
 			tRealExplore.start();
 
@@ -79,7 +88,7 @@ public class Main {
 				e.printStackTrace();
 			}
 
-			/** 3. RUNNING STANDBY FASTEST PATH and wait for Android to send STARTF... **/
+			/** 4. RUNNING STANDBY FASTEST PATH and wait for Android to send STARTF... **/
 			tStandbyRealFastestPath = new Thread(new StandbyRealFastestPath());
 			tStandbyRealFastestPath.start();
 
@@ -89,7 +98,7 @@ public class Main {
 				e.printStackTrace();
 			}
 
-			/** 4. SEND STRING TO SERIAL AND BLUETOOTH **/
+			/** 5. SEND STRING TO SERIAL AND BLUETOOTH **/
 			comms.sendFastestPath(fp.navigateSteps());
 		}
 
