@@ -65,6 +65,10 @@ public class Map {
 					for (int x = 0; x < maxX; x++) {
 						char type = s.next().charAt(0);
 						cells[y][x].setCellType(type);
+
+						/* Take note of waypoint */
+						if (type == Cell.WAYPOINT)
+							this.waypoint = new Coordinate(y, x);
 					}
 				}
 			}
