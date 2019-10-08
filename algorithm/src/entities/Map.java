@@ -13,6 +13,9 @@ public class Map {
 	public static final int maxX = 15;
 
 	private Cell cells[][];
+	private Coordinate startCoord;
+	private Coordinate goalCoord;
+	private Coordinate waypoint;
 
 	/**
 	 * Map constructor.
@@ -22,6 +25,9 @@ public class Map {
 	public Map() {
 		// Initialise cells
 		cells = new Cell[maxY][maxX];
+
+		startCoord = new Coordinate(1, 1);	// Always y:1, x:1
+		goalCoord = new Coordinate(18, 13);	// Always y:18, x:13
 
 		// Initialise each cell
 		for (int y = maxY - 1; y >= 0; y--) {
@@ -82,10 +88,36 @@ public class Map {
 	/**
 	 * Start coordinate is always set to (1, 1).
 	 * 
-	 * @return <tt>Coordinate</tt> of the start point.
+	 * @return <tt>Coordinate</tt> of the start position.
 	 */
 	public Coordinate getStartCoord() {
-		return new Coordinate(1, 1);
+		return this.startCoord;
+	}
+
+	/**
+	 * Goal coordinate is always set to (18, 13).
+	 * 
+	 * @return <tt>Coordinate</tt> of the goal position.
+	 */
+	public Coordinate getGoalCoord() {
+		return this.goalCoord;
+	}
+
+	/**
+	 * Set <tt>Coordinate</tt> of the waypoint.
+	 * 
+	 */
+	public void setWaypoint(Coordinate waypoint) {
+		this.waypoint = waypoint;
+	}
+
+	/**
+	 * Waypoint must be set first.
+	 * 
+	 * @return <tt>Coordinate</tt> of the waypoint.
+	 */
+	public Coordinate getWaypoint() {
+		return this.waypoint;
 	}
 
 	/**

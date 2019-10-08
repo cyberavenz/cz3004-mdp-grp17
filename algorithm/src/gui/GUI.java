@@ -57,7 +57,7 @@ public class GUI extends JFrame {
 
 		mapPanel.repaint();	// Repaint mapPanel to show updated Robot position
 
-		/* Also update Android tablet screen */
+		/* Every refresh on GUI should also refresh on Android tablet screen */
 		if (Main.isRealRun) {
 			Main.comms.send(TCPComm.BLUETOOTH, TCPComm.genMDFBluetooth(map, robot));
 		}
@@ -126,12 +126,11 @@ public class GUI extends JFrame {
 		}
 
 		/**
-		 * Override the getPreferredSize() of JPanel to always ensure that MapAndRobotJPanel has a dynamic
-		 * preferred size so that it maintains the original aspect ratio. In this case, it will return a
-		 * JPanel that is always sized with an aspect ratio of 3:4 (15 columns by 20 rows).
+		 * Override the getPreferredSize() of JPanel to always ensure that MapAndRobotJPanel has a dynamic preferred
+		 * size so that it maintains the original aspect ratio. In this case, it will return a JPanel that is always
+		 * sized with an aspect ratio of 3:4 (15 columns by 20 rows).
 		 * 
-		 * Referenced from:
-		 * https://stackoverflow.com/questions/21142686/making-a-robust-resizable-swing-chess-gui
+		 * Referenced from: https://stackoverflow.com/questions/21142686/making-a-robust-resizable-swing-chess-gui
 		 */
 		@Override
 		public final Dimension getPreferredSize() {
@@ -288,15 +287,15 @@ public class GUI extends JFrame {
 		ctrlPanel.add(new JLabel("=== Exploration ===", JLabel.CENTER));
 
 		if (Main.isRealRun) {
-			ctrlPanel.add(startRealExplore);
+//			ctrlPanel.add(startRealExplore);
 		} else {
 			ctrlPanel.add(explorePerStep);
 			ctrlPanel.add(exploreAll);
-		}
 
-		/* Fastest Path Section */
-		ctrlPanel.add(new JLabel("=== Fastest Path ===", JLabel.CENTER));
-		ctrlPanel.add(fastestPath);
+			/* Fastest Path Section */
+			ctrlPanel.add(new JLabel("=== Fastest Path ===", JLabel.CENTER));
+			ctrlPanel.add(fastestPath);
+		}
 
 		/* About Map */
 		ctrlPanel.add(new JLabel("=== About Map ===", JLabel.CENTER));
@@ -304,8 +303,8 @@ public class GUI extends JFrame {
 	}
 
 	/**
-	 * Paint <tt>Robot</tt> with provided Graphics <tt>g</tt> if <tt>actualY</tt> and <tt>actualX</tt>
-	 * matches <tt>robotFootprint</tt>.
+	 * Paint <tt>Robot</tt> with provided Graphics <tt>g</tt> if <tt>actualY</tt> and <tt>actualX</tt> matches
+	 * <tt>robotFootprint</tt>.
 	 * 
 	 * @param actualY
 	 * @param actualX
@@ -414,6 +413,8 @@ public class GUI extends JFrame {
 	 */
 	private Color cellColour(Cell cell) {
 		switch (cell.getCellType()) {
+		case Cell.WAYPOINT:
+			return new Color(127, 204, 196);
 		case Cell.FINAL_PATH:	// Prioritise showing FINAL_PATH
 			return Color.BLUE;
 		case Cell.START:
