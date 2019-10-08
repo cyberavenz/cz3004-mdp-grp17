@@ -108,6 +108,7 @@ public class Map {
 	 * 
 	 */
 	public void setWaypoint(Coordinate waypoint) {
+		this.cells[waypoint.getY()][waypoint.getX()].setCellType(Cell.WAYPOINT);
 		this.waypoint = waypoint;
 	}
 
