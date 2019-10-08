@@ -14,8 +14,8 @@ public class StandbyRealFastestPath implements Runnable {
 	private FastestPath fp = Main.fp;
 
 	/**
-	 * Standby <tt>Robot</tt> for the Fastest Path run. Assumes <tt>Robot</tt> is at start position (1,
-	 * 1) facing South.<br>
+	 * Standby <tt>Robot</tt> for the Fastest Path run. Assumes <tt>Robot</tt> is at start position (1, 1) facing
+	 * South.<br>
 	 * <ol>
 	 * <li>Run calibration</li>
 	 * <li>Rotate to direction of fastest path</li>
@@ -24,9 +24,15 @@ public class StandbyRealFastestPath implements Runnable {
 	@Override
 	public void run() {
 		System.out.println(":: " + getClass().getName() + " Thread Started ::");
+		ArrayList<Node> finalPath = new ArrayList<Node>();
 
-		this.fp = new FastestPath(Main.exploredMap, new Coordinate(1, 1), new Coordinate(18, 13));
-		ArrayList<Node> finalPath = fp.runAStar();
+		// Start to Waypoint
+		this.fp = new FastestPath(Main.exploredMap, Main.exploredMap.getStartCoord(), Main.exploredMap.getWaypoint());
+		finalPath.addAll(fp.runAStar());	// Append
+
+		// Waypoint to Goal
+		this.fp = new FastestPath(Main.exploredMap, Main.exploredMap.getWaypoint(), Main.exploredMap.getGoalCoord());
+		finalPath.addAll(fp.runAStar());	// Append
 
 		Main.exploredMap.finalPathReveal(finalPath);
 		Main.gui.refreshGUI(Main.robot, Main.exploredMap);
